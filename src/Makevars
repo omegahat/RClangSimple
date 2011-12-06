@@ -1,0 +1,2 @@
+PKG_CPPFLAGS=-I/Users/duncan/Projects/Rspeedup/llvm-devel/tools/clang/include/clang-c/
+PKG_LIBS=-L/Users/duncan/Projects/Rspeedup/llvm-devel/Debug+Asserts/lib  -lclang

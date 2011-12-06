@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<link rel="stylesheet" href="http://www.omegahat.org/OmegaTech.css">
+<title>RCIndex</title>
+</head>
+
+<body>
+<h1>The RCIndex Package</h1>
+<p align=right><a href="@TAR_FILE@">@TAR_FILE@</a> (@DATE@)</p>
+<p align=right><a href="philosophy.html">Manual</a></p>
+
+The RCIndex package is an interface to clang's C-level API.
+clang is a C/C++/Objective-C compiler that 
+is similar to gcc. We use clang in this package to parse C/C++/Objective-C
+code and get meta-information about that code.
+We can then use this, for example,
+<dl>
+  <dt>
+  <li> to generate registration information for
+native routines we can call from R
+  <dd>
+
+  <dt>
+  <li> generate bindings to be able to invoke
+      arbitrary C/C++ routines from R,
+      by either
+      <ul>
+	<li> generating C code for the wrapper routines and R functions,
+	<li> using <a href="../Rffi">Rffi</a> to invoke the routines
+          dynamically with no compiled bindings for specific routines.
+      </ul>
+      
+  <dd>
+
+  <dt>
+  <li> With more advanced bindings or bindings to clang's C++ API,
+      we expect to be able to semantic analysis of C/C++ code
+      so that we can obtain more information about the code
+      such as identifying memory management, refactoring,
+      identifying global variables and opportunities for
+      parallelization,  etc.
+  <dd>
+</dl>
+
+
+<h2>Documentation</h2>
+There are some tutorials written as I was developing
+the higher-level functions.
+<dl>
+
+  <dt>
+  <li> <a href="RClangSimple.html">low leve use of the parsing facilities</a>
+  <dd>
+
+  <dt>
+  <li> <a href="ffi.html">Generating bindings via <a href="../Rffi">Rffi</a></a>
+  <dd>
+      
+  <!--
+<dt>
+<li> <a href="FAQ.html">FAQ</a>
+<dd>
+-->
+
+
+<dt>
+<li> There is basic documentation for the classes, functions and
+    variables.
+    
+<dd>
+</dl>
+
+<h2>Installation</h2>
+At present, you have to specify the fully-qualified
+directories for the clang include/ and lib/ directories.
+The include directory should contain the file Index.h.
+The lib/ directoriy should  contain libclang.a or
+libclang.so or libclang.dylib.
+
+<p>
+You specify these directories by setting the
+environment variable
+CLANG_INC and CLANG_LIB respectively.
+
+<p>
+I installed clang  by following
+the instructions at
+<a
+href="http://clang.llvm.org/get_started.html">http://clang.llvm.org/get_started.html</a>.
+You will have to checkout both llvm and then clang.
+
+
+
+<h2>Other Approaches</h2>
+
+I have done this in several ways over the last 10 years.
+One approach was to embed lcc - the little C compiler -
+into R.
+Another is <a href="../RGCCTranslationUnit">RGCCTranslationUnit</a>
+which processes output from GCC.
+<p>
+In the future, we will probably interface to the C++ API
+provided by clang as it provides a great deal more
+information.
+
+
+<h2>License</h2>
+This is distributed under the GPL2 License.
+
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Thu Sep 16 12:27:24 PDT 2010
+<!-- hhmts end -->
+
+</body> </html>

@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+
+<r:code>
+library(RCIndex)
+col = genFunctionCollector()
+parseTU("../../src/ffiEg.c", col$update)
+funs = col$funcs()
+names(funs)
+</r:code>
+
+So now let's generate the CIF to invoke
+xfoo
+<r:code>
+xfoo = CIF(sint32Type, c(sint32Type, doubleType))
+</r:code>
+
+<r:code>
+callCIF(xfoo, "xfoo", 19, 4)
+callCIF(xfoo, "xfoo", 19, 5)
+</r:code>
+
+</para>
+<para>
+Now let's look at xbar.
+
+<r:code>
+ABC = structType(list(i = sint32Type, 
+                      d = doubleType))
+xbar = CIF(ABC)
+</r:code>
+<r:code>
+callCIF(xbar, "xbar")
+</r:code>
+
+</para>
+</section>
+<section>
+<title>Automating Rffi bindings</title>
+<para>
+Let's automate these bindings.
+We start by getting the functions in a
+source file via <r:func>getFunctions</r:func>.
+We could be smart and find the unique signatures
+and generate only CIFs for these and hence
+avoid making duplicate CIFs.
+But let's ignore this optimization for the moment.
+</para>
+
+<para>
+The key thing is to map from the CIndex data
+types to the libffi data types.
+
+
+
+<r:function><![CDATA[
+setGeneric("mapCIndexTypeToFFI", 
+            function(type, ...) 
+               standardGeneric("mapCIndexTypeToFFI"))
+
+setMethod("mapCIndexTypeToFFI", "CXCursor",
+           function(type, ...)
+             mapCIndexTypeToFFI(as(type, "CXType"), ...))
+
+setMethod("mapCIndexTypeToFFI", "CXType",
+           function(type, ...)
+{
+  map = list(sint32Type = CXType_Int,
+             doubleType = CXType_Double)
+
+  k = getTypeKind(type)
+  i = match(k, map)
+  if(!is.na(i)) {
+      get(names(map)[i])
+  } else {
+      if(k == CXType_Record) {
+        structType(lapply(getStructDef(type)))
+      } else
+         stop("Don't know how to handle this")
+  }
+})
+]]></r:function>
+
+
+
+
+<r:function><![CDATA[
+genCIF = 
+function(fun)
+{
+  retType = mapCIndexTypeToFFI(fun$returnType)
+  paramTypes = lapply(fun$params, mapCIndexTypeToFFI)
+  CIF(retType, paramTypes)
+}
+]]></r:function>
+</para>
+
+
+<para>
+
+<r:code>
+library(RCIndex)
+fns = getFunctions("src/ffiEg.c")
+xf = genCIF(fns$xfoo)
+</r:code>
+
+<r:code>
+callCIF(xf, "xfoo", 19, 5)  # answer is 1 = 19%6
+</r:code>
+</para>
+
+
+<para>
+Instead of just creating the CIF, we can create a function
+with the same name as the routine.
+
+<r:function><![CDATA[
+genCIFWrapper = 
+function(def, name = getName(def$def))
+{
+  cif = genCIF(def)
+  f = function(...) {   # want the actual parameter names
+      callCIF(cif, name, ...)
+  }
+  f
+}
+]]></r:function>
+
+Now we can invoke this to create our function
+
+<r:code>
+foo = genCIFWrapper(fns$xfoo)
+</r:code>
+
+and we can call the new function as
+<r:code>
+foo(19,4)
+</r:code>
+
+Similarly for xbar
+
+<r:code>
+xbar = genCIFWrapper(fns$xbar)
+xbar()
+</r:code>
+
+</para>
+
+
+
+</section>
+</article>

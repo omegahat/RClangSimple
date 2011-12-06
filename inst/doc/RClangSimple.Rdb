@@ -1,0 +1,266 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title>Introduction to <r:pkg>RCIndex</r:pkg></title>
+
+<para>
+This is an introduction to get people started with the
+<r:pkg>RCIndex</r:pkg> package.  The primary high-level function
+of interest is <r:func>parseTU</r:func>.  This takes the name of a C
+or C++ source file and parses it. It then "visits" the different
+elements in the parse tree.  The default is to display aspects of the
+elements to identify them for diagnostic purposes.  The value of the
+package comes from the fact that we can specify our own R function
+that is called as the parser visits each element.  The function we
+pass to <r:func>parseTU</r:func> is called for each of the elements of
+interest and can process them in whatever way it likes.  The function
+returns a value that indicates whether to go deeper down the parse
+tree or to traverse it a the same level, i.e.  the siblings of the
+current element, or whether to exit entirely.
+</para>
+
+<para>
+So let's first parse a sample C document.
+We'll use the one named enums.c in the 
+tests directory.
+
+<r:code>
+library(RCIndex)
+parseTU("../../tests/enums.c")
+</r:code>
+We are not interested in the return value of this call.
+Instead, we are interested in the activities of the
+<r:arg>visitor</r:arg> function.
+For each element in the translation unit,
+the function displays information about the 
+current "cursor" and the parent cursor.
+A cursor is a node in the parse tree.
+Here we see that we have a structure
+declaration (StructDecl) for
+variable argument object,
+along with some fields (gp_offset, fp_offset, ...)
+and a type definition for this structure (TypedefDecl)
+and so on.
+</para>
+<para>
+Note that the initial parent cursor is the
+translation unit for the file enums.c.
+</para>
+
+<para>
+Once we have finished with these variable argument
+structures and type definitions, we start processing
+the code in enums.c.
+We see the EnumDecl for Color and
+then the values for the enumeration via the
+EnumConstatDecl elements within EnumDecl parent.
+</para>
+<para>
+Next we see a FunctionDecl for getNextColor.
+Then we see the TypeRef for enum Color
+which is the return value.
+After this, we see some type definitions for
+Color and then the function getColor.
+Again we see the return type under this
+parent cursor and then the parameters.
+</para>
+<para>
+We then see the definition of the structure
+ABC and all of its fields and finally
+a function foobar.
+We see the parameter declarations.
+Note that there is no return type here.
+That is because it is available from
+the function object itself.
+The references to return types
+in the earlier functions were because they were
+not primitive types.
+Note also that we can obtain the types of 
+the parameters  from the cursor object itself.
+
+</para>
+<para>
+Not only do we get the declaration of a
+function, but we also get the body.
+We see the components of the 
+expression <![CDATA[x + y - sin(abc->d)]]>.
+We need to be able to find the arithmetic operations.
+</para>
+
+</section>
+<section>
+<title>Collecting Enumerations</title>
+<para>
+Let's write a visitor function that 
+reads the top-level enumeration declarations.
+We'll use a closure for this as we need to 
+collect information across calls to our visitor function.
+
+<r:function><![CDATA[
+genEnumCollector =
+function() {
+  enums = list()
+  curDef = integer()
+  curName = NA
+
+  reset = 
+    function() {
+       if(length(curDef)) {
+          if(is.na(curName))
+            curName = length(enums) + 1
+          enums[[curName]] <<- curDef
+       }
+       curDef <<- integer()
+       curName <<- NA
+    }
+
+doStop = FALSE
+  update = 
+   function(cur, parent)  {
+     kind = cur$kind
+
+     if(kind == CXCursor_EnumDecl) {
+        reset()
+        curName <<- getName(cur) # get the name for the enum.
+     } else if(kind == CXCursor_EnumConstantDecl) {
+if(getName(cur) == "BLUE") doStop <<- TRUE
+       curDef[getName( cur ) ] <<- length(curDef) #XX
+     } else if(doStop) {
+#cat(names(cur$kind), getName(cur), "\n")
+if(cur$kind == CXCursor_FirstExpr) print(getTypeKind(cur$type))
+#  doStop <<- FALSE
+#            browser()
+     }
+
+     2L
+  }
+  
+  list(update = update, enums = function() { reset(); enums})
+}
+]]></r:function>
+
+We can create a single collector object
+
+<r:code>
+col = genEnumCollector()
+</r:code>
+and then pass its update function to 
+<r:func>parseTU</r:func>
+
+
+<r:code>
+parseTU("tests/enums2.c", col$update)
+</r:code>
+This appears to do nothing. However, 
+we can then use the enums function
+within <r:var>col</r:var> to retrieve
+any enumerations in the translation unit:
+
+<r:code>
+col$enums()
+</r:code>
+</para>
+
+<para>
+<q>
+How do we get the actual value when it is different from the
+default counter?
+</q>
+</para>
+
+</section>
+<section>
+<title>Collecting Function Declarations</title>
+<para>
+Let's turn  our attention to collecting information about functions
+so we can call them from R.
+</para>
+<para>
+One can visit the entire translation unit and control
+whether this is done recursively or at the top-level.  However, one
+can also start the visiting process at any point in the tree.  So one
+could visit a translation unit at the top-level and within the visitor
+function call for a particular element, start another visiting
+iterator.  Alternatively, one can return a recursive visit instruction
+at one level for a particular node, e.g. based on its type and
+content, e.g. name.
+We'll use this approach here.
+In fact, we'll define a function named children
+to get the immediate child nodes of a cursor.
+So we will iterate over the top-level elements of the translation
+unit and  when we encounter a FunctionDecl, we will process it.
+
+
+<r:function><![CDATA[
+genFunctionCollector =
+function()
+{
+  funcs = list()
+
+  update = function(cur, parent) {
+     if(cur$kind != CXCursor_FunctionDecl)
+        return(1L)
+
+     id = getName(cur)
+     ret = getResultType(cur$type)
+
+     params = children(cur)
+     names(params) = sapply(params, getName)
+     funcs[[id]] <<- list(returnType = ret, params = params)
+     1L
+  }
+
+  list(update = update, funcs = function() funcs)
+}
+]]></r:function>
+
+</para>
+
+</section>
+
+
+
+
+<section>
+<title>Global Variables</title> 
+
+<para>
+Let's use the same approach to collect the global variables.
+
+<r:function><![CDATA[
+genVariableCollector =
+function()
+{
+  vars = list()
+
+  update = function(cur, parent) {
+     if(cur$kind != CXCursor_VarDecl)
+        return(1L)
+
+     id = getName(cur)
+     vars[[id]] <<- clone(cur)
+     1L
+  }
+
+  list(update = update, vars = function() vars)
+}
+]]></r:function>
+
+</para>
+
+
+</section>
+</article>

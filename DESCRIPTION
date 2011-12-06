@@ -1,0 +1,22 @@
+Package: RCIndex
+Version: 0.1-0
+Title: Interface to the clang parser's C API
+Author: Duncan Temple Lang
+SystemRequirements: clang 
+Maintainer: Duncan Temple Lang <duncan@wald.ucdavis.edu>
+Description: This package is currently an interface to some of the
+    functionality in the clang parsing facilities.
+    The idea is to be able to extract information from C and C++
+    source files and headers so that we can do semantic analysis
+    on the contents and use this information in various different
+    ways. One application is to be able to programmatically generate
+    bindings to arbitrary C/C++ routines.  The functionality here
+    is similar to the basic facilities in RGCCTranslationUnit.
+    We will probably develop a richer and more powerful interface 
+    using the C++ API that will give us access to all of the AST
+    classes.
+License: GPL2
+Depends: R (>= 2.7.0), methods
+URL: http://www.omegahat.org/RCIndex
+
+

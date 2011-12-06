@@ -1,0 +1,20 @@
+AC_INIT(src/clang.c)
+
+if test -z "$CLANG_INC" ; then
+ echo "****   for now, you must specify the directory containing the clang includes, e.g. .../clang/include"
+ echo "      e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/tools/clang/include/clang-c/"
+fi
+
+if test -z "$CLANG_LIB" ; then
+ echo "****    for now, you must specify the directory containing the clang libraries, e.g .../clang/lib"
+ echo "       e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/Debug+Asserts/lib"
+fi
+
+if test -z "$CLANG_LIB" || test -z "$CLANG_INC" ; then
+  exit 1
+fi
+
+AC_SUBST(CLANG_INC)
+AC_SUBST(CLANG_LIB)
+
+AC_OUTPUT(src/Makevars)
