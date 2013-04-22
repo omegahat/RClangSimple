@@ -1,0 +1,4 @@
+* need clang/include  and clang/include/clang-c
+ or perhaps we can change our includes to use clang-c/ 
+
+* CXTranslationUnit seems to be a pointer already.
