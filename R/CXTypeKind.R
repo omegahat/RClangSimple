@@ -1,7 +1,7 @@
 CXTypeKind =structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 
 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 23L, 24L, 
 25L, 26L, 27L, 28L, 29L, 2L, 29L, 100L, 101L, 102L, 103L, 104L, 
-105L, 106L, 107L, 108L, 109L, 110L, 111L), .Names = c("CXType_Invalid", 
+105L, 106L, 107L, 108L, 109L, 110L, 111L, 112L, 113L), .Names = c("CXType_Invalid", 
 "CXType_Unexposed", "CXType_Void", "CXType_Bool", "CXType_Char_U", 
 "CXType_UChar", "CXType_Char16", "CXType_Char32", "CXType_UShort", 
 "CXType_UInt", "CXType_ULong", "CXType_ULongLong", "CXType_UInt128", 
@@ -13,7 +13,8 @@ CXTypeKind =structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L,
 "CXType_Complex", "CXType_Pointer", "CXType_BlockPointer", "CXType_LValueReference", 
 "CXType_RValueReference", "CXType_Record", "CXType_Enum", "CXType_Typedef", 
 "CXType_ObjCInterface", "CXType_ObjCObjectPointer", "CXType_FunctionNoProto", 
-"CXType_FunctionProto"))
+"CXType_FunctionProto", "CXType_ConstantArray", "CXType_Vector"
+))
 
 
 
@@ -61,3 +62,5 @@ CXTypeKind =structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L,
  `CXType_ObjCObjectPointer` = 109
  `CXType_FunctionNoProto` = 110
  `CXType_FunctionProto` = 111
+ `CXType_ConstantArray` = 112
+ `CXType_Vector` = 113

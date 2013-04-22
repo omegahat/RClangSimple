@@ -2,7 +2,7 @@ AC_INIT(src/clang.c)
 
 if test -z "$CLANG_INC" ; then
  echo "****   for now, you must specify the directory containing the clang includes, e.g. .../clang/include"
- echo "      e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/tools/clang/include/clang-c/"
+ echo "      e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/tools/clang/include/"
 fi
 
 if test -z "$CLANG_LIB" ; then

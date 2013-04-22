@@ -1,6 +1,11 @@
+#if 0
 #include <Index.h>
+#else
+#include <clang-c/Index.h>
+#endif
 #include <Rdefines.h>
 #include <stdlib.h>
+
 
 SEXP R_makeCXCursor(CXCursor type);
 SEXP R_makeCXType(CXType type);
@@ -49,7 +54,7 @@ SEXP
 R_clang_createTUFromSource(SEXP r_idx, SEXP src, SEXP r_args)
 {
     int nargs = Rf_length(r_args);
-    CXTranslationUnit *ans;
+    CXTranslationUnit ans;
     CXIndex idx = GET_REF(r_idx, CXIndex);
 #if 1
     int i;
@@ -62,6 +67,10 @@ R_clang_createTUFromSource(SEXP r_idx, SEXP src, SEXP r_args)
 #endif
 
     ans = clang_createTranslationUnitFromSourceFile(idx, CHAR(STRING_ELT(src, 0)), nargs, args, 0, 0);
+    if(!ans) {
+	PROBLEM "can't create the translation unit for %s", CHAR(STRING_ELT(src, 0))
+	    ERROR;
+    }
 
     return(R_createRef(ans, "CXTranslationUnit"));
 }
@@ -79,7 +88,12 @@ R_CXCursor_explore(SEXP r_cur)
 {
     CXCursor *cursor = GET_REF(r_cur, CXCursor);
     if(cursor)
+#if 0
 	fprintf(stderr, "%d\n", (int )cursor->data[0]);
+#else
+        fprintf(stderr, "%d\n", (int )cursor->kind);
+#endif
+    return(R_makeCXCursor(*cursor));    
 }
 
 
@@ -124,7 +138,6 @@ R_visitor(CXCursor cursor, CXCursor parent, CXClientData userData)
 SEXP
 R_clang_visitChildren(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
 {
-    SEXP expr;
     unsigned ans;
 
     CXCursor *cursor = GET_REF(r_tu, CXCursor);
@@ -145,7 +158,12 @@ R_clang_visitChildren(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
 SEXP
 R_clang_getTranslationUnitCursor(SEXP r_tu)
 {
+#if 0
     CXTranslationUnit *tu = GET_REF(r_tu, CXTranslationUnit);
+#else
+    CXTranslationUnit tu = (CXTranslationUnit) getRReference(r_tu);
+#endif
+
     CXCursor cursor = clang_getTranslationUnitCursor(tu);
     return(R_makeCXCursor(cursor));
 }
@@ -242,11 +260,30 @@ R_clang_getCursorSpelling(SEXP r_cursor)
 {
     CXCursor *cur =  GET_REF(r_cursor, CXCursor);
     CXString str = clang_getCursorSpelling(*cur);
+#if 0
     SEXP ans = ScalarString(mkChar(str.Spelling));
     if(str.MustFreeString)
 	clang_disposeString(str);
+#else
+    SEXP ans = ScalarString(mkChar(clang_getCString(str)));
+#endif
     return(ans);
 }
+
+SEXP 
+CXStringToSEXP(CXString str)
+{
+#if 0
+   SEXP ans = ScalarString(mkChar(str.Spelling));
+   if(str.MustFreeString)
+	clang_disposeString(str);
+#else
+    SEXP ans = ScalarString(mkChar(clang_getCString(str)));
+#endif
+   return(ans);
+}
+
+
 
 SEXP
 R_makeCXType(CXType type)
@@ -264,21 +301,13 @@ R_clang_getCursorType(SEXP r_cursor)
     return(R_makeCXType(type));
 }
 
-SEXP 
-CXStringToSEXP(CXString str)
-{
-   SEXP ans = ScalarString(mkChar(str.Spelling));
-   if(str.MustFreeString)
-	clang_disposeString(str);
-   return(ans);
-}
 
 SEXP
 R_clang_getTypeKind(SEXP r_type)
 {
     CXType *type = GET_REF(r_type, CXType);
     SEXP ans;
-    CXString str;
+//    CXString str;
     PROTECT(ans = ScalarInteger(type->kind));
     SET_NAMES(ans, CXStringToSEXP(clang_getTypeKindSpelling(type->kind)));
     UNPROTECT(1);

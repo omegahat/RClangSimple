@@ -39,7 +39,7 @@ tests directory.
 
 <r:code>
 library(RCIndex)
-parseTU("../../tests/enums.c")
+parseTU("../exampleCode/enums.c")
 </r:code>
 We are not interested in the return value of this call.
 Instead, we are interested in the activities of the

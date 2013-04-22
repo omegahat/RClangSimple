@@ -29,7 +29,7 @@ setMethod("$", "CXCursor",
                 # .Call("R_clang_CXCursor_getData", x)               
            })
 
-setClass("Enum", contains = "integer")
+setClass("Enum", representation(names = "character"), contains = "integer")
 setClass("CXCursorKind", contains = "Enum")
 setClass("CX_CXXAccessSpecifier", contains = "Enum")
 setClass("CXLinkageKind", contains = "Enum")

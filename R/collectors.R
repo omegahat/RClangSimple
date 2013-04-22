@@ -42,7 +42,11 @@ setAs("CXType", "character",
           if(getTypeKind(ty) == CXType_Pointer)
               return(sprintf("%s *", as(getPointeeType(ty), "character")))
 
-          getName(getTypeDecl(ty))
+          decl = getTypeDecl(ty)
+          if(decl$kind == CXCursor_NoDeclFound || getTypeKind(decl) == CXType_Invalid)
+            names(getTypeKind(ty))
+          else
+            getName(decl)
        })
 
 setMethod("show", "FunctionDecl",

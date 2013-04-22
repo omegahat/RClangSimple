@@ -1,4 +1,28 @@
 <items>
+<item>
+Getting the name of a type doesn't seem to be working anymore.
+See tests/fib.R.
+Is this  just for basic types?
+<r:code>
+ getTypeKind(fib$returnType) == CXType_Int
+</r:code>
+</item>
+
+<item>
+Add finalizers, e.g. disposeTranslationUnit
+Have to worry about holding elements belonging to it, e.g. cursors.
+</item>
+
+<item>
+If we can't create the TU, get an error message.
+The -Xclang doesn't work anymore.
+</item>
+
+<item>
+If the visitor function  doesn't return an integer,
+do it for them.
+Can try to coerce, but probably not a great idea.
+</item>
 
 <item>
 Enumeration values when not default

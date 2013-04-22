@@ -1,7 +1,11 @@
 library(RGCCTranslationUnit)
 tu = parseTU("cindex.c.001t.tu")
 enums = getEnumerations(tu)
-
+r.enums = resolveType(enums, tu)
+if(FALSE) {
+writeEnum("CXCursorKind", "../../R/cursorKind.R", enums = enums)
+writeEnum("CXTypeKind", "../../R/CXTypeKind.R", enums = enums)
+}
 
 writeEnum =
 function(id, filename = sprintf("%s.R", id), tu = NULL, def = enums[[id]], enums = getEnumerations(tu))

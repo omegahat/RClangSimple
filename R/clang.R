@@ -6,7 +6,7 @@ function(excludeFromPCH = FALSE, verbose = TRUE)
 }
 
 createTU =
-function(src, idx = createIndex(), args = "-Xclang")
+function(src, idx = createIndex(), args = character()) #XXX was "-Xclang")
 {
   src = path.expand(src)
   .Call("R_clang_createTUFromSource", idx, as.character(src), args)
