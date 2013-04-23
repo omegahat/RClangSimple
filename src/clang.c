@@ -1,9 +1,4 @@
-#if 0
-#include <Index.h>
-#else
-#include <clang-c/Index.h>
-#endif
-#include <Rdefines.h>
+#include "RClang.h"
 #include <stdlib.h>
 
 
@@ -131,7 +126,13 @@ R_visitor(CXCursor cursor, CXCursor parent, CXClientData userData)
 
     ans = Rf_eval(d->expr, R_GlobalEnv);
 
-    return(asInteger(ans));
+    if(TYPEOF(ans) == LGLSXP))
+      return(LOGICAL(ans)[0] : CXChildVisit_Recurse: CXChildVisit_Break);
+
+    if(TYPEOF(ans) == REALSXP || TYPEOF(ans) == INTSXP) 
+	return(asInteger(ans));
+
+    return(CXChildVisit_Recurse);
 }
 
 
@@ -278,7 +279,8 @@ CXStringToSEXP(CXString str)
    if(str.MustFreeString)
 	clang_disposeString(str);
 #else
-    SEXP ans = ScalarString(mkChar(clang_getCString(str)));
+   const char * const tmp = clang_getCString(str);
+   SEXP ans = ScalarString(mkChar(tmp ? tmp : ""));
 #endif
    return(ans);
 }

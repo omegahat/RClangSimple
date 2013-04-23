@@ -1,0 +1,13 @@
+<faq>
+<q>
+<p>What does my visitor function have to return?
+<a>It  should return a value of class CXChildVisit.
+This is an enumeration. 
+It allows to terminate the traversal, traverse across the siblings and skip
+the childre, or to traverse the children recursively.
+Instead of a value of this enumeration type, you can return a logical value.
+If this is <r:true/>, we continue recursively. If this is <r:false/>, we end the traversal.
+If the function returns anything other than a logical, integer or numeric, 
+we just asume CXChildVisit_Recurse and so continue to traverse the children recursively.
+</a></a></q>
+</faq>

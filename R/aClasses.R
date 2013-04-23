@@ -1,4 +1,5 @@
-setClass("ExternalReference", representation(ref = "externalptr"))
+# From RAutoGenRunTime: setClass("RC++Reference", representation(ref = "externalptr"))
+setClass("ExternalReference", contains = "RC++Reference")
 
 setClass("CXCursor", contains = "ExternalReference")
 setClass("CXIndex", contains = "ExternalReference")

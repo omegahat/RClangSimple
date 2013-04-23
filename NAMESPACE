@@ -1,3 +1,5 @@
+import(RAutoGenRunTime)
+
 useDynLib(RCIndex)
 #exportPattern(".*")
 export(

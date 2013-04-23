@@ -111,7 +111,7 @@ doStop = FALSE
         reset()
         curName <<- getName(cur) # get the name for the enum.
      } else if(kind == CXCursor_EnumConstantDecl) {
-if(getName(cur) == "BLUE") doStop <<- TRUE
+#if(getName(cur) == "BLUE") doStop <<- TRUE
        curDef[getName( cur ) ] <<- length(curDef) #XX
      } else if(doStop) {
 
@@ -175,7 +175,7 @@ function(targetFile = character())
 
       if(!inDef && length(curDef))
          end()
-      
+p      
       return(r)
     }
    

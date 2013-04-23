@@ -1,4 +1,25 @@
 <items>
+
+<item>
+Turn on USE_S4_ENUMS in src/Makevars.in
+</item>
+
+
+<item>
+getType function 
+<br/>
+Just as(x, "CXType")
+</item>
+
+<item>
+Fill in the other routines of the API using RGCCTU.
+Resolve the existing code with the CXTypePtr, etc.
+Either tell RGCCTU what name to use, or change the existing code!
+</item>
+
+<item>
+Function to read a header file. Ideally w/o writing a .c file.
+</item>
 <item>
 Getting the name of a type doesn't seem to be working anymore.
 See tests/fib.R.
@@ -18,7 +39,7 @@ If we can't create the TU, get an error message.
 The -Xclang doesn't work anymore.
 </item>
 
-<item>
+<item status="done">
 If the visitor function  doesn't return an integer,
 do it for them.
 Can try to coerce, but probably not a great idea.
