@@ -126,8 +126,8 @@ R_visitor(CXCursor cursor, CXCursor parent, CXClientData userData)
 
     ans = Rf_eval(d->expr, R_GlobalEnv);
 
-    if(TYPEOF(ans) == LGLSXP))
-      return(LOGICAL(ans)[0] : CXChildVisit_Recurse: CXChildVisit_Break);
+    if(TYPEOF(ans) == LGLSXP)
+      return(LOGICAL(ans)[0] ? CXChildVisit_Recurse: CXChildVisit_Break);
 
     if(TYPEOF(ans) == REALSXP || TYPEOF(ans) == INTSXP) 
 	return(asInteger(ans));

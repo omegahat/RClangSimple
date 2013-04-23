@@ -1,2 +1,0 @@
-PKG_CPPFLAGS=-I/Users/duncan/llvm-devel/tools/clang/include
-PKG_LIBS=-L/Users/duncan/llvm-devel//build/Debug+Asserts/lib  -lclang
