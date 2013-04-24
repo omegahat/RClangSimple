@@ -1,5 +1,5 @@
 Package: RCIndex
-Version: 0.1-0
+Version: 0.2-0
 Title: Interface to the clang parser's C API
 Author: Duncan Temple Lang
 SystemRequirements: clang 
@@ -13,8 +13,18 @@ Description: This package is currently an interface to some of the
     bindings to arbitrary C/C++ routines.  The functionality here
     is similar to the basic facilities in RGCCTranslationUnit.
     We will probably develop a richer and more powerful interface 
-    using the C++ API that will give us access to all of the AST
+    using the C++ API that will give us access to more features of the AST
     classes.
+    We can analyze not only the declarations but the body of the code 
+    of C routines.  This allows us to analyze routines in existing C 
+    libraries and determine information such as what inputs they mutate,
+    how memory management is done, how to interface R data types to them.
+    This is far from trivial, but feasible. 
+    We can also use this to analyze routines and find global variables
+    suggeest and/or implement refactoring to remove these and 
+    permit parallel execution.
+    We can, in the extreme, recover simple C routines into higher
+    level instructions and then try to parallelize them in R.
 License: GPL2
 Depends: R (>= 2.7.0), methods
 URL: http://www.omegahat.org/RCIndex

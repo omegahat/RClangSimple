@@ -3,9 +3,19 @@ setClass("ExternalReference", contains = "RC++Reference")
 setClass("ClangReference", contains = "ExternalReference")
 
 setClass("CXCursor", contains = "ExternalReference")
+setClass("CXModule", contains = "ExternalReference")
 setClass("CXIndex", contains = "ExternalReference")
 setClass("CXTranslationUnit", contains = "ExternalReference")
 setClass("CXType", contains = "ExternalReference")
+
+
+# Perhaps use a reference class for this.
+setClass("Collector", representation(update = "function", results = "function"))
+
+setGeneric("getResults",    function(x, ...)  standardGeneric("getResults"))
+setMethod("getResults", "Collector",
+            function(x, ...)
+               x@results(...))
 
 
 
@@ -22,7 +32,6 @@ setMethod("$", "CXCursor",
                 asEnum(val, CXLinkageKind, "CXLinkageKind")
              } else if(name == "type") {
                 .Call("R_clang_getCursorType", x)
-           #     asEnum(val, CXTypeKind, "CXType")
              } else if(name == "cxxSpecifier") {
                 val = .Call("R_clang_CXCursor_getCursorCXXAccessSpecifier", x)
                 asEnum(val, CX_CXXAccessSpecifier, "CX_CXXAccessSpecifier")

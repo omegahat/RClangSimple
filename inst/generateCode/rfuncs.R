@@ -4,6 +4,9 @@ function(fun, name = getName(fun), argNames = names(fun$params),
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
           typeMap = NULL)
 {
+   if(any(w <- (argNames == ""))) 
+      argNames[w] = sprintf("arg%d", which(w))
+  
    coercedArgs = makeCoercedArgs(fun$params, argNames)
    call = c(sprintf(".Call('%s'",  nativeProxyName),
              if(length(fun$params)) ", ", 

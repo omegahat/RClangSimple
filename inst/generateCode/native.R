@@ -2,6 +2,9 @@ createNativeProxy =
 function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL)
 {
    argNames = names(fun$params)
+   if(any(w <- (argNames == ""))) 
+      argNames[w] = sprintf("arg%d", which(w))
+
    rargNames = sprintf("r_%s", argNames)
 
    call = sprintf("%s(%s);", getName(fun), paste(argNames, collapse = ", "))
@@ -9,7 +12,7 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL)
    code = c(sprintf("SEXP %s(%s)", name, paste("SEXP", rargNames, collapse = ", ")),
             "{",
              "SEXP r_ans = R_NilValue;",
-             makeLocalVars(fun$params, rargNames),
+             makeLocalVars(fun$params, rargNames, argNames),
              "",
              if(getTypeKind(fun$returnType) != CXType_Void)
                 c(paste(getName(fun$returnType), "ans;"), paste("ans =", call))
@@ -62,6 +65,10 @@ function(type, var, name = getName(type), typeMap = NULL)
       sprintf("R_copyStruct_%s(%s)", name, var)
    } else if(k == CXType_Typedef) {
       convertValueToR(getCanonicalType(type), var, getName(type))
+   } else if(k == CXType_Enum) {
+     sprintf("Renum_convert_%s(%s)", gsub("^enum ", "", name), var)
+   } else if(k == CXType_Pointer) {
+      sprintf('R_createRef(%s, "%s")', var, name)
    } else
       browser()
 }
@@ -69,9 +76,9 @@ function(type, var, name = getName(type), typeMap = NULL)
 
 makeLocalVars =
   # Define and initialize
-function(params, rNames)
+function(params, rNames, argNames = names(params))
 {
-  mapply(makeLocalVar, params, rNames, names(params))
+  mapply(makeLocalVar, params, rNames, argNames)
 }
 
 makeLocalVar =

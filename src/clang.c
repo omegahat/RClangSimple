@@ -55,7 +55,7 @@ R_clang_createTUFromSource(SEXP r_idx, SEXP src, SEXP r_args)
     int i;
     const char * *args = (const char * *) malloc(nargs * sizeof(char *));
     for(i = 0; i < nargs; i++) 
-	args[i] = CHAR(STRING_ELT(r_args, 0));
+	args[i] = CHAR(STRING_ELT(r_args, i));
 #else
     const char * const args[] = { "-Xclang" };  // , "-include-pch=IndexTest.pch"
     nargs = 1;
@@ -255,6 +255,13 @@ R_clang_CXCursor_getCursorCXXAccessSpecifier(SEXP r_cursor)
     return(ScalarInteger(clang_getCXXAccessSpecifier(*cur)));
 }
 
+SEXP
+R_clang_getCursorDisplayName(SEXP r_cursor)
+{
+    CXCursor *cur =  GET_REF(r_cursor, CXCursor);
+    CXString str = clang_getCursorDisplayName(*cur);
+    return(ScalarString(mkChar(clang_getCString(str))));    
+}
 
 SEXP
 R_clang_getCursorSpelling(SEXP r_cursor)
@@ -442,6 +449,30 @@ R_clang_getFile(SEXP r_cursor)
     return(CXStringToSEXP(ans));
 }
 
+SEXP
+R_getCursorTokens(SEXP r_cursor)
+{
+    CXCursor *cursor = GET_REF(r_cursor, CXCursor);
+    /* borrowed from http://lists.cs.uiuc.edu/pipermail/cfe-dev/2012-June/022601.html */
+    CXSourceRange range = clang_getCursorExtent(*cursor);
+
+    CXTranslationUnit TU = clang_Cursor_getTranslationUnit(*cursor);
+
+    CXToken *tokens = 0;
+    unsigned int nTokens = 0;
+    SEXP ans;
+    clang_tokenize(TU, range, &tokens, &nTokens);
+    PROTECT(ans = NEW_CHARACTER(nTokens));
+    for (unsigned int i = 0; i < nTokens; i++)  {
+	CXString spelling = clang_getTokenSpelling(TU, tokens[i]);
+	SET_STRING_ELT(ans, i, mkChar(clang_getCString(spelling)));
+	clang_disposeString(spelling);
+    }
+    clang_disposeTokens(TU, tokens, nTokens);
+    UNPROTECT(1);
+    return(ans);
+}
+
 
 
 /** Programmatically generated via basics.R **************/
@@ -459,3 +490,163 @@ SEXP R_clang_Type_getSizeOf(SEXP r_T)
 }
 
 
+SEXP R_clang_getArraySize(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+
+    long long ans;
+    ans = clang_getArraySize(T);
+
+    r_ans = ScalarReal(ans) ;
+
+    return(r_ans);
+}
+
+SEXP R_clang_getNumElements(SEXP r_T)
+{
+SEXP r_ans = R_NilValue;
+CXType T = * GET_REF(r_T, CXType);
+
+long long ans;
+ans = clang_getNumElements(T);
+
+r_ans = ScalarReal(ans) ;
+
+return(r_ans);
+}
+
+
+SEXP R_clang_getArrayElementType(SEXP r_T)
+{
+SEXP r_ans = R_NilValue;
+CXType T = * GET_REF(r_T, CXType);
+
+CXType ans;
+ans = clang_getArrayElementType(T);
+
+r_ans = R_makeCXType(ans) ;
+
+return(r_ans);
+}
+
+SEXP R_clang_hashCursor(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor arg1 = * GET_REF(r_arg1, CXCursor);
+
+    unsigned int ans;
+    ans = clang_hashCursor(arg1);
+
+    r_ans = ScalarReal(ans) ;
+
+    return(r_ans);
+}
+
+
+SEXP R_clang_CXXMethod_isStatic(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+unsigned int ans;
+ans = clang_CXXMethod_isStatic(C);
+
+r_ans = ScalarReal(ans) ;
+
+return(r_ans);
+}
+
+SEXP R_clang_CXXMethod_isVirtual(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+unsigned int ans;
+ans = clang_CXXMethod_isVirtual(C);
+
+r_ans = ScalarReal(ans) ;
+
+return(r_ans);
+}
+
+SEXP R_clang_getTokenKind(SEXP r_arg1)
+{
+SEXP r_ans = R_NilValue;
+CXToken arg1 = * GET_REF(r_arg1, CXToken);
+
+CXTokenKind ans;
+ans = clang_getTokenKind(arg1);
+
+r_ans = Renum_convert_CXTokenKind(ans) ;
+
+return(r_ans);
+}
+
+
+SEXP R_clang_Cursor_getModule(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+CXModule ans;
+ans = clang_Cursor_getModule(C);
+
+r_ans = R_createRef(ans, "CXModule") ;
+
+return(r_ans);
+}
+
+SEXP R_clang_Cursor_isDynamicCall(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+int ans;
+ans = clang_Cursor_isDynamicCall(C);
+
+r_ans = ScalarInteger(ans) ;
+
+return(r_ans);
+}
+
+
+SEXP R_clang_isCursorDefinition(SEXP r_arg1)
+{
+SEXP r_ans = R_NilValue;
+CXCursor arg1 = * GET_REF(r_arg1, CXCursor);
+
+unsigned int ans;
+ans = clang_isCursorDefinition(arg1);
+
+r_ans = ScalarReal(ans) ;
+
+return(r_ans);
+}
+
+SEXP R_clang_getCanonicalCursor(SEXP r_arg1)
+{
+SEXP r_ans = R_NilValue;
+CXCursor arg1 = * GET_REF(r_arg1, CXCursor);
+
+CXCursor ans;
+ans = clang_getCanonicalCursor(arg1);
+
+r_ans = R_makeCXCursor(ans) ;
+
+return(r_ans);
+}
+
+
+SEXP R_clang_getNumOverloadedDecls(SEXP r_cursor)
+{
+SEXP r_ans = R_NilValue;
+CXCursor cursor = * GET_REF(r_cursor, CXCursor);
+
+unsigned int ans;
+ans = clang_getNumOverloadedDecls(cursor);
+
+r_ans = ScalarReal(ans) ;
+
+return(r_ans);
+}

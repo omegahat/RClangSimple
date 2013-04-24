@@ -83,35 +83,45 @@ function()
 }
 
 
+getEnums =
+function(src)
+{
+  e = genEnumCollector()
+  visitTU(as(src, "TU"), e)
+  e$enums()
+}
 
 
 genEnumCollector =
 function() {
   enums = list()
   curDef = integer()
+  type = NULL
   curName = NA
 
-  reset = 
+  flush = 
     function() {
        if(length(curDef)) {
           if(is.na(curName))
             curName = length(enums) + 1
-          enums[[curName]] <<- curDef
+          enums[[curName]] <<- new("EnumerationDefinition", values = curDef, type = type, name = curName)
        }
        curDef <<- integer()
        curName <<- NA
+       type <<- NULL
     }
 
-doStop = FALSE
+  doStop = FALSE
+  
   update = 
    function(cur, parent)  {
      kind = cur$kind
 
      if(kind == CXCursor_EnumDecl) {
-        reset()
+        flush()
         curName <<- getName(cur) # get the name for the enum.
+        type <<- getType(cur)
      } else if(kind == CXCursor_EnumConstantDecl) {
-#if(getName(cur) == "BLUE") doStop <<- TRUE
        curDef[getName( cur ) ] <<- length(curDef) #XX
      } else if(doStop) {
 
@@ -124,12 +134,13 @@ doStop = FALSE
      2L
   }
   
-  list(update = update, enums = function() { reset(); enums})
+  list(update = update, enums = function() { flush(); enums})
 }
 
 
 
 genTypeCollector =
+  # reconcile with data structure collector
   # the recursive approach
 function(targetFile = character())
 {
@@ -175,11 +186,31 @@ function(targetFile = character())
 
       if(!inDef && length(curDef))
          end()
-p      
-      return(r)
+
+      r
     }
    
    list(update = update, defs = function() defs)
+}
+
+
+
+
+genCallCollector =
+  #
+  # Collect the names of the routines involved in calls
+  #  in the code.
+  # This does not collect function pointers, similar to the f in lapply(x, f).
+  #
+function() {
+    calls = character()
+    list(update = function(cur, parent) {
+                    if(cur$kind == CXCursor_CallExpr)
+                      calls <<- c(calls, getName(cur))
+                  },
+         calls = function() calls,
+         reset = function() calls <<- characters()
+       )
 }
 
 
@@ -202,3 +233,24 @@ function()
 }
 
 
+genDataStructCollector =
+function()
+{
+   dataStructs = list()
+
+   update = function(cur, parent) {
+
+     k = cur$kind
+     if(k %in% c(CXCursor_UnionDecl, CXCursor_StructDecl, CXCursor_EnumDecl, CXCursor_TypedefDecl)) {
+         i = length(dataStructs) + 1L
+         dataStructs[[i]] <<- cur
+         names(dataStructs)[i] <<- getName(cur)
+     }
+
+     TRUE
+   }
+
+   results = function() dataStructs
+   
+   new("Collector", update = update, results = results)
+}

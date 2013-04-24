@@ -56,10 +56,10 @@ function(top, types = integer())
 
 
 getFunctions =
-function(src)
+function(src, ...)
 {
   col = genFunctionCollector()
-  parseTU(src, col$update, clone = TRUE)
+  parseTU(src, col$update, clone = TRUE, ...)
   w = sapply(col$funcs(), function(x) getFileName(x$def))
   col$funcs()[w == src]
 }

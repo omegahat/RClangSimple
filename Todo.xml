@@ -1,12 +1,21 @@
 <items>
 
 <item>
+make collectors ReferenceClasses
+</item>
+
+<item>
 Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
 </item>
 
 <item>
 Borrow the CRoutine and RFunction classes from RGCCTU and code for pretty printing
 code.
+</item>
+
+<item>
+Generate code for clang_getInclusions.
+Function pointer and data.
 </item>
 
 

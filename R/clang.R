@@ -39,7 +39,10 @@ setGeneric("getName",
               standardGeneric("getName"))
 
 setMethod("getName", "CXCursor",
-           function(x, ...)
+           function(x, display = FALSE, ...)
+             if(display)
+               .Call("R_clang_getCursorDisplayName", x)
+             else
                .Call("R_clang_getCursorSpelling", x))
 
 setMethod("getName", "CXType",
@@ -63,4 +66,5 @@ setMethod("getFileName", "CXCursor",
 clangVersion =
 function()
   .Call("R_clang_getClangVersion")
+
 

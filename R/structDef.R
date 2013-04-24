@@ -8,3 +8,13 @@ function(type, kids = children(tp))
   names(fields) = lapply(kids, getName)
   structure(list(name = id, fields = fields, def = tp))
 }
+
+
+
+getDataStructures =
+function(src, collector = genDataStructCollector())
+{
+   visitTU(as(src, "TU"), collector$update)
+   getResults(collector)
+}
+

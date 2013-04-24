@@ -187,8 +187,12 @@ visitTU)
 export(createRegistrationCode)
 export(genEnumCollector)
 export(getFunctions)
+export(genCallCollector)
 
-#export(genTypeCollector)
+export(getDataStructures)
+
+export(genTypeCollector)
+export(genDataStructCollector)
 export(getStructDef)
 
 export(visitCursor)
@@ -198,5 +202,25 @@ export(getType)
 
 S3method(print, FunctionDecl)
 
+
+
+exportPattern("^CXCursor_.*")
+
+
+export(getNumElements, getArraySize, getArrayElementType, getSizeOf, hashCursor)
+
+export(CXXMethod_isVirtual, CXXMethod_isStatic)
+
+export(getTokenKind)
+
+
+export(getPointerDepth, getPointerInfo)
+
+export(getModule)
+
+export(getCanonicalCursor, isCursorDefinition, isDynamicCall)
+
+export(getNumOverloadedDecls)
+exportClass("EnumerationDefinition")
 
 
