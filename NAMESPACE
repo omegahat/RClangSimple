@@ -193,3 +193,10 @@ export(getStructDef)
 
 export(visitCursor)
 
+exportMethods(show)
+export(getType)
+
+S3method(print, FunctionDecl)
+
+
+

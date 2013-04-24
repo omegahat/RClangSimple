@@ -316,6 +316,16 @@ R_clang_getTypeKind(SEXP r_type)
     return(ans);
 }
 
+SEXP
+R_clang_getTypeSpelling(SEXP r_type)
+{
+    CXType *type = GET_REF(r_type, CXType);
+    CXString str;
+    str = clang_getTypeSpelling(*type);
+    return(mkString(clang_getCString(str)));
+}
+
+
 
 SEXP
 R_clang_getCanonicalType(SEXP r_type)
@@ -330,6 +340,8 @@ R_clang_getPointeeType(SEXP r_type)
     CXType *type = GET_REF(r_type, CXType);
     return(R_makeCXType(clang_getPointeeType(*type)));
 }
+
+
 
 SEXP
 R_clang_getTypeDeclaration(SEXP r_type)
@@ -429,3 +441,21 @@ R_clang_getFile(SEXP r_cursor)
     ans = clang_getFileName(file);
     return(CXStringToSEXP(ans));
 }
+
+
+
+/** Programmatically generated via basics.R **************/
+SEXP R_clang_Type_getSizeOf(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+
+    long long ans;
+    ans = clang_Type_getSizeOf(T);
+
+    r_ans = ScalarReal(ans) ;
+
+    return(r_ans);
+}
+
+

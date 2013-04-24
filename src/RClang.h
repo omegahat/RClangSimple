@@ -12,6 +12,7 @@
 SEXP CXStringToSEXP(CXString str);
 
 #include "enumDecls.h"
+#include "structDecls.h"
 
 
 

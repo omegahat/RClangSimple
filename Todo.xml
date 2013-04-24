@@ -1,6 +1,16 @@
 <items>
 
 <item>
+Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
+</item>
+
+<item>
+Borrow the CRoutine and RFunction classes from RGCCTU and code for pretty printing
+code.
+</item>
+
+
+<item>
 Turn on USE_S4_ENUMS in src/Makevars.in
 </item>
 

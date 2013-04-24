@@ -42,6 +42,13 @@ setMethod("getName", "CXCursor",
            function(x, ...)
                .Call("R_clang_getCursorSpelling", x))
 
+setMethod("getName", "CXType",
+           function(x, ...)
+               .Call("R_clang_getTypeSpelling", x))
+
+setMethod("getName", "FunctionDecl",
+           function(x, ...)
+             getName(x$def))
 
 
 setGeneric("getFileName",
