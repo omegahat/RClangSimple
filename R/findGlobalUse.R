@@ -3,6 +3,11 @@ globalUseVisitor =
   #  o = findGlobalUse("inst/exampleCode/globalUse.c")
   #
   #
+  #
+  #  tu = createTU("/Users/duncan/Projects/R-3.0-dev/src/main/envir.c",
+  #                  includes = c("/Users/duncan/Projects/R-3.0-dev/build/include", "/Users/duncan/Projects/R-3.0-dev/src/include"))
+  #  g = findGlobalUse(tu)
+  #
   # returns an element for each function with any global variables
   #  with a count for the number of references to each global variable
   #  referenced in that function.
@@ -49,8 +54,3 @@ function(tu, visitor = globalUseVisitor())
     stop("problem with TU")
 }
 
-findEnclosingFunction =
-function()
-{
-
-}

@@ -9,7 +9,7 @@ function(cur, parent)
 
 parseTU =
 function(src, visitor = simpleVisitor,  idx = createIndex(),
-           tu = createTU(src, idx, ...), ..., clone = FALSE)
+           tu = createTU(src, idx = idx, ...), ..., clone = FALSE)
 {
    if(is.null(visitor))
      return(tu)
@@ -55,8 +55,8 @@ function(top, types = integer())
 }
 
 
-getFunctions =
-function(src, col = genFunctionCollector(), ...)
+getFunctions = getRoutines = 
+function(src, filenames = character(), col = genFunctionCollector(filenames), ...)
 {
   if(is(src, "CXTranslationUnit")) {
     visitTU(src, col$update, clone = TRUE)

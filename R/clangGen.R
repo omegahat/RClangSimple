@@ -424,3 +424,59 @@ function( arg1  )
 {
 .Call('R_clang_getCursorReferenced', as(arg1, 'CXCursor'))
 }
+
+
+getDiagnosticSetFromTU <-
+function( Unit  )
+{
+.Call('R_clang_getDiagnosticSetFromTU', as(Unit, 'CXTranslationUnit'))
+}
+
+
+getDiagnostic <-
+function( Unit , Index  )
+{
+.Call('R_clang_getDiagnostic', as(Unit, 'CXTranslationUnit'), as(Index, 'numeric'))
+}
+
+
+getNumDiagnostics <-
+function( Unit  )
+{
+.Call('R_clang_getNumDiagnostics', as(Unit, 'CXTranslationUnit'))
+}
+
+
+defaultDiagnosticDisplayOptions <-
+function(  )
+{
+.Call('R_clang_defaultDiagnosticDisplayOptions')
+}
+
+
+getDiagnosticSpelling <-
+function( arg1  )
+{
+.Call('R_clang_getDiagnosticSpelling', as(arg1, 'CXDiagnostic'))
+}
+
+
+getDiagnosticLocation <-
+function( arg1  )
+{
+.Call('R_clang_getDiagnosticLocation', as(arg1, 'CXDiagnostic'))
+}
+
+
+getDiagnosticSeverity <-
+function( arg1  )
+{
+.Call('R_clang_getDiagnosticSeverity', as(arg1, 'CXDiagnostic'))
+}
+
+
+formatDiagnostic <-
+function( Diagnostic , Options  )
+{
+.Call('R_clang_formatDiagnostic', as(Diagnostic, 'CXDiagnostic'), as(Options, 'numeric'))
+}

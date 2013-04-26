@@ -13,7 +13,8 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL)
    
    convertResult = if(is(cvtCode, "AsIs") || length(cvtCode) > 1) cvtCode else paste("r_ans =", cvtCode, ";")
      
-   code = c(sprintf("SEXP %s(%s)", name, paste("SEXP", rargNames, collapse = ", ")),
+   code = c(sprintf("SEXP %s(%s)", name,
+                        if(length(rargNames)) paste("SEXP", rargNames, collapse = ", ") else ""),
             "{",
              "SEXP r_ans = R_NilValue;",
              makeLocalVars(fun$params, rargNames, argNames),

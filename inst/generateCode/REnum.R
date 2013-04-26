@@ -2,6 +2,8 @@ Indent = "   "
 makeEnumDef =
 function(def, name, decl = name)
 {
+  if(is(def, "EnumerationDefinition"))
+    def = def@values
 
   c("SEXP",
     sprintf("Renum_convert_%s(%s val)",  name, decl),

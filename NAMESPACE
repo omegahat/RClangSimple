@@ -191,7 +191,7 @@ visitTU)
 export(createRegistrationCode)
 export(genEnumCollector)
 export(getEnums)
-export(getFunctions)
+export(getFunctions, getRoutines)
 export(genCallCollector)
 
 
@@ -413,3 +413,32 @@ export(isFileMultipleIncludeGuarded)
 
 
 export(getCursorReferenced)
+
+
+
+export(findGlobalUse)
+
+
+
+export(getDiagnosticSetFromTU)
+
+
+export(getDiagnostic)
+
+
+export(getNumDiagnostics)
+
+
+export(defaultDiagnosticDisplayOptions)
+
+
+export(getDiagnosticSpelling)
+
+
+export(getDiagnosticLocation)
+
+
+export(getDiagnosticSeverity)
+
+
+export(formatDiagnostic)

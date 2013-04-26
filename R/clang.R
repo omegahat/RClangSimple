@@ -6,11 +6,14 @@ function(excludeFromPCH = FALSE, verbose = TRUE)
 }
 
 createTU =
-function(src, idx = createIndex(), args = character()) #XXX was "-Xclang")
+function(src, includes= character(),
+          idx = createIndex(), args = character()) #XXX was "-Xclang")
 {
   src = path.expand(src)
   if(!file.exists(src))
      stop("no such file: ", src)
+
+  args = c(args, sprintf("-I%s", includes))
   
   .Call("R_clang_createTUFromSource", idx, as.character(src), args)
 }

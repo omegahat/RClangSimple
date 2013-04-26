@@ -35,6 +35,8 @@ getRReference(SEXP val)
 #define R_createRef(val, type) R_createReference(val, type, type)
 
 
+R_MAKE(CXSourceLocation)
+
 
 SEXP
 R_clang_createIndex(SEXP localPCH, SEXP diagnostics)
@@ -1230,3 +1232,119 @@ SEXP R_clang_getCursorReferenced(SEXP r_arg1)
     
     return(r_ans);
 }
+
+
+SEXP R_clang_getDiagnosticSetFromTU(SEXP r_Unit)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit Unit = (CXTranslationUnit) getRReference(r_Unit);
+    
+    CXDiagnosticSet ans;
+    ans = clang_getDiagnosticSetFromTU(Unit);
+    
+    r_ans = R_createRef(ans, "CXDiagnosticSet") ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getDiagnostic(SEXP r_Unit, SEXP r_Index)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit Unit = (CXTranslationUnit) getRReference(r_Unit);
+    unsigned int Index = REAL(r_Index)[0];
+    
+    CXDiagnostic ans;
+    ans = clang_getDiagnostic(Unit, Index);
+    
+    r_ans = R_createRef(ans, "CXDiagnostic") ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getNumDiagnostics(SEXP r_Unit)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit Unit = (CXTranslationUnit) getRReference(r_Unit);
+    
+    unsigned int ans;
+    ans = clang_getNumDiagnostics(Unit);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_defaultDiagnosticDisplayOptions()
+{
+    SEXP r_ans = R_NilValue;
+    
+    unsigned int ans;
+    ans = clang_defaultDiagnosticDisplayOptions();
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getDiagnosticSpelling(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXDiagnostic arg1 = (CXDiagnostic) getRReference(r_arg1);
+    
+    CXString ans;
+    ans = clang_getDiagnosticSpelling(arg1);
+    
+    r_ans = CXStringToSEXP(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getDiagnosticLocation(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXDiagnostic arg1 = (CXDiagnostic) getRReference(r_arg1);
+    
+    CXSourceLocation ans;
+    ans = clang_getDiagnosticLocation(arg1);
+    
+    r_ans = R_makeCXSourceLocation(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getDiagnosticSeverity(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXDiagnostic arg1 = (CXDiagnostic) getRReference(r_arg1);
+    
+    enum CXDiagnosticSeverity ans;
+    ans = clang_getDiagnosticSeverity(arg1);
+    
+    r_ans = Renum_convert_CXDiagnosticSeverity(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_formatDiagnostic(SEXP r_Diagnostic, SEXP r_Options)
+{
+    SEXP r_ans = R_NilValue;
+    CXDiagnostic Diagnostic = (CXDiagnostic) getRReference(r_Diagnostic);
+    unsigned int Options = REAL(r_Options)[0];
+    
+    CXString ans;
+    ans = clang_formatDiagnostic(Diagnostic, Options);
+    
+    r_ans = CXStringToSEXP(ans) ;
+    
+    return(r_ans);
+}
+
+
+
