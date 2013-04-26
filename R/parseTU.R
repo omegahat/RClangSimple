@@ -56,10 +56,16 @@ function(top, types = integer())
 
 
 getFunctions =
-function(src, ...)
+function(src, col = genFunctionCollector(), ...)
 {
-  col = genFunctionCollector()
-  parseTU(src, col$update, clone = TRUE, ...)
-  w = sapply(col$funcs(), function(x) getFileName(x$def))
-  col$funcs()[w == src]
+  if(is(src, "CXTranslationUnit")) {
+    visitTU(src, col$update, clone = TRUE)
+    col$funcs()
+  } else {
+      # if we pass a TU, we don't filter the system routines.
+      # To do that, call genFunctionCollector(filenames) and pass the collector.
+    parseTU(src, col$update, clone = TRUE, ...)
+    w = sapply(col$funcs(), function(x) getFileName(x$def))
+    col$funcs()[w == src]
+  }
 }

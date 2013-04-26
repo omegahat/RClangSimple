@@ -5,24 +5,32 @@ function()
 
   update = function(cur, parent) {
      if(cur$kind != CXCursor_VarDecl)
-        return(1L)
+        return(CXChildVisit_Continue)
 
      id = getName(cur)
      vars[[id]] <<- clone(cur)
-     1L
-  }
+     CXChildVisit_Continue
+   }
 
   list(update = update, vars = function() vars)
 }
 
+checkFiles =
+function(cur, files)
+{
+  length(files) == 0 || getFileName(cur) %in% files
+}
+
 genFunctionCollector =
-function()
+function(filenames = character())
 {
   funcs = list()
 
   update = function(cur, parent) {
-     if(cur$kind != CXCursor_FunctionDecl)
-        return(1L)
+     if(cur$kind != CXCursor_FunctionDecl
+          || !checkFiles(cur, filenames))
+        return(CXChildVisit_Continue)
+
 
      id = getName(cur)
      ret = getResultType(cur$type)
@@ -30,7 +38,8 @@ function()
      params = children(cur, CXCursor_ParmDecl)
      names(params) = sapply(params, getName)
      funcs[[id]] <<- structure(list(returnType = ret, params = params, def = clone(cur)), class = "FunctionDecl")
-     1L
+
+     CXChildVisit_Continue
   }
 
   list(update = update, funcs = function() funcs)
@@ -87,7 +96,7 @@ getEnums =
 function(src)
 {
   e = genEnumCollector()
-  visitTU(as(src, "TU"), e)
+  visitTU(as(src, "CXTranslationUnit"), e)
   e$enums()
 }
 
@@ -243,6 +252,7 @@ function()
      k = cur$kind
      if(k %in% c(CXCursor_UnionDecl, CXCursor_StructDecl, CXCursor_EnumDecl, CXCursor_TypedefDecl)) {
          i = length(dataStructs) + 1L
+         cur = clone(cur)
          dataStructs[[i]] <<- cur
          names(dataStructs)[i] <<- getName(cur)
      }
@@ -254,3 +264,30 @@ function()
    
    new("Collector", update = update, results = results)
 }
+
+asCollectorFunction =
+function(x)
+{
+  if(is.function(x))
+    x
+  else if(is(x, "Collector"))
+    x@update
+  else if(is.list(x) && "update" %in% names(x) && is.function(x$update))
+    x$update
+  else
+     as(x, "function")
+}
+
+combineCollectors =
+  #
+  # Make the result a Collector that combines the result functions as well.
+  #
+function(..., .funs = list())
+{
+
+   .funs = lapply(.funs, asCollectorFunction) # make more general
+  
+   function(cur, parent)
+      lapply(.funs, function(f) f(cur, parent))
+}
+

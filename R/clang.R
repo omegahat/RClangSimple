@@ -9,6 +9,9 @@ createTU =
 function(src, idx = createIndex(), args = character()) #XXX was "-Xclang")
 {
   src = path.expand(src)
+  if(!file.exists(src))
+     stop("no such file: ", src)
+  
   .Call("R_clang_createTUFromSource", idx, as.character(src), args)
 }
 
@@ -60,7 +63,7 @@ setGeneric("getFileName",
 
 setMethod("getFileName", "CXCursor",
             function(x, ...)
-              .Call("R_clang_getFile", x))
+              .Call("R_clang_getInstantionLocation", x))
 
 
 clangVersion =

@@ -6,7 +6,13 @@ setClass("CXCursor", contains = "ExternalReference")
 setClass("CXModule", contains = "ExternalReference")
 setClass("CXIndex", contains = "ExternalReference")
 setClass("CXTranslationUnit", contains = "ExternalReference")
+setClass("TU", contains = "CXTranslationUnit")
+
 setClass("CXType", contains = "ExternalReference")
+setClass("CXFile", contains = "ExternalReference")
+setClass("CXSourceRange", contains = "ExternalReference")
+setClass("CXSourceLocation", contains = "ExternalReference")
+setClass("CXSourceRange", contains = "ExternalReference")
 
 
 # Perhaps use a reference class for this.
@@ -18,6 +24,18 @@ setMethod("getResults", "Collector",
                x@results(...))
 
 
+
+getCursorLinkage =
+function(cur)
+  .Call("R_clang_CXCursor_getCursorLinkage", as(cur, "CXCursor"))
+
+getCursorLanguage =
+function(cur)
+  .Call("R_clang_CXCursor_getCursorLanguage", as(cur, "CXCursor"))
+
+getCursorKind =
+ function(cur)
+  Call("R_clang_CXCursor_getKind", as(cur, "CXCursor")  )
 
 setMethod("$", "CXCursor",
            function(x, name) {
