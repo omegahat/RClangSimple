@@ -1,5 +1,7 @@
 struct X {
-    int a, b, c;
+    int a;
+    int b;
+    int c;
 };
 
 typedef struct {

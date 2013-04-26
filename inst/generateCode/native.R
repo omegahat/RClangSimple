@@ -8,6 +8,10 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL)
    rargNames = sprintf("r_%s", argNames)
 
    call = sprintf("%s(%s);", getName(fun), paste(argNames, collapse = ", "))
+
+   cvtCode = convertValueToR(fun$returnType, "ans", typeMap = typeMap)
+   
+   convertResult = if(is(cvtCode, "AsIs") || length(cvtCode) > 1) cvtCode else paste("r_ans =", cvtCode, ";")
      
    code = c(sprintf("SEXP %s(%s)", name, paste("SEXP", rargNames, collapse = ", ")),
             "{",
@@ -19,11 +23,13 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL)
              else
                 call,
              "",
-             paste("r_ans =", convertValueToR(fun$returnType, "ans", typeMap = typeMap), ";"),
+             convertResult,
              "", # can clean up here.
              "return(r_ans);",
             "}"
            )
+
+   CRoutineDefinition(name, code, length(fun$params), as.character(NA))
 }
 
 BasicTypeKindNames =
@@ -35,11 +41,12 @@ BasicTypeKindNames =
    "CXType_Float", "CXType_Double", "CXType_LongDouble" )
 
 convertValueToR =
-function(type, var, name = getName(type), typeMap = NULL)
+function(type, var, name = getName(type), typeMap = NULL, rvar = "r_ans")
 {
+
    k = getTypeKind(type)
 
-   if(length(m <- lookupTypeMap(typeMap, name, "convertValueToR", type, var)))
+   if(length(m <- lookupTypeMap(typeMap, name, "convertValueToR", type, var, rvar)))
        return(m)
   
 
@@ -47,6 +54,7 @@ function(type, var, name = getName(type), typeMap = NULL)
    if(primitive)
      return(switch(names(k),
                    LongLong = ,
+                   Long=,
                    Double=,
                    Float=,
                    Int128=,
@@ -64,8 +72,8 @@ function(type, var, name = getName(type), typeMap = NULL)
        # Allow the caller to say what she wants, like the .copy parameter.
       sprintf("R_copyStruct_%s(%s)", name, var)
    } else if(k == CXType_Typedef) {
-      convertValueToR(getCanonicalType(type), var, getName(type))
-   } else if(k == CXType_Enum) {
+      convertValueToR(getCanonicalType(type), var, name)
+   } else if(k == CXType_Enum || (k == CXType_Unexposed && grepl("^enum ", name))) {
      sprintf("Renum_convert_%s(%s)", gsub("^enum ", "", name), var)
    } else if(k == CXType_Pointer) {
       sprintf('R_createRef(%s, "%s")', var, name)
@@ -86,20 +94,32 @@ function(param, inputName,  localName = getName(param), type = getType(param),
             decl = getName(type))
 {
    kind = getTypeKind(type)
-   
+
    ans = switch(decl,
                 "const char *" =
-                    sprintf("%s = CHAR(STRING_ELT(%s, 0));", locaName, inputName),
+                    sprintf("%s = CHAR(STRING_ELT(%s, 0));", localName, inputName),
                 "unsigned int" =
                     sprintf("%s = REAL(%s)[0];", localName, inputName),
                  character())
 
    if(length(ans) == 0) {
-    if(kind == CXType_Typedef)
-       return(makeLocalVar( , inputName, localName, type = getCanonicalType(type)))
-    else if(kind == CXType_Record) {
+
+     typeName = getName(type)
+     if(kind == CXType_Enum || (kind == CXType_Unexposed && grepl("^enum ", typeName))) 
+          ans = sprintf("%s = (%s) INTEGER(%s)[0];", localName, decl, inputName)
+     
+     else if(kind == CXType_Typedef) {
+          # we want to use the typedef name (in decl). But we have to know if this is a pointer or not.
+      canon = getCanonicalType(type)
+      ckind = getTypeKind(canon)
+      if(ckind == CXType_Pointer)
+         ans = sprintf('%s = (%s) getRReference(%s);', localName, decl, inputName)
+      else
+         #XXX looks wrong.
+         return(makeLocalVar( , inputName, localName, type = getCanonicalType(type)))
+     } else if(kind == CXType_Record) {
        ans = sprintf('%s = * GET_REF(%s, %s);', localName, inputName, decl)
-    } else if(kind == CXType_Pointer) {
+     } else if(kind == CXType_Pointer) {
        info = getPointerInfo(type)
        if(info$depth == 2L && getTypeKind(info$base) == CXType_Char_S) {
            # char **
@@ -113,6 +133,9 @@ function(param, inputName,  localName = getName(param), type = getType(param),
        browser()
 
    }
+
+   if(length(ans) == 0 || ans == "")
+     browser()
 
    paste(decl, ans)
 }

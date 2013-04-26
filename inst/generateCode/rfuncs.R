@@ -15,11 +15,14 @@ function(fun, name = getName(fun), argNames = names(fun$params),
 
    sig = makeSignature(argNames, fun$params, defaultValues, guessDefaults)
    
-   code = c(paste(name, "<-"),
-            paste("function(", paste(sig, collapse = ", "), ")"),
-            "{",
-             paste(call, collapse = ""),
-            "}")
+   code = c(#paste(name, "<-"),
+            #paste("function(", paste(sig, collapse = ", "), ")"),
+            #"{",
+             paste(call, collapse = "")
+           # "}"
+          )
+
+   RFunctionDefinition(name, code, argNames)
 }
 
 makeSignature =
@@ -40,9 +43,8 @@ function(params, names)
 makeCoerceArg =
 function(parm, name, type = getType(parm), kind = getTypeKind(type))
 {
-
-   class = switch(kind,
-                   LongLong = ,
+   class = switch(names(kind),
+                   LongLong= ,
                    Double=,
                    Float=,
                    Int128=,
@@ -54,18 +56,48 @@ function(parm, name, type = getType(parm), kind = getTypeKind(type))
                   character())
 
    if(length(class) == 0) {
-     if(kind == CXType_Typedef)
-        return(makeCoerceArg(type = getCanonicalType(type), name = name))
-     else if(kind == CXType_Record)
+     typeName = getName(type)
+     
+     if(kind == CXType_Enum || (kind == CXType_Unexposed && grepl("^enum ", typeName))) 
+          class = gsub('^enum ', '', typeName)
+     
+     else if(kind == CXType_Typedef) {
+#       browser()
+       class = getName(type)
+       #return(makeCoerceArg(type = getCanonicalType(type), name = name))
+     } else if(kind == CXType_Record)
         class = getName(type)
      else if(kind == CXType_Pointer) {
          # XXX What should the name be for this representation
          # Make more specific
-       browser()
-       class = getName(type)
-        #class = "RC++Reference"
-     } else 
-        browser()
+       info = getPointerInfo(type)
+       if(info$depth <= 2 && getTypeKind(info$baseType) == CXType_Char_S)
+         class = "character"
+       else {
+         browser()
+         if(grepl("*", name, fixed = TRUE))
+           class = getName(info$baseType)
+         else
+            class = name # assume we are using the name
+         #class = "RC++Reference"
+       }
+     } else if(kind == CXType_ConstantArray) {
+        elTy = getArrayElementType(type)
+        elKind = getTypeKind(elTy)
+        if(elKind == CXType_Char_S) 
+          class = "character"
+        else 
+          class = "raw"
+     } else if(kind == CXType_Unexposed) {
+
+         if(grepl("^struct ", typeName)) 
+            class =  gsub("^struct ", "", typeName)
+         else
+            browser()
+
+     } else {
+         browser()
+     }
    }
 
    sprintf("as(%s, '%s')", name, class)
