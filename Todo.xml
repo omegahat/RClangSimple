@@ -1,16 +1,145 @@
 <items>
 
 <item>
-make collectors ReferenceClasses
+Show how to read C code and find references to global variables
+in the bodies of routines.
+Does clang allow us to resolve the variable there and then,
+i.e. find the actual CXCursor for the global variable.
+<br/>
+<r:code>
+parseTU("inst/exampleCode/globalUse.c")
+</r:code>
+shows cursors of kind DeclRefExpr.
+So let's explore those:
+<r:code>
+
+</r:code>
+getCursorReferenced(),   getCursorUSR ?
 </item>
 
 <item>
-Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
+set options on an index setGlobalOptions()
+Bitwise value.
+</item>
+
+<item>
+Pointer types in routines that require us to create one explicitly
+getFileUniqueID
+</item>
+<item>
+Speed of, e.g., getFunctions, slowed down by match and S4 classes.
+match may be from filtering file names.
+<r:output><![CDATA[
+                     self.time self.pct total.time total.pct
+"match"                   1.74     9.36       6.26     33.69
+".identC"                 1.48     7.97       1.50      8.07
+".getClassFromCache"      1.42     7.64       1.42      7.64
+"possibleExtends"         1.00     5.38       2.48     13.35
+"is"                      0.86     4.63       4.00     21.53
+".Call"                   0.68     3.66      18.48     99.46
+]]></r:output>
+</item>
+
+<item>
+Allow post-processing the return value from the .Call(), e.g. 
+getFileTime() and make it a POSIXct.  (See cuda.R example.)
+</item>
+
+<item>
+Differentiate between data types for structures
+and their corresponding  types.
+</item>
+
+<item>
+Implement interface to add/combine  TUs  for different files.
+This should be already there.
+We create an index and then reuse that.
+</item>
+
+<item>
+Function to combine collectors so that they all get called in a single
+call.
+</item>
+
+<item>
+Recognize an enum as a parameter. 
+Seems to have a Kind that is Unexposed!
+But there is a CXType_Enum
+</item>
+
+<item>
+In the routine to copy a struct, copy the contents of the elements too.
+</item>
+
+<item>
+change getRReference() call in native.R to one that checks the class
+of the object. So add the class name in the call.
+</item>
+
+<item status="done">
+Already Done:   getStrutDef()
+<br/>
+Get the information about a struct, i.e. its fields - names and types.
+getOffsetOf(). But how do we get the  names.
+Are we supposed to capture these when traversing the TU.
+Similarly for FunctionProto?
+We can do this with a call to clang_visitChildren().
+visitChildren(cursor, simpleVisitor)
+</item>
+
+<item>
+Get details of a FunctionProto.
+See tests/fnPointer.R
+</item>
+
+<item status="check">
+Get the native dereferencing of CXTranslationUnit correct.
+e.g.
+<r:code>
+z = makeCode(r[["clang_Module_getTopLevelHeader"]], typeMap = typeMap, cat = TRUE)
+</r:code>
+Need to have *
 </item>
 
 <item>
 Borrow the CRoutine and RFunction classes from RGCCTU and code for pretty printing
 code.
+Currently source()'ing the code from ~/GitWorkingArea/RGCCTranslationUnit/R/codeObjects.R
+That's all we need. 
+Have to figure out how to synchronize the two versions.
+</item>
+
+<item>
+Add bindings for the different relevant methods
+</item>
+
+<item status="done">
+Fix up the getCString()'s that don't have a dispose.
+[Done] Make a routine for this? Already existed CXStringToSEXP().
+</item>
+
+<item>
+Add features that are in RGCCTU for code generation.
+.copy, options to se finalizers when we create instances or return them, 
+accessors for struct fields, 
+</item>
+
+<item>
+Add finalizers to the types CXType, CXCursor, etc.
+and garbage collect them properly.
+</item>
+
+<item>
+generate code for enum classes.
+</item>
+
+<item>
+implement collectors as ReferenceClasses
+</item>
+
+<item>
+Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
+Make the enum type a formal class. Check if it is now?
 </item>
 
 <item>

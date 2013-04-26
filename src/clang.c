@@ -260,7 +260,7 @@ R_clang_getCursorDisplayName(SEXP r_cursor)
 {
     CXCursor *cur =  GET_REF(r_cursor, CXCursor);
     CXString str = clang_getCursorDisplayName(*cur);
-    return(ScalarString(mkChar(clang_getCString(str))));    
+    return(CXStringToSEXP(str));
 }
 
 SEXP
@@ -273,7 +273,7 @@ R_clang_getCursorSpelling(SEXP r_cursor)
     if(str.MustFreeString)
 	clang_disposeString(str);
 #else
-    SEXP ans = ScalarString(mkChar(clang_getCString(str)));
+    SEXP ans = CXStringToSEXP(str);
 #endif
     return(ans);
 }
@@ -288,6 +288,7 @@ CXStringToSEXP(CXString str)
 #else
    const char * const tmp = clang_getCString(str);
    SEXP ans = ScalarString(mkChar(tmp ? tmp : ""));
+   clang_disposeString(str);
 #endif
    return(ans);
 }
@@ -329,7 +330,7 @@ R_clang_getTypeSpelling(SEXP r_type)
     CXType *type = GET_REF(r_type, CXType);
     CXString str;
     str = clang_getTypeSpelling(*type);
-    return(mkString(clang_getCString(str)));
+    return(CXStringToSEXP(str));
 }
 
 
@@ -435,7 +436,7 @@ R_clang_isVirtualBase(SEXP r_obj)
 
 
 SEXP
-R_clang_getFile(SEXP r_cursor)
+R_clang_getInstantionLocation(SEXP r_cursor)
 {
     CXCursor *cur = GET_REF(r_cursor, CXCursor);
     CXSourceRange range = clang_getCursorExtent(*cur);
@@ -544,31 +545,8 @@ SEXP R_clang_hashCursor(SEXP r_arg1)
 }
 
 
-SEXP R_clang_CXXMethod_isStatic(SEXP r_C)
-{
-SEXP r_ans = R_NilValue;
-CXCursor C = * GET_REF(r_C, CXCursor);
 
-unsigned int ans;
-ans = clang_CXXMethod_isStatic(C);
 
-r_ans = ScalarReal(ans) ;
-
-return(r_ans);
-}
-
-SEXP R_clang_CXXMethod_isVirtual(SEXP r_C)
-{
-SEXP r_ans = R_NilValue;
-CXCursor C = * GET_REF(r_C, CXCursor);
-
-unsigned int ans;
-ans = clang_CXXMethod_isVirtual(C);
-
-r_ans = ScalarReal(ans) ;
-
-return(r_ans);
-}
 
 SEXP R_clang_getTokenKind(SEXP r_arg1)
 {
@@ -597,32 +575,7 @@ r_ans = R_createRef(ans, "CXModule") ;
 return(r_ans);
 }
 
-SEXP R_clang_Cursor_isDynamicCall(SEXP r_C)
-{
-SEXP r_ans = R_NilValue;
-CXCursor C = * GET_REF(r_C, CXCursor);
 
-int ans;
-ans = clang_Cursor_isDynamicCall(C);
-
-r_ans = ScalarInteger(ans) ;
-
-return(r_ans);
-}
-
-
-SEXP R_clang_isCursorDefinition(SEXP r_arg1)
-{
-SEXP r_ans = R_NilValue;
-CXCursor arg1 = * GET_REF(r_arg1, CXCursor);
-
-unsigned int ans;
-ans = clang_isCursorDefinition(arg1);
-
-r_ans = ScalarReal(ans) ;
-
-return(r_ans);
-}
 
 SEXP R_clang_getCanonicalCursor(SEXP r_arg1)
 {
@@ -649,4 +602,631 @@ ans = clang_getNumOverloadedDecls(cursor);
 r_ans = ScalarReal(ans) ;
 
 return(r_ans);
+}
+
+
+
+
+SEXP R_clang_Type_getAlignOf(SEXP r_T)
+{
+SEXP r_ans = R_NilValue;
+CXType T = * GET_REF(r_T, CXType);
+
+long long ans;
+ans = clang_Type_getAlignOf(T);
+
+r_ans = ScalarReal(ans) ;
+
+return(r_ans);
+}
+
+
+
+
+SEXP R_clang_Type_getOffsetOf(SEXP r_T, SEXP r_S)
+{
+SEXP r_ans = R_NilValue;
+CXType T = * GET_REF(r_T, CXType);
+const char * S = CHAR(STRING_ELT(r_S, 0));
+
+long long ans;
+ans = clang_Type_getOffsetOf(T, S);
+
+r_ans = ScalarReal(ans) ;
+
+return(r_ans);
+}
+
+
+
+
+SEXP R_clang_Cursor_getNumArguments(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+int ans;
+ans = clang_Cursor_getNumArguments(C);
+
+r_ans = ScalarInteger(ans) ;
+
+return(r_ans);
+}
+
+SEXP R_clang_Cursor_getArgument(SEXP r_C, SEXP r_i)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+unsigned int i = REAL(r_i)[0];
+
+CXCursor ans;
+ans = clang_Cursor_getArgument(C, i);
+
+r_ans = R_makeCXCursor(ans) ;
+
+return(r_ans);
+}
+
+
+
+
+
+SEXP R_clang_Cursor_getReceiverType(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+CXType ans;
+ans = clang_Cursor_getReceiverType(C);
+
+r_ans = R_makeCXType(ans) ;
+
+return(r_ans);
+}
+
+SEXP R_clang_Cursor_getRawCommentText(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+CXString ans;
+ans = clang_Cursor_getRawCommentText(C);
+
+r_ans = CXStringToSEXP(ans);
+
+return(r_ans);
+}
+
+
+
+
+SEXP R_clang_Cursor_getBriefCommentText(SEXP r_C)
+{
+SEXP r_ans = R_NilValue;
+CXCursor C = * GET_REF(r_C, CXCursor);
+
+CXString ans;
+ans = clang_Cursor_getBriefCommentText(C);
+
+r_ans = CXStringToSEXP(ans) ;
+
+return(r_ans);
+}
+
+
+
+
+
+SEXP R_clang_Module_getParent(SEXP r_Module)
+{
+    SEXP r_ans = R_NilValue;
+    CXModule Module = (CXModule) getRReference(r_Module);
+    
+    CXModule ans;
+    ans = clang_Module_getParent(Module);
+    
+    r_ans = R_createRef(ans, "CXModule") ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Module_getName(SEXP r_Module)
+{
+    SEXP r_ans = R_NilValue;
+    CXModule Module = (CXModule) getRReference(r_Module);
+    
+    CXString ans;
+    ans = clang_Module_getName(Module);
+    
+    r_ans = CXStringToSEXP(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Module_getFullName(SEXP r_Module)
+{
+    SEXP r_ans = R_NilValue;
+    CXModule Module = (CXModule) getRReference(r_Module);
+    
+    CXString ans;
+    ans = clang_Module_getFullName(Module);
+    
+    r_ans = CXStringToSEXP(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Module_getNumTopLevelHeaders(SEXP r_arg1, SEXP r_Module)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit arg1 = (CXTranslationUnit) getRReference(r_arg1);
+    CXModule Module = (CXModule) getRReference(r_Module);
+    
+    unsigned int ans;
+    ans = clang_Module_getNumTopLevelHeaders(arg1, Module);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Module_getTopLevelHeader(SEXP r_arg1, SEXP r_Module, SEXP r_Index)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit arg1 = (CXTranslationUnit) getRReference(r_arg1);
+    CXModule Module = (CXModule) getRReference(r_Module);
+    unsigned int Index = REAL(r_Index)[0];
+    
+    CXFile ans;
+    ans = clang_Module_getTopLevelHeader(arg1, Module, Index);
+    
+    r_ans = R_createRef(ans, "CXFile") ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_equalTypes(SEXP r_A, SEXP r_B)
+{
+    SEXP r_ans = R_NilValue;
+    CXType A = * GET_REF(r_A, CXType);
+    CXType B = * GET_REF(r_B, CXType);
+    
+    unsigned int ans;
+    ans = clang_equalTypes(A, B);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+
+
+SEXP R_clang_CXXMethod_isStatic(SEXP r_C)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor C = * GET_REF(r_C, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_CXXMethod_isStatic(C);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_CXXMethod_isVirtual(SEXP r_C)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor C = * GET_REF(r_C, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_CXXMethod_isVirtual(C);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Cursor_isDynamicCall(SEXP r_C)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor C = * GET_REF(r_C, CXCursor);
+    
+    int ans;
+    ans = clang_Cursor_isDynamicCall(C);
+    
+    r_ans = ScalarInteger(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_isCursorDefinition(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor arg1 = * GET_REF(r_arg1, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_isCursorDefinition(arg1);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+
+
+SEXP R_clang_isVolatileQualifiedType(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+    
+    unsigned int ans;
+    ans = clang_isVolatileQualifiedType(T);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_isRestrictQualifiedType(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+    
+    unsigned int ans;
+    ans = clang_isRestrictQualifiedType(T);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_isInvalid(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    enum CXCursorKind arg1 = (enum CXCursorKind) INTEGER(r_arg1)[0];
+    
+    unsigned int ans;
+    ans = clang_isInvalid(arg1);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Cursor_isNull(SEXP r_cursor)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
+    
+    int ans;
+    ans = clang_Cursor_isNull(cursor);
+    
+    r_ans = ScalarInteger(ans) ;
+    
+    return(r_ans);
+}
+
+
+
+
+
+SEXP R_clang_isReference(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    enum CXCursorKind arg1 = (enum CXCursorKind) INTEGER(r_arg1)[0];
+    
+    unsigned int ans;
+    ans = clang_isReference(arg1);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+
+
+
+
+SEXP R_clang_isAttribute(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    enum CXCursorKind arg1 = (enum CXCursorKind) INTEGER(r_arg1)[0];
+    
+    unsigned int ans;
+    ans = clang_isAttribute(arg1);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+
+
+SEXP R_clang_isPreprocessing(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    enum CXCursorKind arg1 = (enum CXCursorKind) INTEGER(r_arg1)[0];
+    
+    unsigned int ans;
+    ans = clang_isPreprocessing(arg1);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+
+
+SEXP R_clang_isConstQualifiedType(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+    
+    unsigned int ans;
+    ans = clang_isConstQualifiedType(T);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_isFunctionTypeVariadic(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+    
+    unsigned int ans;
+    ans = clang_isFunctionTypeVariadic(T);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_isPODType(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+    
+    unsigned int ans;
+    ans = clang_isPODType(T);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Cursor_isBitField(SEXP r_C)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor C = * GET_REF(r_C, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_Cursor_isBitField(C);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getFileTime(SEXP r_SFile)
+{
+    SEXP r_ans = R_NilValue;
+    CXFile SFile = (CXFile) getRReference(r_SFile);
+    
+    time_t ans;
+    ans = clang_getFileTime(SFile);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getFile(SEXP r_tu, SEXP r_file_name)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit tu = (CXTranslationUnit) getRReference(r_tu);
+    const char * file_name = CHAR(STRING_ELT(r_file_name, 0));
+    
+    CXFile ans;
+    ans = clang_getFile(tu, file_name);
+    
+    r_ans = R_createRef(ans, "CXFile") ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getCursorSemanticParent(SEXP r_cursor)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
+    
+    CXCursor ans;
+    ans = clang_getCursorSemanticParent(cursor);
+    
+    r_ans = R_makeCXCursor(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getCursorLexicalParent(SEXP r_cursor)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
+    
+    CXCursor ans;
+    ans = clang_getCursorLexicalParent(cursor);
+    
+    r_ans = R_makeCXCursor(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_CXCursorSet_insert(SEXP r_cset, SEXP r_cursor)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursorSet cset = (CXCursorSet) getRReference(r_cset);
+    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_CXCursorSet_insert(cset, cursor);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_CXCursorSet_contains(SEXP r_cset, SEXP r_cursor)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursorSet cset = (CXCursorSet) getRReference(r_cset);
+    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_CXCursorSet_contains(cset, cursor);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_Location_isInSystemHeader(SEXP r_location)
+{
+    SEXP r_ans = R_NilValue;
+    CXSourceLocation location = * GET_REF(r_location, CXSourceLocation);
+    
+    int ans;
+    ans = clang_Location_isInSystemHeader(location);
+    
+    r_ans = ScalarInteger(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getTranslationUnitSpelling(SEXP r_CTUnit)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit CTUnit = (CXTranslationUnit) getRReference(r_CTUnit);
+    
+    CXString ans;
+    ans = clang_getTranslationUnitSpelling(CTUnit);
+    
+    r_ans = CXStringToSEXP(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_saveTranslationUnit(SEXP r_TU, SEXP r_FileName, SEXP r_options)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit TU = (CXTranslationUnit) getRReference(r_TU);
+    const char * FileName = CHAR(STRING_ELT(r_FileName, 0));
+    unsigned int options = REAL(r_options)[0];
+    
+    int ans;
+    ans = clang_saveTranslationUnit(TU, FileName, options);
+    
+    r_ans = ScalarInteger(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_defaultReparseOptions(SEXP r_TU)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit TU = (CXTranslationUnit) getRReference(r_TU);
+    
+    unsigned int ans;
+    ans = clang_defaultReparseOptions(TU);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getCursorAvailability(SEXP r_cursor)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
+    
+    enum CXAvailabilityKind ans;
+    ans = clang_getCursorAvailability(cursor);
+    
+    r_ans = Renum_convert_CXAvailabilityKind(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getCursorUSR(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor arg1 = * GET_REF(r_arg1, CXCursor);
+    
+    CXString ans;
+    ans = clang_getCursorUSR(arg1);
+    
+    r_ans = CXStringToSEXP(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_isFileMultipleIncludeGuarded(SEXP r_tu, SEXP r_file)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit tu = (CXTranslationUnit) getRReference(r_tu);
+    CXFile file = (CXFile) getRReference(r_file);
+    
+    unsigned int ans;
+    ans = clang_isFileMultipleIncludeGuarded(tu, file);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_getCursorReferenced(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor arg1 = * GET_REF(r_arg1, CXCursor);
+    
+    CXCursor ans;
+    ans = clang_getCursorReferenced(arg1);
+    
+    r_ans = R_makeCXCursor(ans) ;
+    
+    return(r_ans);
 }
