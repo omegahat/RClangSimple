@@ -3,6 +3,6 @@ CXChildVisitResult = structure(0:2, .Names = c("CXChildVisit_Break", "CXChildVis
 
 
 
-`CXChildVisit_Break` = 0
- `CXChildVisit_Continue` = 1
- `CXChildVisit_Recurse` = 2
+`CXChildVisit_Break` = 0L
+ `CXChildVisit_Continue` = 1L
+ `CXChildVisit_Recurse` = 2L

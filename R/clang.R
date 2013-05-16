@@ -1,3 +1,6 @@
+getCursorTokens =
+function(cur)
+ .Call("R_getCursorTokens", cur)
 
 createIndex =
 function(excludeFromPCH = FALSE, verbose = TRUE)
@@ -32,7 +35,7 @@ function(tu, fun, clone = FALSE)
 {
    tu = as(tu, "CXCursor")
    
-   if(!is.function(fun))
+   if(!is.function(fun) && !is(fun, "NativeSymbol"))
      stop("must supply an R function to visitTU")
    
    .Call("R_clang_visitChildren", tu, fun, as.logical(clone))

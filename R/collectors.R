@@ -18,7 +18,9 @@ function()
 checkFiles =
 function(cur, files)
 {
-  length(files) == 0 || getFileName(cur) %in% files
+  fn = getFileName(cur)
+  length(files) == 0 || fn %in% files ||
+        grepl(sprintf("(%s)", paste(files[1], collapse = "|")), fn)
 }
 
 genFunctionCollector =
@@ -96,7 +98,7 @@ getEnums =
 function(src)
 {
   e = genEnumCollector()
-  visitTU(as(src, "CXTranslationUnit"), e)
+  visitTU(as(src, "CXTranslationUnit"), e$update)
   e$enums()
 }
 
@@ -111,7 +113,7 @@ function() {
   flush = 
     function() {
        if(length(curDef)) {
-          if(is.na(curName))
+          if(is.na(curName) || curName == "")
             curName = length(enums) + 1
           enums[[curName]] <<- new("EnumerationDefinition", values = curDef, type = type, name = curName)
        }
@@ -124,12 +126,14 @@ function() {
   
   update = 
    function(cur, parent)  {
-     kind = cur$kind
+     kind = getCursorKind(cur)
 
      if(kind == CXCursor_EnumDecl) {
         flush()
         curName <<- getName(cur) # get the name for the enum.
         type <<- getType(cur)
+        if(is.na(curName) || curName == "")
+            curName <<- getName(type)
      } else if(kind == CXCursor_EnumConstantDecl) {
        curDef[getName( cur ) ] <<- length(curDef) #XX
      } else if(doStop) {
@@ -173,7 +177,7 @@ function(targetFile = character())
    
    update = function(cur, parent) {
       r = 1L
-      k = cur$kind
+      k = getCursorKind(cur)
 
       if(k == CXCursor_FieldDecl) {
          addField(cur)
@@ -207,11 +211,11 @@ function(targetFile = character())
 
 genCallCollector =
   #
-  # Collect the names of the routines involved in calls
-  #  in the code.
+  # Collect the names of the routines involved in calls in the code.
   # This does not collect function pointers, similar to the f in lapply(x, f).
   #
-function() {
+function()
+{
     calls = character()
     list(update = function(cur, parent) {
                     if(cur$kind == CXCursor_CallExpr)
@@ -221,6 +225,17 @@ function() {
          reset = function() calls <<- characters()
        )
 }
+
+
+findCalls =
+  # vectorize
+ # findCalls("../src/manual.c",  includes = c("/usr/local/cuda/include", sprintf("%s/../src/include", R.home()), sprintf("%s/include", R.home())))
+function(file, fun = genCallCollector(), ...)
+{
+  parseTU(file, fun$update, ...)
+  fun$calls()
+}
+
 
 
 genTypeCollector =
@@ -243,7 +258,7 @@ function()
 
 
 genDataStructCollector =
-function()
+function(leaveAsCursor = FALSE)
 {
    dataStructs = list()
 
@@ -260,7 +275,12 @@ function()
      TRUE
    }
 
-   results = function() dataStructs
+   results = function(asCursor = leaveAsCursor) {
+               if(asCursor)
+                 dataStructs
+               else
+                 lapply(dataStructs, getStructDef) #XXX need to be more general and convert, e.g., enums to enumeration descriptions
+             }
    
    new("Collector", update = update, results = results)
 }
@@ -291,3 +311,30 @@ function(..., .funs = list())
       lapply(.funs, function(f) f(cur, parent))
 }
 
+
+getDefines =
+  #' @example  defs = getDefines("inst/exampleCode/defines.c")
+function(tu, names, col = genDefinesCollector(names))
+{
+   if(is.character(tu))
+     tu = createTU(tu)
+
+   visitTU(tu, col$update, clone = FALSE)
+   col$defines()
+}
+
+genDefinesCollector =
+function(names = character())
+{
+   ans = list()
+   update = function(cur, parent) {
+     if(cur$kind == CXCursor_MacroDefinition) {  # or MacroDefinition or Expansion ?
+       ans[[ getName(cur) ]] <<- clone(cur)
+     }
+
+     CXChildVisit_Continue
+   }
+
+   
+   list(update = update, defines = function() ans)
+}

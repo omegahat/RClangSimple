@@ -16,7 +16,7 @@ function(type, kids = children(tp))
 
 
 getDataStructures =
-function(src, collector = genDataStructCollector())
+function(src, collector = genDataStructCollector(...), ...)
 {
    if(is.character(src))
      src = createTU(src)

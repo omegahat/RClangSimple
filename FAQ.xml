@@ -1,6 +1,6 @@
 <faq>
 <q>
-<p>What does my visitor function have to return?
+<p>What does my visitor function have to return?</p>
 <a>It  should return a value of class CXChildVisit.
 This is an enumeration. 
 It allows to terminate the traversal, traverse across the siblings and skip
@@ -9,5 +9,16 @@ Instead of a value of this enumeration type, you can return a logical value.
 If this is <r:true/>, we continue recursively. If this is <r:false/>, we end the traversal.
 If the function returns anything other than a logical, integer or numeric, 
 we just asume CXChildVisit_Recurse and so continue to traverse the children recursively.
-</a></a></q>
+</a>
+</q>
+
+<q>
+<p>
+What are good sources of documentation for libclang and how to work with the data types
+expose by <omg:pkg>RCIndex</omg:pkg>?
+</p>
+<a>
+Perhaps <ulink url="http://llvm.org/devmtg/2010-11/Gregor-libclang.pdf"/>?
+</a>
+</q>
 </faq>

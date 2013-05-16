@@ -12,13 +12,21 @@ function(fun, name = getName(fun), argNames = names(fun$params),
              if(length(fun$params)) ", ", 
              paste(c(coercedArgs, if(!is.na(PACKAGE)) c(PACKAGE = PACKAGE)), collapse = ", "),
             ")")
+   call = paste(call, collapse = "")
+   
+#   sig = makeSignature(argNames, fun$params, defaultValues, guessDefaults)
 
-   sig = makeSignature(argNames, fun$params, defaultValues, guessDefaults)
+   rt = fun$returnType
+   if(length(fun$actualReturnType))
+     rt = fun$actualReturnType
+
+   map = lookupTypeMap(typeMap, getName(rt), "RcoerceResult", rt, name = "ans")   
    
    code = c(#paste(name, "<-"),
             #paste("function(", paste(sig, collapse = ", "), ")"),
             #"{",
-             paste(call, collapse = "")
+            call, # paste("ans = ", call),
+            map
            # "}"
           )
 
@@ -40,9 +48,9 @@ function(params, names)
   unlist(mapply(makeCoerceArg, params, names))
 }
 
-makeCoerceArg =
-function(parm, name, type = getType(parm), kind = getTypeKind(type))
-{
+
+getBuiltinRTypeFromKind =
+function(kind)  
    class = switch(names(kind),
                    LongLong= ,
                    Double=,
@@ -55,6 +63,13 @@ function(parm, name, type = getType(parm), kind = getTypeKind(type))
                    NullPtr = "NULL",
                   character())
 
+
+makeCoerceArg =
+function(parm, name, type = getType(parm), kind = getTypeKind(type))
+{
+
+    class = getBuiltinRTypeFromKind(kind)
+
    if(length(class) == 0) {
      typeName = getName(type)
      
@@ -62,11 +77,10 @@ function(parm, name, type = getType(parm), kind = getTypeKind(type))
           class = gsub('^enum ', '', typeName)
      
      else if(kind == CXType_Typedef) {
-#       browser()
-       class = getName(type)
+       class = typeName
        #return(makeCoerceArg(type = getCanonicalType(type), name = name))
      } else if(kind == CXType_Record)
-        class = getName(type)
+        class = typeName
      else if(kind == CXType_Pointer) {
          # XXX What should the name be for this representation
          # Make more specific
@@ -74,11 +88,14 @@ function(parm, name, type = getType(parm), kind = getTypeKind(type))
        if(info$depth <= 2 && getTypeKind(info$baseType) == CXType_Char_S)
          class = "character"
        else {
+         class = getBuiltinRTypeFromKind(getTypeKind(info$baseType))
          browser()
-         if(grepl("*", name, fixed = TRUE))
-           class = getName(info$baseType)
-         else
-            class = name # assume we are using the name
+         if(length(class) == 0) {
+           if(grepl("*", typeName, fixed = TRUE))
+             class = getName(info$baseType)
+           else
+              class = typeName # name # assume we are using the name
+         }
          #class = "RC++Reference"
        }
      } else if(kind == CXType_ConstantArray) {
@@ -100,5 +117,5 @@ function(parm, name, type = getType(parm), kind = getTypeKind(type))
      }
    }
 
-   sprintf("as(%s, '%s')", name, class)
+   sprintf("as(%s, '%s')", name, gsub("const ", "", class))
 }

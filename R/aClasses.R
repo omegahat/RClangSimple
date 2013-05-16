@@ -35,7 +35,7 @@ function(cur)
 
 getCursorKind =
  function(cur)
-  Call("R_clang_CXCursor_getKind", as(cur, "CXCursor")  )
+  .Call("R_clang_CXCursor_getKind", as(cur, "CXCursor")  )
 
 setMethod("$", "CXCursor",
            function(x, name) {

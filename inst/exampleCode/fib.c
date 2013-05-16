@@ -6,3 +6,9 @@ fib(int n)
 
     return(fib(n - 1) + fib(n - 2));
 }
+
+int
+Fib(int n)
+{
+    return(sqrt(2* fib(n)) * sin(n));
+}

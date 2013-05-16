@@ -5,6 +5,9 @@
 SEXP R_makeCXCursor(CXCursor type);
 SEXP R_makeCXType(CXType type);
 
+
+SEXP createRefWithFinalizer(void *val, const char * type, R_CFinalizer_t free);
+
 SEXP
 R_createReference(void *ptr, const char * const className, const char * tag)
 {
@@ -46,6 +49,15 @@ R_clang_createIndex(SEXP localPCH, SEXP diagnostics)
     return(R_createRef(ans, "CXIndex"));
 }
 
+void
+R_freeTU(SEXP rtu)
+{
+    CXTranslationUnit ptr = (CXTranslationUnit) R_ExternalPtrAddr(rtu);
+    if(ptr) {
+	clang_disposeTranslationUnit(ptr);
+	// set rtu contents to NULL.
+    }
+}
 
 SEXP
 R_clang_createTUFromSource(SEXP r_idx, SEXP src, SEXP r_args)
@@ -69,7 +81,7 @@ R_clang_createTUFromSource(SEXP r_idx, SEXP src, SEXP r_args)
 	    ERROR;
     }
 
-    return(R_createRef(ans, "CXTranslationUnit"));
+    return(createRefWithFinalizer(ans, "CXTranslationUnit", R_freeTU));
 }
 
 SEXP
@@ -144,15 +156,21 @@ R_clang_visitChildren(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
     unsigned ans;
 
     CXCursor *cursor = GET_REF(r_tu, CXCursor);
+    CXCursorVisitor fun = R_visitor;
     RVisitorData data;
     data.clone = INTEGER(r_clone)[0];
 
-    PROTECT(data.expr = allocVector(LANGSXP, 3));
-    SETCAR(data.expr, r_visitor);
+    if(TYPEOF(r_visitor) == CLOSXP) {
+	PROTECT(data.expr = allocVector(LANGSXP, 3));
+        SETCAR(data.expr, r_visitor);
+    } else 
+	fun = (CXCursorVisitor) R_ExternalPtrAddr(r_visitor);
 
-    ans = clang_visitChildren(*cursor, R_visitor, &data);   
+    ans = clang_visitChildren(*cursor, fun, &data);   
 
-    UNPROTECT(1);
+    if(TYPEOF(r_visitor) == CLOSXP)
+	UNPROTECT(1);
+
     return(ScalarInteger(ans));
 }
 
@@ -452,6 +470,14 @@ R_clang_getInstantionLocation(SEXP r_cursor)
     return(CXStringToSEXP(ans));
 }
 
+
+const char *TokenKindNames[] = {"Punctuation", "Keyword", "Identifier", "Literal", "Comment"};
+const char * const 
+getTokenKindName(CXTokenKind val)
+{
+    return(TokenKindNames[val]);
+}
+
 SEXP
 R_getCursorTokens(SEXP r_cursor)
 {
@@ -463,16 +489,22 @@ R_getCursorTokens(SEXP r_cursor)
 
     CXToken *tokens = 0;
     unsigned int nTokens = 0;
-    SEXP ans;
+    SEXP ans, names;
     clang_tokenize(TU, range, &tokens, &nTokens);
     PROTECT(ans = NEW_CHARACTER(nTokens));
+    PROTECT(names = NEW_CHARACTER(nTokens));
+
     for (unsigned int i = 0; i < nTokens; i++)  {
 	CXString spelling = clang_getTokenSpelling(TU, tokens[i]);
 	SET_STRING_ELT(ans, i, mkChar(clang_getCString(spelling)));
+	CXTokenKind kind = clang_getTokenKind(tokens[i]);
+	SET_STRING_ELT(names, i, mkChar(getTokenKindName(kind)));
 	clang_disposeString(spelling);
     }
     clang_disposeTokens(TU, tokens, nTokens);
-    UNPROTECT(1);
+
+    SET_NAMES(ans, names);
+    UNPROTECT(2);
     return(ans);
 }
 
@@ -1347,4 +1379,41 @@ SEXP R_clang_formatDiagnostic(SEXP r_Diagnostic, SEXP r_Options)
 }
 
 
+/*-------------------------------*/
+/* This is code that I can call from LLVM and use as a test. */
 
+typedef int (*LLVMVisitor)(CXCursor *cur, CXCursor *parent);
+
+int
+R_visitor_with_pointers(CXCursor cur, CXCursor parent, LLVMVisitor fun)
+{
+    return(fun(&cur, &parent));
+} 
+
+SEXP
+R_clang_visitChildren_LLVM_test(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
+{
+    unsigned ans;
+
+    CXCursor *cursor = GET_REF(r_tu, CXCursor);
+    LLVMVisitor *fun = (LLVMVisitor*) R_ExternalPtrAddr(r_visitor);
+
+    ans = clang_visitChildren(*cursor, R_visitor_with_pointers, fun);   
+    return(ScalarInteger(ans));
+}
+
+
+
+int
+clang_CXCursor_kind(CXCursor cur)
+{
+    return(cur.kind);
+}
+
+const char *
+clang_CXCursor_getName(CXCursor cur)
+{
+    CXString cstr = clang_getCursorSpelling(cur);
+    const char *str =  clang_getCString(cstr);
+    return(str);
+}

@@ -44,14 +44,13 @@ BasicTypeKindNames =
 convertValueToR =
 function(type, var, name = getName(type), typeMap = NULL, rvar = "r_ans")
 {
-
    k = getTypeKind(type)
 
    if(length(m <- lookupTypeMap(typeMap, name, "convertValueToR", type, var, rvar)))
        return(m)
   
 
-   primitive = names(k) %in% gsub("CXType_", "", BasicTypeKindNames)
+   primitive = names(k) %in% c(BasicTypeKindNames, gsub("CXType_", "", BasicTypeKindNames))
    if(primitive)
      return(switch(names(k),
                    LongLong = ,
@@ -59,6 +58,7 @@ function(type, var, name = getName(type), typeMap = NULL, rvar = "r_ans")
                    Double=,
                    Float=,
                    Int128=,
+                   ULong =,
                    UInt = sprintf("ScalarReal(%s)", var),
                    Short=,
                    Int = sprintf("ScalarInteger(%s)", var),
@@ -73,10 +73,13 @@ function(type, var, name = getName(type), typeMap = NULL, rvar = "r_ans")
        # Allow the caller to say what she wants, like the .copy parameter.
       sprintf("R_copyStruct_%s(%s)", name, var)
    } else if(k == CXType_Typedef) {
-      convertValueToR(getCanonicalType(type), var, name)
+      convertValueToR(getCanonicalType(type), var, getName(type)) #  was name instead of getName(type)
    } else if(k == CXType_Enum || (k == CXType_Unexposed && grepl("^enum ", name))) {
      sprintf("Renum_convert_%s(%s)", gsub("^enum ", "", name), var)
    } else if(k == CXType_Pointer) {
+cat("convertValueToR\n");browser()
+      if(grepl("*", name, fixed = TRUE))
+         name = gsub(" ?\\*", "Ptr", name)
       sprintf('R_createRef(%s, "%s")', var, name)
    } else
       browser()
@@ -96,12 +99,7 @@ function(param, inputName,  localName = getName(param), type = getType(param),
 {
    kind = getTypeKind(type)
 
-   ans = switch(decl,
-                "const char *" =
-                    sprintf("%s = CHAR(STRING_ELT(%s, 0));", localName, inputName),
-                "unsigned int" =
-                    sprintf("%s = REAL(%s)[0];", localName, inputName),
-                 character())
+   ans = derefRarg(decl, localName, inputName)
 
    if(length(ans) == 0) {
 
@@ -115,9 +113,12 @@ function(param, inputName,  localName = getName(param), type = getType(param),
       ckind = getTypeKind(canon)
       if(ckind == CXType_Pointer)
          ans = sprintf('%s = (%s) getRReference(%s);', localName, decl, inputName)
-      else
-         #XXX looks wrong.
-         return(makeLocalVar( , inputName, localName, type = getCanonicalType(type)))
+      else {     #XXX looks wrong.
+          # see when we use the name of the canonical type whether this corresponds to a primitive.
+         ans = derefRarg(getName(canon), localName, inputName)
+         if(length(ans) == 0)
+           return(makeLocalVar( , inputName, localName, type = canon, decl = decl))
+       }
      } else if(kind == CXType_Record) {
        ans = sprintf('%s = * GET_REF(%s, %s);', localName, inputName, decl)
      } else if(kind == CXType_Pointer) {
@@ -126,17 +127,39 @@ function(param, inputName,  localName = getName(param), type = getType(param),
            # char **
           ans = sprintf("%s = getCharArrayPtr(%s)", localName, inputName)
        } else {
-         stars = paste(rep("*", info$depth - 1L), collapse = "")
+     #XXX add 1 back.
+         stars = paste(rep("*", info$depth - 1L + 1L), collapse = "")
          ans = sprintf('%s = GET_REF(%s, %s %s);', localName, inputName, getName(info$base), stars)
        }
        
-    } else
+    } else {
+cat('hi\n')      
        browser()
-
+       ans = derefRarg(names(kind), localName, inputName)
+      # ans = paste(localName, ";")
+    }
    }
 
    if(length(ans) == 0 || ans == "")
      browser()
 
    paste(decl, ans)
+}
+
+derefRarg =
+function(decl, localName, inputName)
+{
+ switch(decl,
+        "const char *" =
+            sprintf("%s = CHAR(STRING_ELT(%s, 0));", localName, inputName),
+        "unsigned int" =,
+        "long" =,
+        "unsigned long" =,     
+        "double" = ,
+        ULongLong = ,
+        "float" = 
+            sprintf("%s = REAL(%s)[0];", localName, inputName),
+        "short" = ,
+        "int" = sprintf("%s = INTEGER(%s)[0];", localName, inputName),
+       character())
 }

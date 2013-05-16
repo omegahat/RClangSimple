@@ -137,9 +137,11 @@ generate code for enum classes.
 implement collectors as ReferenceClasses
 </item>
 
-<item>
+<item status="done">
 Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
 Make the enum type a formal class. Check if it is now?
+Detect the typedefs. How do we find the parent?
+Can get the type in the enum def and then use its getName() method.
 </item>
 
 <item>

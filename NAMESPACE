@@ -442,3 +442,11 @@ export(getDiagnosticSeverity)
 
 
 export(formatDiagnostic)
+
+export(getCursorTokens)
+export(getDefines, genDefinesCollector)
+
+export(findCalls)
+
+export(isVoidType, isPointerType)
+
