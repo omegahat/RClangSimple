@@ -1,0 +1,225 @@
+\subsection{Finding the signature for a foreign function interface call}\label{sec:RffiEG}
+
+In this example, we focus on working with types in \Rpkg{RCIndex}
+
+As I mentioned in section~\ref{sec:Introduction}, there are two
+packages (\Rpkg{Rffi} and \Rpkg{rdyncall}) that allow us to invoke
+arbitrary native routines without having to write or compile any
+additional wrapper code.  Both require a description of the signature
+of the routine to be called. That is, we need the return type and the
+number and types of the parameters.  We don't want the user to have to
+know the signature so we want to be able compute it for them.
+We can do this directly from the results of 
+\Rfunc{getRoutines} applied to the source code describing the
+routine(s) of interest.
+
+Consider the simple  routine
+\begin{CCode}
+#include <math.h>
+int
+square_sin(int *val, int len, double *ans)
+{
+    int i;
+    for(i = 0; i < len ; i++) {
+	double tmp = sin(val[i]);
+	ans[i] = tmp * tmp;
+    }
+    return(len);
+}
+\end{CCode}
+This takes a vector of integer values and computes the
+square of the sin of each element and returns the values
+in the array of \Ctype{double} values. It returns the number
+of elements it processed.
+
+We'll look at how we can invoke this routine from using
+\Rpkg{rdyncall} and then how we can generate the appropriate signature
+programmatically.  Basically, before we can invoke the routine, we
+have to compile the \C{} code into a shared
+library, load that into \R{} and find the address of the symbol
+\Cfunc{square_sin}.  We do this with a shell command
+\begin{ShCode}
+R CMD SHLIB rffi.c
+\end{ShCode}
+and the \R{} code
+\begin{RCode}
+dyn.load("rffi.so")
+sym = getNativeSymbolInfo("square_sin")$address
+\end{RCode}
+%$
+
+Next, we'll create some sample inputs:
+\begin{RCode}
+x = 1:10
+ans = numeric(length(x))
+\end{RCode}
+
+To invoke the routine, we use the function \Rfunc{.rdyncall} function
+in the \Rpkg{rdyncall} package. 
+The call is 
+\begin{RCode}
+v = .dyncall(sym, "*ii*d)i", x, length(x), ans)
+\end{RCode}
+\Rfunc{.dyncall} takes care of marshalling the inputs and outputs
+between \R{} and the native code.
+
+The strange (and unaesthetic) string \verb+"*ii*d)i"+ is the
+description of the signature of the routine.  It indicates that the
+first argument (\verb+*i+) is a pointer to one or more \Ctype{int}
+values, the second (\verb+i+) is a simple \Ctype{int} value and the
+third (\verb+*d+) is a pointer to one or more \Ctype{double} values.
+The \verb+)+ character separates the inputs from the return type and
+that is \verb+i+ and so an \Ctype{int}.  Of course, we knew this
+signature by looking at the code, althought we didn't know the actual
+form it took for \Rpkg{rdyncall}.
+
+We'll write a function that uses \libclang{} and \Rpkg{RCIndex} to
+create this signature generally.  We'll assume it is passed a
+\Rclass{FunctionDecl} object returned by \Rfunc{getRoutines}.
+Recall that this contains the parameters and the return type.
+So we can easily generate the signature with something like
+\begin{RCode}
+makeSig = 
+function(r)
+{
+   args = sapply(r@params, makeType)
+   rtype = makeType(r@returnType)
+   paste0( paste(args, collapse = ""), rtype)
+}
+\end{RCode}
+The important part of this function is the call to \Rfunc{makeType}
+and that is what we must implement next.
+This is passed  either a \Rclass{CXCursor} or a \Rclass{CXType}.
+We want to deal with the \Rclass{CXType} so must convert a
+\Rclass{CXCursor} first. (We could of course use S3 or S4 methods to
+do this also.)
+\begin{RCode}
+   if(is(ty, "CXCursor"))
+     ty = getType(ty)
+\end{RCode}
+Once we have the \Rclass{CXType}, we can query the kind of type it is
+with \Rfunc{getTypeKind}.
+Given the kind, we first check to see if it corresponds to one of the
+primitive types. We make a list of these by combining
+the different enumeration values for \Rclass{CXType}, e.g. 
+\Rvar{CXType_Double}, \Rvar{CXType_Int} and so on.
+We can do this with
+\begin{RCode}
+BasicKinds = CXTypeKind[3:24]
+\end{RCode}
+since the primitive kinds are numbered contiguously in the
+enumeration.
+
+If the type does correspond to a basic type, we map it to 
+the string that \Rfunc{.rdyncall} expects for this type.
+These are listed in a table in the help page for \Rfunc{.rdyncall}.
+\dquote{i} corresonds to \Rvar{CXType_Int}, \dquote{I} corresponds
+to \Rvar{CXType_UInt} for an unsigned integer, and so on.
+We express this map via the named \R{} vector
+\begin{RCode}
+rdyncallMap = c(
+  v = CXType_Void,
+  B = CXType_Bool,
+  C = CXType_Char_U,
+  C = CXType_UChar,
+  c = CXType_Char32,
+  c = CXType_Char_S,
+  S = CXType_UShort,
+  I = CXType_UInt,
+  J = CXType_ULong,
+  L = CXType_ULongLong,
+  s = CXType_Short,
+  i = CXType_Int,
+  l = CXType_Long,
+  l = CXType_LongLong,
+  f = CXType_Float,
+  d = CXType_Double
+)
+\end{RCode}
+We can match the \libclang{} kind to the values in the vector and then
+return the name of the corresponding element.
+We do this with the simple function
+\begin{RCode}
+mapBasicKindToRdyncall =
+function(kind)
+{
+  i = match(kind, rdyncallMap)
+  if(is.na(i))
+    stop("don't recognize that type")
+
+  names(rdyncallMap)[i]
+}
+\end{RCode}
+  
+If the kind of the type passed to \Rfunc{makeType} is not a basic
+type, we have to examine it further.  We can compare the kind to
+\Rvar{CXType_Pointer} to determine if it is a pointer, or call
+\Rfunc{isPointerType} with the actual type object.  If the type is a
+pointer type, we can get the type of element it points to with
+\Rfunc{getPointeeType}.  Here we have to treat the \C{} string type
+  \Cexpr{char *} specially.  We check if the pointee type is of kind
+  \Rvar{CXType_Char_S} and if it is, we return the
+  \Rpkg{rdyncall} string \dquote{Z}.
+
+If the pointee type is not a \Rvar{CXType_Char_S}, then we check to
+see if it is a basic type again. If so, we will combine the type
+string for this basic type with a $\ast$ prefix, e.g. \dquote{*i}.  If
+the type is not a basic type, then it is a pointer to a generic \C{}
+type and we return \dquote{p}.
+
+We also have to deal with types that are not simply basic or pointer
+types. For example, we may have a type declaration.  For this, we can
+use the canonical type to get at the actual type and pass this to a
+call to \Rfunc{makeType}.
+
+The entire \Rfunc{makeType} function is defined as
+\begin{RCode}
+makeType = 
+function(ty)
+{
+   if(is(ty, "CXCursor"))
+     ty = getType(ty)
+
+   kind = getTypeKind(ty)
+   
+   if(kind %in% BasicKinds) {
+     
+      mapBasicKindToRdyncall(kind)
+
+   } else if(kind == CXType_Pointer) {
+     
+     pty = getPointeeType(ty)
+     if(getTypeKind(pty) == c(CXType_Char_S))
+        "Z"
+     else if((pk <- getTypeKind(pty)) %in% BasicKinds)
+        sprintf("*%s", mapBasicKindToRdyncall(pk))
+     else
+        "p"
+    
+   } else if(kind == CXType_Typedef) {
+     makeType(getCanonicalType(ty))
+   }
+}
+\end{RCode}
+
+With the function defined, we can use it on
+the routines in  \file{rffi.c}:
+\begin{RCode}
+r = getRoutines("Paper/rffi.c", "Paper/rffi.c")
+sapply(r, makeSig)
+\end{RCode}
+\begin{ROutput}
+square_sin    string1    string2   typedefn 
+ "*ii*d)i"      "Z)v"      "Z)v"      "l)v" 
+\end{ROutput}
+
+
+
+%We can identify whether a parameter is identified as being immutable.
+%This allows us to avoid copying the argument before we pass it to
+%the native routine.
+
+We could go further with generating descriptions for use with
+\Rpkg{rdyncall} or \Rpkg{Rffi} to process \Ckeyword{struct} and
+\Ckeyword{union} types and \Cpp{} classes and so on.
+
