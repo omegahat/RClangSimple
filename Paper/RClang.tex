@@ -1,0 +1,395 @@
+\documentclass[article]{jss}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% almost as usual
+\author{Duncan Temple Lang\\University of California at Davis}
+\title{RCIndex: Accessing C/C++ Code in R with libclang}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Duncan Temple Lang}
+\Plaintitle{RCIndex: Accessing C/C++ Code in R with libclang}
+\Shorttitle{RCIndex}
+
+%% an abstract and keywords
+\Abstract{ 
+  The ability to get information about \C/\Cpp{} code routines
+  and data structures can allow us to do many things in an intrepreted
+  language such as \R.  We use \libclang{}, a flexible, embeddable
+  library, to develop \R{} functionality to obtain information about
+  native code.  We describe the \Rpkg{RCIndex} package which provides
+  high-level functionality to access this information and also
+  lower-level approaches to query and manipulate other aspects of
+  native code.  We describe how to use the package and scenarios in
+  which it is useful.
+} 
+\Keywords{\R, \Rpkg{RCIndex} package}
+\Plainkeywords{R, RCIndex} %% without formatting
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  Duncan Temple Lang\\
+  4210 Math Sciences Building, \\
+  University of California at Davis \\
+  One Shields Avenue\\
+  Davis, CA 95616\\
+  E-mail: \email{duncan@r-project.org}\\
+  URL: \url{http://www.omegahat.org}
+}
+
+\usepackage[T1]{fontenc}
+\catcode`\_=12
+
+\def\C{\proglang{C}}
+\def\perl{\proglang{PERL}}
+\def\Cpp{\proglang{C$++$}}
+\def\R{\proglang{R}}
+\def\llvm{\proglang{LLVM}}
+\def\Rpkg#1{\pkg{#1}}
+\def\Rfunc#1{\textsl{#1()}}
+\def\Rop#1{\texttt{#1}}
+\def\Rvar#1{\textsl{#1}}
+\def\Cfunc#1{\textit{#1()}}
+\def\Cvar#1{\textit{#1}}
+\def\file#1{\textbf{#1}}
+\def\Ctype#1{\texttt{#1}}
+\def\Rclass#1{\textit{#1}}
+\def\Rslot#1{\textbf{#1}}
+\def\Rarg#1{\textbf{#1}}
+\def\Roption#1{\dquote{\textsl{#1}}}
+
+
+\def\libclang{\textbf{libclang}}
+\def\clang{\textbf{clang}}
+\def\gcc{\textit{GCC}}
+\def\XML{\textit{XML}}
+
+\def\dquote#1{``#1''}
+
+\def\ShFlag#1{\textit{#1}}
+
+\DefineVerbatimEnvironment{RCode}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{CCode}{Verbatim}{fontshape=tt}
+\DefineVerbatimEnvironment{ShCode}{Verbatim}{fontshape=it}
+\DefineVerbatimEnvironment{ROutput}{Verbatim}{fontshape=bf}
+
+\begin{document}
+
+\section{Motivation}\label{sec:Introduction}
+
+We typically think of \C{} and \Cpp{} code as something we write,
+compile and call. It is rarely the input to anything but the compiler.
+However, such code is a source of potentially useful information that
+we can use in statistical and scientific computing.  In order to
+leverage this information, we need to be able to access it in a
+structured manner in a form that we can compute on and in the
+programming environment in which we want to use it.
+\libclang{}~\cite{bib:libclang,bib:libclangSlides} has
+emerged as a powerful, industrial-strength library that provides
+valuable functionality for working with \C/\Cpp{} source code and that
+we can embed in \R (and many other languages).
+
+There are several applications of being able to programmatically
+understand \C/\Cpp{} code.
+
+\textbf{Registering \R-callable routines}: When we write \C/\Cpp code
+to use in an \R{} package, it is useful to explicitly register the
+routines that we can call via any of the
+\Rfunc{.C}/\Rfunc{.Call}/\Rfunc{.External} interfaces.  When the
+routines are registered, \R{} can help to identify potential errors in
+calling them.  \R{} can detect an incorrect number of arguments for a
+routine, or that the types are incorrect, e.g. an integer vector when
+a numeric vector is expected. Registration also allows us to resolve
+the symbols just once rather than each time we call a routine, and it
+also allows us to use different symbols to refer to the routines.  It
+is convenient to be able to run \R{} code to identify the \R-callable
+routines and to generate the registration information
+programmatically.  As we change these routines, we can update the
+registration information with little effort and ensure the information
+is synchronized.
+
+
+\textbf{Generating bindings to native libraries}: Numerous \R{}
+packages provide interfaces to existing \C/\Cpp{} libraries.  This
+typically involves manually creating an \R-callable wrapper routine
+for each routine of interest in the third-party library and also a
+corresponding \R{} function that invokes the wrapper routine, having
+coerced the \R{} arguments to the appropriate form.  This is often
+quite straightforward, but both time-consuming and error-prone.  This
+makes for unnecessarily lengthy write-debug-test cycles.  Instead,
+we'd like to be able to programmatically read the information about
+the third-party routines and data types and generate the wrapper
+routines and \R{} functions without human intervention, or at least
+minimal, generic intervention.  If we could generate these
+``bindings'' programmatically, the \R{} programmer can spend time
+creating higher-level functionality using these primitives.
+
+\textbf{Dynamic calls to native routines}: The
+\Rpkg{rdyncall}~\cite{bib:rdyncall} and \Rpkg{Rffi}~\cite{bib:Rffi}
+\R{} packages avoid having to explicitly create the wrapper routines
+and \R{} functions to interface to existing \C{} routines. Instead,
+they both provide a dynamic mechanism to call arbitrary native
+routines.  However, both approaches require a description of the
+target routines.  Again, we want to obtain this information
+programmatically and then we can easily generate these descriptions
+and remove humans from the process.
+
+\textbf{Understanding third-party libraries interactively}: When we
+interface to third-party libraries, we typically read documentation to
+identify and understand the important routines and data structures.
+In some situations, it can be convenient to find this information
+interfactively within an environment such as \R.  Rather than reading
+static document, we can query the code for information such as how
+often a particular data type is returned by a routine or passed as an
+argument? or what idioms does the library use?  We can use \R's
+graphics capabilities to visualize the code and which routines call
+which other routines.
+
+\textbf{In-line documentation as comments}: Often third-party native
+libraries contain document in comments adjacent to the corresponding
+routines and data structures.  It is convenient to be able to easily
+access this documentation and potentially reuse it as \R{}
+documentation for functions that interface to the routines.
+
+\textbf{Compiling \R{} code}:  Recently, we have been developing \R{} facilities for compiling \R{}
+code to native instructions to by-pass the \R{} interpreter.  This
+allows us to rewrite and translate \R{} code so that it is essentially
+native code and can call other existing native routines, for example,
+in the \R{} engine or standard \C{} libraries.  This results in
+significant speedup.  However, to make this work, we need to know the
+signature -- parameter types and return type -- of these native
+routines.  Again, if we can find these programmatically, we greatly
+simplify and improve the entire process of generating the code.
+
+\textbf{Determining memory management and mutability of inputs and
+  outputs}: When we call existing native routines, we often want need
+to know whether we are in charge of the memory for the inputs or
+whether the called routine is responsible.  Often, programmers omit
+important information about whether a parameter is modified within a
+routine or if it is constant.  This is important information as it
+allows us to differentiate between an array of values passed as a
+pointer, or a scalar whose contents are changed.  We would like to be
+able to analyze the body of the routine to be able to determine if and
+how it modifies its parameters so that we can avoid making copies of
+data, if possible.
+
+
+\textbf{Software as Data}: While we may not think of code as data,
+analyzing software is an important field.  Software defines several
+networks relatd to i) which routines call which other routines, ii)
+the hierarchical structure of \Cpp{} classes, iii) which files
+\texttt{\#include} other files, and so on.  We can find which
+global/non-local variables are used in which routines to help identify
+problems with parallelization and potential refactorzation of the
+code.  We can combine this data with version control history to better
+understand software projects.
+
+
+\textbf{Detecting errors in native code for \R}: \R's package
+mechanism provides a powerful set of tests and checks to potential
+errors in \R{} code.  These are very useful and can identify errors
+such as misspelled variable or function names before the code is run.
+It would be valuable to perform similar tests on \C{} code in \R{}
+packages.  We might identify common issues such as not protecting
+allocated \R{} objects from garbage collection.  We could do this by
+analyzing uses of \Cfunc{PROTECT} and \Cfunc{UNPROTECT} calls and
+ensuring there is an appropriate correspondance.  These are
+\R-specific checks and will not be done by other code-analyzing
+software.
+
+We hope these applications motivate the utility of being able to
+navigate native code in \R and indicate that there are many more.  In
+this paper, we describe how to use the \R{} interface to \libclang.
+We start in section~\ref{sec:Whylibclang} by comparing \libclang{}
+with other approaches we and others have pursued.  We then describe
+the fundamental concepts of \libclang{} in
+section~\ref{sec:libclangConcepts}.  We follow this in
+section~\ref{sec:RCIndex} by discussing the \R{} interface
+
+%documentation in comments - see RCUDA.
+
+\section[Why libclang?]{Why \libclang?}\label{sec:Whylibclang}
+
+I have explored how we can get information about \C/\Cpp{} code in
+\R{} for many years and have used various different approaches.
+\libclang{} appears to be the most robust, stable and flexible so far.
+\clang{} and \libclang{} are very active projects and important pieces
+of software. This means they will continue to improve, evolve and be
+maintained.  The API (Application Programming Interface) is
+intentionally stable.  As we will see later, \libclang{} does the hard
+work in resolving types uniquely and simplifying the complexities of
+native code.  \libclang{} allows us to readily associate concepts in
+the parse tree with precise locations in the text of the source
+code. \libclang{} doesn't allow us to modify the parse tree and
+rewrite native code. However, there is a quite different and more
+advanced API related to \libclang{} that does and some of the concepts
+will carry over to that, should we need those facilities in \R.
+
+In the past, I have used the GNU compiler (\gcc)~\cite{bib:GCC} to
+export information about the source code using its
+\ShFlag{-fdump-translation-unit} command-line argument.  This outputs
+many of the details of the source code in a reasonably low-level
+format. I developed the \Rpkg{RGCCTranslationUnit}~\cite{bib:RGCCTU}
+package to both parse the output from \gcc{} and also to collate the
+information into higher-level descriptions of routines, data
+structures, and so on.  Unfortunately, the format of \gcc's output is
+not well document, and the information it exports has changed over
+releases.  Generally, this a valuable source of information, but not
+as stable or as readily usable or developed as \libclang.
+
+GCC-XML is an extension to \gcc{} that, like the
+\ShFlag{-fdump-translation-unit} option, can export information about
+routines and data structures contained in \C/\Cpp{} source code.  As
+the name suggets, it exports in an \XML{} format.  We can then read
+this into \R{} with, for example, the \Rpkg{XML}~\cite{bib:RSXML}
+package.  We can convert the \XML{} content into descriptions of the
+routines and types.  Again, we have to implement this type registry.
+Also, GCC-XML does not give us access to the bodies of the routines
+and so we cannot address several of the applications we discussed in
+section~\ref{sec:Introduction}.
+
+
+I also explored SWIG (Simplified Wrapper and Interface
+Generator)~\cite{bib:SWIG} as a means to programmatically generate
+interfaces to native code. The idea was to leverage a widely used tool
+that could generate code for different languages.  SWIG is written in
+\perl{} and was somewhat complex. It is more desirable to write the
+code generation mechanism in \R{} itself rather than another language.
+This is because it is more natural and also because more users can
+understand the code and contribute and extend the development.  Also,
+as the name suggests, the focus of SWIG is to generate bindings to
+existing native code.  It does not allow us to examine the body of the
+routines.
+
+
+Many years ago, we adapted and embedded the little \C{} compiler
+(lcc)~\cite{bib:lcc} in \S.  This gave us many of the features we
+obtain with \libclang, allowing us to access information about
+routines, data structures, etc. in source code.  It does not support
+\Cpp. Unfortunately, it did not readily deal with extensions to the
+\C{} language used in the Linux header files. As a result, other than
+extending the code base, we couldn't continue to use it for our
+purposes.
+ 
+Microsoft Windows provides facilities for accessing the information
+about routines and data structures in native code via its type
+libraries.  I developed the
+\Rpkg{SWinTypeLibs}~\cite{bib:SWinTypeLibs} package to read this
+information generally. This gives us access to much of the information
+we need. Of course, it is specific to Microsoft Windows. It works on
+previously compiled code, not the source code.  Accordingly, it gives
+us no access to the bodies of the native code.
+
+
+% SWIG
+% gcc-xml
+% Slcc
+% Type libraries on Windows.
+
+All of the approaches are reasonable and have their
+advantages. However, \libclang{} is a significant improvement over all
+of these other approaches for various different reasons. It provides
+most of the infrastructure we need and removes the burden for
+conusmers to create this.  It is flexible but not excessively complex.
+It is tied to serious, ongoing projects and so continues to evolve. It
+allows us to work in the language in which we want to program,
+i.e. \R.  It provides access to all aspects of the native code, not
+just the declarations. It processes both \C{} and \Cpp.
+
+
+\section[Concepts of libclang]{Concepts of \libclang}\label{sec:libclangConcepts}
+
+Translation unit,  AST and cursors, traversing the tree, 
+
+\section[The RCIndex package]{The \Rpkg{RCIndex} package}\label{sec:RCIndex}
+The \Rpkg{RCIndex} provides numerous high-level functions that return
+information about \C{} code.
+
+\subsection{High-level Functionality}
+
+% Talk about filtering based on the file name. (Implement this
+% consistently).  Mention can do it afterwords or during the collection.
+
+
+We might consider functions that take a source file and extract one or
+more of the types of top-level elements in that file, e.g. routines,
+data structures, enumeration definitions, \Cpp{} class definitions as
+the very highest-level functions.  The \R{} user can call these
+functions with just the name of the file and perhaps additional
+arguments for the parser and the results are returned.  The user
+doesn't have to write any code to manipulate or traverse the parse
+tree (AST).  She doesn't have to necessarily create a translation unit
+before calling one of these functions. As such, they are ``atomic''.
+(There are occasssions, however, when it is benficial to create a
+translation unit and traverse that several times to extract different
+information on each traversal.)
+
+The \Rfunc{getRoutines} does as its name suggests. It takes a file
+name or an existing translation unit object and returns a list with an
+element for each routine declaration or definition in the code.  Each
+element contains the \Rclass{CXCursor} object representing the
+routine, a list of the parameters giving their name and data types,
+and the return type.  This is currently an S3 object of class
+\Rclass{FunctionDecl}. Since this contains the cursor, we can query it
+for the name of the routine, the file in which it is located, the
+location in that file and so on. In other words, information that
+we don't explicitly collect into the \R{} object can be determined
+later when we use this description of the routine.
+
+\Rfunc{getEnums} returns a list of the enumeration definitions in a
+source file. Each element is an instance of the S4 class
+\Rclass{EnumerationDefinition}.  Like the \Rclass{FunctionDecl}, this
+contains a reference to the definition in case we want to query it
+further at a later time.  The actual values in the enumeration are
+stored in the \Rslot{values} slot as a named integer vector.  The
+names are the symbolic names we should use, while the values are the
+literal values to which these names correspond.  These values allow us
+to cross the interface between \R{} and native code where there is no
+existin association between the symbolic names.
+
+\Rfunc{getDataStructures} returns a list of the data types defined in
+a source file.
+
+
+\subsection{Building Blocks}
+
+\Rfunc{createTU}
+
+\section{Examples}
+
+When faced with attemp
+
+
+\section{Future Work}
+
+Given the basic bindings, we plan to develop additional functionality
+to process different aspects of native code. We are interested in
+processing the bodies of the routines to understand them better.
+
+The functions to generate bindings might benefit from being
+reorganized and made more general and extensible.
+
+We have created bindings for most of the facilities provided by
+\libclang.  However, we have ignored the code-completion routines and
+the various indexing facilities.  Now that we have the basic tools
+provided by \Rpkg{RCIndex} in \R, we can programmatically generate
+bindings to these routines. 
+
+
+\bibliography{rclang}
+
+
+\end{document}

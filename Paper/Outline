@@ -1,0 +1,112 @@
+* Why do we want to read C/C++ code.
+   Generate interfaces to existing C code - routines and data
+     structures, enumerations
+     Create wrapper code programmatically.
+     Rffi, rdyncall
+     LLVM - Need type information to be able to compile C code to call that. 
+   Understand what is in a library. (Can read, but might be easier to
+     manipulate in R.)
+   Create the registration information
+   Programmatically understand C code 
+     Identify non-local/global variables for parallelizing code.
+     Determine whether a parameter is modified within a routine. (explorations/mutateInputs.R)
+     Determine the type of SEXP expected by a .Call()/.External()
+     routine.
+     Like R CMD check examines R code, could examine C code that uses
+      R API and do helpful checks, e.g. PROTECT() and UNPROTECT().
+       (See explorations/protect.R for simple heuristic. Also
+        illustrates writing visitors)
+     Code as data - Collect info about code, e.g. networks, patterns
+        and idioms, use of particular data structures.
+     Possibly better left to other tools, but can do them in R and
+       some are R-specific.
+        Can visualize in R and generally manipulate the data easily
+        rather than in command line tool. 
+     Determine coverage of an API, i.e. what routines are not called
+       in our code that exist in header files.
+     Determine which routines are not called by other routines.
+   Be able to understand Rcpp code
+   Ideally want to be able to modify C/C++ code for templates, etc.
+     Use tokens, more advanced libclang API, templates.
+
+* Why libclang
+   Regular expressions even.
+    Want to do this programmatically for repeatability, reproducability, less
+   error-prone, larger scale.
+   Can do some of this with, e.g., gcc-xml, lcc, gcc translation
+   units. Reference RGCCTU paper in compstat. 
+   Go further than gcc-xml - body of routines.  Also can find the
+    location of the elements/tokens in the original source.
+   libclang has a simple version of its API.
+   Manages all the types intelligently, easy to resolve typedefs, etc.
+   gcc, TU, etc. - have to run command outside of R.
+   
+* Concepts of libclang
+**  Translation unit
+       one at a time or collections in an index
+**  Tree and Cursors
+      enumeration of the types of cursors (cursorKind.R). 164 possible kinds.
+**  Types
+       Descriptions of data structure types.
+       basic types, pointers, 
+**  Routines
+
+
+* User Guide to some of the features in RCIndex.
+
+** tu = createTU()
+       includes, arguments
+** parseTU(, visitor-function)
+   visitTU/Cursor(, ...)
+
+
+
+** getRoutines()
+** getEnumerations()
+** getDataStructures()
+** getGlobalVariables()
+** getParameters()
+
+** filtering by file
+     system header file 
+
+
+** findCalls
+     what about finding what routine a call occurs in.
+
+** Working with types
+     basic types, pointer types & pointee
+     typedefs & canonical types
+     
+* Query the Tree & Writing Visitors
+    Reference classes.
+
+* Pre-processor
+** How can we identify macros, etc.
+
+
+* Issues
+**   Speed is an issue for the visitor functions.
+    Can make them go faster by not recursing through parts of the tree
+    we aren't interested.
+    Can write in C code.
+    Can soon compile with Rllvm.
+
+**   Like to have access to modifying the representation
+       e.g. 1) adding a const to an argument before processing the
+       resulting descriptions content
+        2) inserting code and writing it back to a file,
+           i.e. programmatically changing the code. (e.g. add tracing
+           information, changing an argumen to a routine within a
+           context we can compute and not just text replacement.)
+
+        Could use the AST interface to get  access to much richer
+        information, but much more complex.
+         Can bootstrap our way with RCIndex.
+
+** Memory management.
+      When to free.
+      Hard to manage the TU object and its sub-elements. Like XML
+      trees. But we can't put the reference count in here. So have to
+      do it externally. May serve as an example of how to do this for
+      other packages as it does arise in several different contexts.
