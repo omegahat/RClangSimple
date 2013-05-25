@@ -1,0 +1,56 @@
+\noindent
+\begin{figure}[ht]
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\begin{CCode}
+SEXP
+R_foo_correct(SEXP r_x)
+{
+  SEXP ans, names;
+  int n = Rf_length(r_x);
+  double *x = REAL(x);
+  PROTECT(ans = NEW_NUMERIC(n));
+  PROTECT(names = NEW_CHARACTER(n));
+  for(int i = 0; i < n; i++) {
+    char *str;
+    REAL(ans)[i] = foo(x[i], &str);
+    SET_STRING_ELT(names, i, 
+                     mkChar(str));
+  }
+  SET_NAMES(ans, names);
+  UNPROTECT(2);
+  return(ans);
+}
+\end{CCode}
+\caption{This is a simple and correct \C{} routine
+that protects and unprotects the \R{} objects it creates.}
+\label{fig:ProtectCorrect}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\begin{CCode}
+SEXP
+R_foo_incorrect(SEXP r_x)
+{
+  SEXP ans, names;
+  int n = Rf_length(r_x);
+  double *x = REAL(x);
+  ans = NEW_NUMERIC(n);
+  names = NEW_CHARACTER(n);
+  for(int i = 0; i < n; i++) {
+    char *str;
+    REAL(ans)[i] = foo(x[i], &str);
+    SET_STRING_ELT(names, i, 
+                       mkChar(str));
+  }
+  SET_NAMES(ans, names);
+  return(ans);
+}
+
+\end{CCode}
+\caption{This version does not protect the \R{} objects and, hence,
+  also  doesn't unprotect them.}
+\label{fig:ProtectIncorrect}
+\end{minipage}
+\end{figure}

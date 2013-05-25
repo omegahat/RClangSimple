@@ -1,7 +1,7 @@
 RClang.pdf:
 
 # Examples.tex
-%.pdf: %.tex rclang.bib  
+%.pdf: %.tex rclang.bib  protect.tex
 	-pdflatex $*
 	-pdflatex $*
 	bibtex $*

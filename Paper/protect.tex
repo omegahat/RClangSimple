@@ -1,0 +1,234 @@
+\subsection[Checking for garbage collection errors in native code for R]{Checking for garbage collection errors in native code for \R{}}
+In this example, we will write code that can examine a \C{} routine
+written to be called via \R's \Rfunc{.Call} interface and try to
+identify if there are possible errors related to ensuring \R{} objects
+are not garbage collected prematurely.  The \R{} API uses the macros
+\Cfunc{PROTECT} and \Cfunc{UNPROTECT} to mark an object as being in
+use and stop if from being garbage collected and to unmark a number of
+protected objects.  For example, the \C{} code in
+figure~\ref{fig:ProtectCorrect} creates two new \R{} objects and
+protects them both, performs some computations that populate the
+objects and then unprotects both with a call \Cexpr{UNPROTECT(2)}.  In
+contrast, the code in figure~\ref{fig:ProtectIncorrect} does not
+protect the \R{} object it creates.  It is quite possible that after
+allocating \Cvar{ans}, \R{} will release that object when it allocates
+\Cvar{names} in the next expression. At that point, the memory is
+corrupted and errors and crashes are likely.
+In other cases, we might protect the \R{} objects we create,
+but fail to unprotect them, or at least some of them.
+
+\input{protectCodeFigure}
+
+%XXX Clean this up wrt. to macro expansions. Ignore them  but just
+%mention it is possible.
+We will develop an \R{} function that will attempt to check for common
+problems related to garbage collection.  Our function take the
+\libclang{} cursor for a routine and will then traverse the
+nodes/cursors throughout that tree. It will find calls to known
+routines that alloc \R{} objects (specifically \Cfunc{Rf_allocVector})
+and also calls to \Cfunc{Rf_protect} and \Cfunc{Rf_unprotect}.  At its
+very simplest, we can count the number of allocations, the number of
+calls to \Cfunc{Rf_protect} and attempt to determine the value passed
+to \Cfunc{Rf_unprotect}.  If these don't match, we can indicate a
+potential error.  This is a simple heuristic approach, but it may
+catch some cases.
+
+What about \Cfunc{NEW_NUMERIC}, \Cfunc{PROTECT} and \Cfunc{UNPROTECT}?
+In some cases, these are acutally pre-processor macros and in others
+they are actually routines. They expand to
+\Cexpr{Rf_allocVector(REALSXP, n)} and calls to \Cfunc{Rf_protect} and
+\Cfunc{Rf_unprotect}.  We can find these expansions and substitutions
+in the translation unit. Alternatively, we can use our knowledge of
+how the \R{} API works.
+
+
+Since we will traverse over the sub-cursors, we need a visitor
+function. We'll use a closure, but again, we could use a reference
+class.  We need variables in which we can record the number of calls
+to each of \Cfunc{Rf_allocVector}, \Cfunc{R_protect} and
+\Cfunc{R_unprotect}.  We'll call these variables \Rvar{numAllocs},
+\Rvar{numProtectCalls} and \Rvar{numUnprotectCalls}, respectively.
+For the first two routines, we just increment the current value
+in the corresponding \R{} variable.
+For \Cfunc{Rf_unprotect}, we'll collect the argument for each call to
+\Cfunc{Rf_unprotect}. This might be a literal value, e.g. $2$ in our
+example, or a variable or a general expression.
+
+We have now identified the basic strategy for our visitor function.
+Next, we need to specify the details for the different types of
+cursors we encounter. A call to any of our routines will be identified
+by a cursor with a kind \Rvar{CXCursor_CallExpr}.  We can get the name
+of the routine being called using \Rfunc{getName} applied to this
+cursor. (There are other ways also, but this is the simplest.)  Based
+on this name, we update the relevant counter or ignore the call.  If
+the call is to \Cfunc{Rf_unprotect}, we have to arrange to get its
+argument.  We can use either of two approaches for this.  We can set a
+flag in our closure to indicate we are processing the sub-cursors of a
+\Cfunc{Rf_unprotect} call and then subsequent calls to our visitor
+function can check this and interpret the sub-cursors
+appropriately. Alternatively, we can explicitly traverse the children
+of the current call cursor to determine the argument.
+We'll use the former approach.
+
+We define our generator  function as
+\begin{RCode}
+genProtectAnalyzer =
+function()
+{
+  numAllocs = 0  
+  numProtectCalls = 0
+  numUnprotectCalls = numeric()
+
+  inUnprotect = FALSE  
+  allocCounterVarName = ""    
+  unProtectParent = NULL
+
+  update = function(cur, parent)    {
+    k = cur$kind
+
+    if(inUnprotect && identical(unProtectParent, cur) ) {
+       unProtectParent <<- NULL
+       inUnprotect <<- FALSE
+     }
+    
+   if(k == CXCursor_CallExpr) {
+      fn = getName(cur)
+      print(fn)
+      if(fn == "PROTECT" || fn == "Rf_protect")
+        numProtectCalls <<- numProtectCalls + 1
+      else if(fn == "UNPROTECT" || fn == "Rf_unprotect") {
+        numUnprotectCalls <<- numUnprotectCalls
+        unProtectParent <<- parent
+        inUnprotect <<- TRUE
+      } else if(fn %in% c("Rf_allocVector", "NEW_NUMERIC", "NEW_INTEGER", "NEW_LOGICAL", "NEW_CHARACTER"))
+          numAllocs <<- numAllocs + 1
+    } else if(inUnprotect) {
+       if(k == CXCursor_IntegerLiteral) {
+          val = getCursorTokens(cur)["Literal"]
+          numUnprotectCalls <<-  c(numUnprotectCalls, as.integer(val))
+       } else if(k == CXCursor_FirstExpr) {
+           allocCounterVarName <<- getName(cur)
+       }
+    }
+    
+    CXChildVisit_Recurse
+  }
+
+  list(update = update,
+       info = function() {
+                 list(numProtectCalls = numProtectCalls,
+                      numUnprotectCalls = numUnprotectCalls,
+                      inUnprotect = inUnprotect,
+                      numAllocs = numAllocs)})
+\end{RCode}
+%$
+For the present, ignore that second expression
+in our visitor function, the \Rfunc{if} expression.
+We'll discuss this below.
+
+
+
+Before we can check the routine, we have to read it into \R{}.
+We can do this with \Rfunc{getRoutines} via
+\begin{RCode}
+f = system.file("exampleCode", "protectIncorrect.c", package = "RCIndex")
+r = getRoutines(f, f, includes = sprintf("%s/include", R.home()))
+\end{RCode}
+Note that we specified the include directories so that
+the parser could find \file{Rinternals.h} and the other 
+\R{} header files.
+
+We create our visitor function by calling the generator function
+and then we pass the visitor to \Rfunc{visitCursor},
+along with our routine we want to check:
+\begin{RCode}
+v = genProtectAnalyzer()
+visitCursor(r$R_foo_incorrect, v$update)
+v$info()
+\end{RCode}
+The output is 
+\begin{ROutput}
+$numProtectCalls
+[1] 0
+
+$numUnprotectCalls
+numeric(0)
+
+$numAllocs
+[1] 2
+\end{ROutput}
+We can see there are two allocations and no calls to protect or
+unprotect.  
+In constrast, when we run this on the correct version, 
+each of the three counts has a value of $2$.
+
+\begin{comment}
+f = system.file("exampleCode", "protectCorrect.c", package = "RCIndex")
+r = getRoutines(f, f, includes = sprintf("%s/include", R.home()))
+v = genProtectAnalyzer()
+visitCursor(r$R_foo, v$update)
+v$info()
+\end{comment}
+%$
+
+We should revisit the \Rfunc{if} expression near the beginning
+of our visitor function:
+\begin{RCode}
+if(inUnprotect && identical(unProtectParent, cur) ) {
+   unProtectParent <<- NULL
+   inUnprotect <<- FALSE
+}
+\end{RCode}
+The purpose of this is to ensure that we don't continue to collect
+information from other cursors after we have processed any call to
+\Cfunc{UNPROTECT}.  If we didn't have this, the variable
+\Rvar{inUnprotect} would remain \Rtrue.  As a result, if there are
+\C{} expressions in the body of the routine after the call to
+\Cfunc{UNPROTECT} and they contain literal values or
+\Rvar{CXCursor_FirstExpr} cursors, we will continue to accumulate
+these as if they related to the \Cfunc{UNPROTECT} call.  As a result,
+we need to determine when we have finished examining the sub-cursors
+of the \Cfunc{UNPROTECT} call.  To do this, we record the parent
+cursor of the \Cfunc{UNPROTECT} call in \Rvar{unProtectParent}. Each
+time our visitor is called, we can compare the current cursor to this
+cursor and if they are the same, we are back to a sibling of the
+\Cfunc{UNPROTECT} call.
+
+Setting and unsetting a state variable across calls to a visitor
+function can be complex and often requires clear thinking.
+We could have used the other approach which was to detect
+the call to \Cfunc{UNPROTECT} and immediately determine its arguments
+using \Rfunc{children}. For example, we could have added the code
+\begin{RCode}
+arg = children(cur)[[2]]
+if(arg$kind == CXCursor_IntegerLiteral)
+   as.integer(getCursorTokens(arg)["Literal"])
+\end{RCode}
+%$
+This makes the visitor function a great deal simpler and also slightly
+faster as we can avoid traversing the sub-cursors again.  However,
+sometimes we have to use state, in particular when the information we
+need to extract is not in sub-cursors but in silbing cursors and their
+descendants.
+
+
+As a final remark about this example, we could make this more general
+and sophisticated.  A reasonably common idiom is to use a variable to
+count the number of calls to \Cfunc{PROTECT} we make, incrementing it
+each time. Then we pass this to \Cfunc{UNPROTECT}, e.g.
+\begin{CCode}
+ int n = 0;
+ PROTECT(a = Rf_allocVector(...)); n++;
+ PROTECT(b = Rf_allocVector(...)); n++;
+ PROTECT(c = Rf_allocVector(...)); n++;
+ PROTECT(d = Rf_allocVector(...)); n++;
+
+ UNPROTECT(n);
+\end{CCode}
+ It is easy to omit incrementing the counter in one
+or more cases. We can try to trace this by identifying the variable in
+the call to \Cfunc{UNPROTECT} and then finding out where it is
+incremented and try to find cases where it is not.
+% Show example code
+
+
