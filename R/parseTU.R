@@ -55,7 +55,8 @@ function(top, types = integer())
 }
 
 
-getFunctions.R = getRoutines.R = 
+getFunctions.R = getRoutines.R =
+  # THese are the pure R visitor forms. The real functions use a C visitor routine when there is no filtering by files.
 function(src, filenames = character(), col = genFunctionCollector(filenames), ...)
 {
   if(is(src, "CXTranslationUnit")) {
@@ -74,11 +75,15 @@ function(src, filenames = character(), col = genFunctionCollector(filenames), ..
 getFunctions = getRoutines = 
 function(src, filenames = character(), col = genFunctionCollector(filenames), expectedNum = 500, ...)
 {
-  if(length(filenames))
-    return(getRoutines.R(src, filenames, col, ...))
+#  if(length(filenames))
+#    return(getRoutines.R(src, filenames, col, ...))
 
   if(is.character(src))
     src = createTU(src, ...)
   ans = .Call("R_getRoutines", as(src, "CXCursor"), vector("list", expectedNum), character(expectedNum))
+
+  if(length(filenames)) 
+    ans = ans[ sapply(ans, function(x) getFileName(x) %in% filenames) ]
+  
   lapply(ans, makeRoutineObject)
 }

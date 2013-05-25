@@ -70,9 +70,9 @@ setAs("CXType", "character",
 
 setMethod("show", "FunctionDecl",
           function(object) {
-             show(sprintf("%s %s(%s)", as(object$returnType, "character"),
-                                  getName(object$def),
-                                  paste(sapply(object$params,
+             show(sprintf("%s %s(%s)", as(object@returnType, "character"),
+                                  getName(object@def),
+                                  paste(sapply(object@params,
                                                 function(x)
                                                     sprintf("%s %s", as(x$type, "character"), getName(x))),
                                            collapse = ", ")))
@@ -96,7 +96,7 @@ function(src, visitor = genEnumCollector(), ...)
 }
 
 
-
+if(FALSE) {
 genEnumCollector =
 function()
 {
@@ -113,6 +113,7 @@ function()
   }
 
   list(update = update, enums = function() vars)
+}
 }
 
 genEnumCollector =

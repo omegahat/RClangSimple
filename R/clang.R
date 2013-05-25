@@ -44,11 +44,25 @@ function(tu, fun, clone = FALSE, ...)
      tu = createTU(tu, ...)
    
    tu = as(tu, "CXCursor")
+
+   orig = fun
+   if(is(fun, "S4Visitor"))
+     fun = fun@update
+   else if(is(fun, "RefCursorVisitor"))
+     fun = fun$update
    
    if(!is.function(fun) && !is(fun, "NativeSymbol"))
      stop("must supply an R function to visitTU")
    
-   .Call("R_clang_visitChildren", tu, fun, as.logical(clone))
+   ans = .Call("R_clang_visitChildren", tu, fun, as.logical(clone))
+   
+   fun = orig
+   if(is(fun, "S4Visitor"))
+     fun@result()
+   else if(is(fun, "RefCursorVisitor"))
+     fun$result()
+   else
+     ans
 }
 
 

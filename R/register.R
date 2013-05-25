@@ -28,7 +28,7 @@ function(fun)
   if(length(fun$params) > 0 && !all(sapply(fun$params, isSEXP)))
     return(FALSE)
 
-  isSEXP(fun$returnType)
+  isSEXP(fun@returnType)
 }
 
 
@@ -58,8 +58,8 @@ isDotC =
   # to be invoked via a .C() call.
 function(fun)
 {
-  getTypeKind(fun$returnType) == CXType_Void &&
-       all(sapply(fun$params, isDotCParamType))
+  getTypeKind(fun@returnType) == CXType_Void &&
+       all(sapply(fun@params, isDotCParamType))
 
 }
 

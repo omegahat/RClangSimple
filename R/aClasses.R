@@ -288,9 +288,6 @@ setClass("RDotCFunctionList", contains = "list")
 setClass("RDotCFunctionCode", contains = "character")
 
 
-setAs("FunctionDecl", "CXCursor",
-       function(from)
-         from$def)
 
 
           
