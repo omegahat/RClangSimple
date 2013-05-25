@@ -4,6 +4,8 @@ useDynLib(RCIndex)
 
 export(getCursorLinkage, getCursorLanguage, getCursorKind)
 
+export(getCppClasses, readCppClass)
+
 #exportPattern(".*")
 export(
 children,
@@ -378,7 +380,7 @@ export(getCursorUSR)
 
 export(isFileMultipleIncludeGuarded)
 
-export(findGlobalUse)
+export(findGlobalUse, getGlobalVariables)
 
 
 
@@ -418,7 +420,7 @@ export(getChildren)
 
 export(getInclusions)
 
-export(getInstantiationLocation,  getCursorExtent )
+export(getInstantiationLocation,  getCursorExtent, getLocation, getExpansionLocation, getPresumedLocation )
 
 export(getNumArguments, enableStackTraces, getTemplateCursorKind ,CXIndex_setGlobalOptions, CXIndex_getGlobalOptions)
 export(defaultSaveOptions, getEnumConstantDeclValue, getFieldDeclBitWidth, getSpecializedCursorTemplate, getElementType)

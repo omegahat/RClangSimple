@@ -717,6 +717,52 @@ R_clang_getInstantionLocation(SEXP r_loc)
 }
 
 
+SEXP
+R_clang_getExpansionLocation(SEXP r_loc)
+{
+    CXSourceLocation loc = * GET_REF(r_loc, CXSourceLocation);
+    CXFile file;
+    unsigned line, col, off;
+    CXString ans;
+
+    clang_getExpansionLocation(loc, &file, &line, &col, &off);
+    ans = clang_getFileName(file);
+    SEXP r_ans, tmp;
+    PROTECT(r_ans = NEW_LIST(2));
+    SET_VECTOR_ELT(r_ans, 0, CXStringToSEXP(ans));
+    SET_VECTOR_ELT(r_ans, 1,tmp = NEW_REAL(3));
+    REAL(tmp)[0] = line;
+    REAL(tmp)[1] = col;
+    REAL(tmp)[2] = off;
+    UNPROTECT(1);
+    return(r_ans);
+}
+
+
+
+SEXP
+R_clang_getPresumedLocation(SEXP r_loc)
+{
+    CXSourceLocation loc = * GET_REF(r_loc, CXSourceLocation);
+    CXFile file;
+    unsigned line, col;
+    CXString ans;
+
+    clang_getPresumedLocation(loc, &file, &line, &col);
+    ans = clang_getFileName(file);
+    SEXP r_ans, tmp;
+    PROTECT(r_ans = NEW_LIST(2));
+    SET_VECTOR_ELT(r_ans, 0, CXStringToSEXP(ans));
+    SET_VECTOR_ELT(r_ans, 1,tmp = NEW_REAL(2));
+    REAL(tmp)[0] = line;
+    REAL(tmp)[1] = col;
+
+    UNPROTECT(1);
+    return(r_ans);
+}
+
+
+
 const char *TokenKindNames[] = {"Punctuation", "Keyword", "Identifier", "Literal", "Comment"};
 const char * const 
 getTokenKindName(CXTokenKind val)
@@ -1235,7 +1281,7 @@ SEXP R_clang_isConstQualifiedType(SEXP r_T)
     unsigned int ans;
     ans = clang_isConstQualifiedType(T);
     
-    r_ans = ScalarReal(ans) ;
+    r_ans = ScalarLogical(ans) ; // manually changed. Do this by changing the return type in the R description of the object.
     
     return(r_ans);
 }

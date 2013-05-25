@@ -70,7 +70,7 @@
 \def\Rslot#1{\textbf{#1}}
 \def\Rarg#1{\textbf{#1}}
 \def\Roption#1{\dquote{\textsl{#1}}}
-
+\def\Cppkeyword#1{\textbf{#1}}
 
 \def\libclang{\textbf{libclang}}
 \def\clang{\textbf{clang}}
@@ -209,6 +209,10 @@ analyzing uses of \Cfunc{PROTECT} and \Cfunc{UNPROTECT} calls and
 ensuring there is an appropriate correspondance.  These are
 \R-specific checks and will not be done by other code-analyzing
 software.
+
+
+We can also find ``dead'' routines that are never called by other
+routines and so help to reduce the code.
 
 We hope these applications motivate the utility of being able to
 navigate native code in \R and indicate that there are many more.  In
@@ -364,9 +368,28 @@ existin association between the symbolic names.
 a source file.
 
 
+\Rfunc{getGlobalVariables} yields references to all of the non-local
+variables within a source file.  From this, we have their names and
+types.
+
+\Rfunc{getCppClasses} traverses a translation unit, either pre-parsed
+or a source file, and constructs a description for each of the \Cpp{}
+classes it contains. Each class description is an instance of the
+class \Rclass{C++Class}, with template classes using the derived class
+\Rclass{TemplateC++Class}.  A class description contains the name of
+the class, a list of its fields and another for its methods, and
+references to the base/super class cursors.  The fields and methods
+each have their type information and also the accessor qualifier,
+i.e. \Cppkeyword{private}, \Cppkeyword{protected} or
+\Cppkeyword{public}.
+
+
 \subsection{Building Blocks}
 
 \Rfunc{createTU}
+
+
+\subsection{Writing visitor functions}
 
 \section{Examples}
 

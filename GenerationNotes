@@ -3,3 +3,7 @@ getDiagnostic  - we add a "subtract 1 from the index" to the generated code sinc
 CXIndex_{s,g}etGlobalOptions needs some additional coercing of inputs and outputs to bitwise enums (CXGlobalOptFlags)
 
 Default values for some functions (e.g. 0 for the flag)
+
+
+For any routine with _is in the name, change the return type or how we coerce the result back to R for 
+ e.g. isQualifiedConstType.

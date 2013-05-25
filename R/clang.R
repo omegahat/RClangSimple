@@ -38,8 +38,11 @@ setAs("CXCursor", "CXType",
            from$type)
 
 visitTU = visitCursor = 
-function(tu, fun, clone = FALSE)
+function(tu, fun, clone = FALSE, ...)
 {
+   if(is.character(tu))
+     tu = createTU(tu, ...)
+   
    tu = as(tu, "CXCursor")
    
    if(!is.function(fun) && !is(fun, "NativeSymbol"))
@@ -88,14 +91,30 @@ getCursorExtent =
 function(x)
   .Call("R_clang_getCursorExtent", as(x, "CXCursor"))
 
-getInstantiationLocation =
-function(x)
+getLocation =
+function(x, type = "Expansion")
 {
-  ans = .Call("R_clang_getInstantionLocation", as(x, "CXSourceRange"))
+  routine = sprintf("R_clang_get%sLocation", type)
+  
+  ans = .Call(routine, as(x, "CXSourceRange"))
   names(ans) = c("file", "location")
-  names(ans$location) = c("line", "column", "offset")
+  names(ans$location) = c("line", "column", "offset")[seq(along = length(ans$location))] # Presumed doesn't return offset.
+
   ans
 }
+
+getInstantiationLocation =
+function(x)
+  getLocation(x, "Instantiation")
+
+getExpansionLocation =
+function(x)
+  getLocation(x, "Expansion")
+
+getPresumedLocation =
+function(x)
+  getLocation(x, "Presumed")
+  
 
 setMethod("getFileName", "CXSourceRange",
             function(x, ...)          

@@ -424,11 +424,73 @@ function()
 }
 
 findGlobals =
-function(r, visitor = genRoutineVariableRefsCollector(), ...)
+function(tu, visitor = genRoutineVariableRefsCollector(), ...)
 {
-  visitTU(r, visitor$update, clone = TRUE)
+  if(is.character(tu))
+    tu = createTU(tu, ...)
+  
+  visitTU(tu, visitor$update, clone = TRUE)
   info = visitor$info()
-browser()  
+
   ids = lapply(info, function(x) sapply(x, getName))
   setdiff(ids$varRefs,  c(ids$params, ids$localVars))
+}
+
+
+getGlobalVariables =
+function(tu, visitor = genGlobalVariablesCollector(), ...)
+{
+  visitTU(tu, visitor$update, ...)
+  visitor$variables()
+}
+
+genGlobalVariablesCollector =
+  # collect the global variables.
+  # This doesn't find static variables within a routine.
+function(withinRoutines = TRUE)
+{
+   vars = list()
+
+   update = function(cur, parent) {
+
+     k = cur$kind
+     if(k == CXCursor_VarDecl) 
+         vars[[getName(cur) ]] <<- makeVariableDescription(clone(cur))
+
+
+     CXChildVisit_Continue
+   }
+
+   list(update = update, variables = function() vars)
+}
+
+
+
+makeVariableDescription =
+  # Create a NativeVariable object.
+function(cur, clone = FALSE)
+{
+  if(clone)
+    cur = clone(cur)
+
+  new("NativeVariable", name = getName(cur), type = getType(cur), qualifiers = getQualifiers(cur), def = cur)
+}
+
+getQualifiers =
+  # determine if an entity is const, static.
+function(cur)
+{
+  toks = getCursorTokens(cur)
+
+  ty = getType(cur)
+  
+#  i = match("Identifier", names(toks))
+#  if(!is.na(i)) 
+#     const = (i > 1 && toks[i-1] == "const")
+  const = isConstQualifiedType(ty)
+
+     # can static appear in other positions. Yes!
+  static = any(toks == "static")
+  
+  c(static = static,  const = const)
 }

@@ -26,6 +26,15 @@ setMethod("[", c("CXDiagnosticSet", "numeric"), tmp)
 setMethod("[", c("CXDiagnosticSet", "integer"), tmp)
 
 
+
+setClass("AnonymousNativeElement", representation(def = "CXCursor"))
+setClass("NativeElement", representation(name = "character"), contains = "AnonymousNativeElement")
+setClass("NativeVariable",
+           representation(name = "character", type = "CXType", qualifiers = "logical"), contains = "NativeElement")
+
+setAs("NativeElement", 'CXCursor', function(from) from@def)
+
+
 setAs("CXDiagnostic", "character",
       function(from)
          getDiagnosticSpelling(from))
