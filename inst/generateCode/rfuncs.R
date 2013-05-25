@@ -1,5 +1,5 @@
 createRProxy =
-function(fun, name = getName(fun), argNames = names(fun$params),
+function(fun, name = getName(fun), argNames = names(fun@params),
           nativeProxyName = sprintf("R_%s", getName(fun)),
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
           typeMap = NULL, libPrefix = "clang_")
@@ -10,14 +10,14 @@ function(fun, name = getName(fun), argNames = names(fun$params),
    if(any(w <- (argNames == ""))) 
       argNames[w] = sprintf("arg%d", which(w))
   
-   coercedArgs = makeCoercedArgs(fun$params, argNames)
+   coercedArgs = makeCoercedArgs(fun@params, argNames)
    call = c(sprintf(".Call('%s'",  nativeProxyName),
-             if(length(fun$params)) ", ", 
+             if(length(fun@params)) ", ", 
              paste(c(coercedArgs, if(!is.na(PACKAGE)) c(PACKAGE = PACKAGE)), collapse = ", "),
             ")")
    call = paste(call, collapse = "")
    
-#   sig = makeSignature(argNames, fun$params, defaultValues, guessDefaults)
+#   sig = makeSignature(argNames, fun@params, defaultValues, guessDefaults)
 
    rt = fun$returnType
    if(length(fun$actualReturnType))

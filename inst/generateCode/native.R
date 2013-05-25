@@ -4,7 +4,7 @@ createNativeProxy =
   # RCUDA for  example does not add a *, but in RCIndex we do add the *.
 function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL, GetRefAddsStar = TRUE)
 {
-   argNames = names(fun$params)
+   argNames = names(fun@params)
    if(any(w <- (argNames == ""))) 
       argNames[w] = sprintf("arg%d", which(w))
 
@@ -12,7 +12,7 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL, GetRefAddsSt
 
    call = sprintf("%s(%s);", getName(fun), paste(argNames, collapse = ", "))
 
-   cvtCode = convertValueToR(fun$returnType, "ans", typeMap = typeMap)
+   cvtCode = convertValueToR(fun@returnType, "ans", typeMap = typeMap)
 
    convertResult = if(length(cvtCode) == 0 || is(cvtCode, "AsIs") || length(cvtCode) > 1) cvtCode else paste("r_ans =", cvtCode, ";")
      
@@ -20,10 +20,10 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL, GetRefAddsSt
                         if(length(rargNames)) paste("SEXP", rargNames, collapse = ", ") else ""),
             "{",
              "SEXP r_ans = R_NilValue;",
-             makeLocalVars(fun$params, rargNames, argNames, GetRefAddsStar = GetRefAddsStar),
+             makeLocalVars(fun@params, rargNames, argNames, GetRefAddsStar = GetRefAddsStar),
              "",
-             if(getTypeKind(fun$returnType) != CXType_Void)
-                c(paste(getName(fun$returnType), "ans;"), paste("ans =", call))
+             if(getTypeKind(fun@returnType) != CXType_Void)
+                c(paste(getName(fun@returnType), "ans;"), paste("ans =", call))
              else
                 call,
              "",
@@ -33,7 +33,7 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL, GetRefAddsSt
             "}"
            )
 
-   CRoutineDefinition(name, code, length(fun$params), as.character(NA))
+   CRoutineDefinition(name, code, length(fun@params), as.character(NA))
 }
 
 BasicTypeKindNames =

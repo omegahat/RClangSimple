@@ -68,9 +68,10 @@ setMethod("getName", "CXType",
            function(x, ...)
                .Call("R_clang_getTypeSpelling", x))
 
-setMethod("getName", "FunctionDecl",
+setMethod("getName", "NativeElement",
            function(x, ...)
-             getName(x$def))
+           # getName(x@def
+             x@name)
 
 
 

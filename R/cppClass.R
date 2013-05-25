@@ -1,5 +1,3 @@
-setClass("C++Class", representation(superClasses = "list", fields = "list", methods = "list"), contains = "NativeElement")
-setClass("TemplateC++Class", representation(templateParams = "list"), contains = "C++Class")
 
 readCppClass = 
 function(cursor, visitor = genCppClassInfoCollector(cursor))

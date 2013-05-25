@@ -1,7 +1,13 @@
 <items>
-<item>
+<item status="check">
 S4 class for FunctionDecl. Extend NativeElement.
 Will  break the code in generateCode and CUDA/TU/nativeGen.R
+<br/>
+Code in generateCode/ and RCUDA/TU/ is now changed and seems to work.
+</item>
+
+<item>
+S4 class for structure description. And change code in inst/generateCode.
 </item>
 
 

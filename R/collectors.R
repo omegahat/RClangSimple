@@ -50,7 +50,8 @@ function(cur)
 
      params = children(cur, CXCursor_ParmDecl)
      names(params) = sapply(params, getName)
-     structure(list(returnType = ret, params = params, def = clone(cur)), class = "FunctionDecl")
+#     structure(list(returnType = ret, params = params, def = clone(cur)), class = "FunctionDecl")
+     new("FunctionDecl", name = id, def = clone(cur), returnType = ret, params = params)
 }
 
 

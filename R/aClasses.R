@@ -32,7 +32,13 @@ setClass("NativeElement", representation(name = "character"), contains = "Anonym
 setClass("NativeVariable",
            representation(name = "character", type = "CXType", qualifiers = "logical"), contains = "NativeElement")
 
+setClass("FunctionDecl", representation(params = "list", returnType = "CXType"), contains = "NativeElement")
+
+setClass("C++Class", representation(superClasses = "list", fields = "list", methods = "list"), contains = "NativeElement")
+setClass("TemplateC++Class", representation(templateParams = "list"), contains = "C++Class")
+
 setAs("NativeElement", 'CXCursor', function(from) from@def)
+
 
 
 setAs("CXDiagnostic", "character",
@@ -272,7 +278,7 @@ setMethod("isPOD", "CXType",
 		.Call("R_clang_isPOD", x))
 
 
-setOldClass("FunctionDecl")
+#setOldClass("FunctionDecl")
 setOldClass("RCallableFunctions")
 setClass("RegistrationTable", contains = "character")
 
