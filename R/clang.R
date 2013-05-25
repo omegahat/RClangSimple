@@ -98,7 +98,7 @@ function(x, type = "Expansion")
   
   ans = .Call(routine, as(x, "CXSourceRange"))
   names(ans) = c("file", "location")
-  names(ans$location) = c("line", "column", "offset")[seq(along = length(ans$location))] # Presumed doesn't return offset.
+  names(ans$location) = c("line", "column", "offset")[seq(along = ans$location)] # Presumed doesn't return offset.
 
   ans
 }
@@ -118,11 +118,11 @@ function(x)
 
 setMethod("getFileName", "CXSourceRange",
             function(x, ...)          
-              .Call("R_clang_getInstantionLocation", x)[[1]])
+              .Call("R_clang_getInstantiationLocation", x)[[1]])
 
 setMethod("getFileName", "CXSourceLocation",
             function(x, ...)          
-              .Call("R_clang_getInstantionLocation", x)[[1]])
+              .Call("R_clang_getInstantiationLocation", x)[[1]])
 
 setMethod("getFileName", "CXFile",
             function(x, ...) {

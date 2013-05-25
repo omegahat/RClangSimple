@@ -696,7 +696,7 @@ R_clang_getCursorExtent(SEXP r_cursor)
 //    CXSourceLocation loc = clang_getRangeStart(range);
 
 SEXP
-R_clang_getInstantionLocation(SEXP r_loc)
+R_clang_getInstantiationLocation(SEXP r_loc)
 {
     CXSourceLocation loc = * GET_REF(r_loc, CXSourceLocation);
     CXFile file;
@@ -744,15 +744,13 @@ SEXP
 R_clang_getPresumedLocation(SEXP r_loc)
 {
     CXSourceLocation loc = * GET_REF(r_loc, CXSourceLocation);
-    CXFile file;
+    CXString str;
     unsigned line, col;
-    CXString ans;
 
-    clang_getPresumedLocation(loc, &file, &line, &col);
-    ans = clang_getFileName(file);
+    clang_getPresumedLocation(loc, &str, &line, &col);
     SEXP r_ans, tmp;
     PROTECT(r_ans = NEW_LIST(2));
-    SET_VECTOR_ELT(r_ans, 0, CXStringToSEXP(ans));
+    SET_VECTOR_ELT(r_ans, 0, CXStringToSEXP(str));
     SET_VECTOR_ELT(r_ans, 1,tmp = NEW_REAL(2));
     REAL(tmp)[0] = line;
     REAL(tmp)[1] = col;

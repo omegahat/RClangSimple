@@ -1,3 +1,7 @@
+  *  S4 classes for native element types
+
+  *  getGlobalVariables() and optionally identifies static variables in routines
+
   *  getEnums() extended to allow code with explicit assignments of values, using literals and earlier enumerated values.
 
   *  getInclusions()

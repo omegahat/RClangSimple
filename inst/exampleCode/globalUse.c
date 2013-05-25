@@ -12,6 +12,14 @@ static const char * const str2  = 0;
 const static int food;
 const int static dog;
 
+void
+updateCounter()
+{
+  static int counter = 0;
+  counter++;
+}
+
+
 int
 foo(int a)
 {

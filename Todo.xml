@@ -1,4 +1,10 @@
 <items>
+<item>
+S4 class for FunctionDecl. Extend NativeElement.
+Will  break the code in generateCode and CUDA/TU/nativeGen.R
+</item>
+
+
 <item status="done">
 CXIndex_setGlobalOptions - define bitwise enum and change
 the code to do the coercion.
@@ -7,11 +13,13 @@ the code to do the coercion.
 <item>
 Generate documentation programmatically.
 Can get from comments.
+Also, see RCUDA TU/docs.R
 </item>
 
 <item>
 Finish off Reference classes for collectors.
 <br/>implement collectors as ReferenceClasses
+And recognize an S4 class also.
 </item>
 
 <item>
@@ -22,10 +30,10 @@ function to reparse a TU.
 Allow us to set our own types that mimic the libclang types, i.e. classes
 that have the same methods.
 This would allow us to change the parameters and return types in routines,
-e.g. set the returnType on a FunctionDecl.
+e.g. set the returnType on a FunctionDecl, e.g. isConstQualifiedType
 </item>
 
-<item>
+<item status="done">
 Why aren't we seeing comment nodes.
 <br/>
 Only see the doxygen comments by default.
@@ -208,7 +216,7 @@ Detect the typedefs. How do we find the parent?
 Can get the type in the enum def and then use its getName() method.
 </item>
 
-<item>
+<item status="done">
 Generate code for clang_getInclusions.
 Function pointer and data.
 </item>
@@ -225,15 +233,20 @@ getType function
 Just as(x, "CXType")
 </item>
 
-<item>
+<item status="no">
 Fill in the other routines of the API using RGCCTU.
 Resolve the existing code with the CXTypePtr, etc.
 Either tell RGCCTU what name to use, or change the existing code!
+<br/>
+We have enough of libclang to generate these using libclang and RCIndex.
 </item>
 
-<item>
+<item status="done">
 Function to read a header file. Ideally w/o writing a .c file.
+<br/>
+libclang can do this w/o our intervention.
 </item>
+
 <item>
 Getting the name of a type doesn't seem to be working anymore.
 See tests/fib.R.
@@ -263,7 +276,7 @@ Enumeration values when not default.
 </item>
 
 <item>
-Getting C++ routines
+Getting C++ routines, classes, etc.
 </item>
 
 <item>

@@ -451,14 +451,18 @@ function(withinRoutines = TRUE)
 {
    vars = list()
 
+   status = if(withinRoutines) CXChildVisit_Recurse else CXChildVisit_Continue
+     
    update = function(cur, parent) {
 
      k = cur$kind
-     if(k == CXCursor_VarDecl) 
-         vars[[getName(cur) ]] <<- makeVariableDescription(clone(cur))
+     if(k == CXCursor_VarDecl)  {
+         if(parent$kind == CXCursor_TranslationUnit || getQualifiers(cur)["static"])
+            vars[[getName(cur) ]] <<- makeVariableDescription(clone(cur))
+     }
 
 
-     CXChildVisit_Continue
+     status
    }
 
    list(update = update, variables = function() vars)
