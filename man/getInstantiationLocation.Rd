@@ -1,5 +1,8 @@
 \name{getInstantiationLocation}
 \alias{getInstantiationLocation}
+\alias{getExpansionLocation}
+\alias{getPresumedLocation}
+\alias{getLocation}
 \alias{getRange}
 \alias{getNullLocation}
 \alias{isInSystemHeader}

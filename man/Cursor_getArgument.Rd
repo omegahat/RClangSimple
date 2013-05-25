@@ -1,9 +1,11 @@
 \name{Cursor_getArgument}
 \alias{Cursor_getArgument}
-\alias{Cursor_getBriefCommentText}
 \alias{Cursor_getNumArguments}
 \alias{Cursor_getParsedComment}
+\alias{Cursor_getBriefCommentText}
 \alias{Cursor_getRawCommentText}
+\alias{getBriefCommentText}
+\alias{getRawCommentText}
 \alias{Cursor_getReceiverType}
 \alias{Cursor_isBitField}
 \alias{Cursor_isDynamicCall}
@@ -37,6 +39,8 @@
 \alias{getIncludedFile}
 \alias{CXXMethod_isStatic}
 \alias{CXXMethod_isVirtual}
+\alias{getReceiverType}
+\alias{getCursorDefinition}
 \title{Functions for operating on CXCursor objects}
 \description{
 }

@@ -449,3 +449,7 @@ export(getNullCursor, getNullLocation)
 
 export(getCursorDefinition, getCursorReferenced)
 
+
+
+exportClasses(S4Visitor, RefVisitor)
+

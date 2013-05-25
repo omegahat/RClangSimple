@@ -15,7 +15,7 @@
 \alias{getName,CXFile-method}
 \alias{getName,CXSourceLocation-method}
 \alias{getName,CXSourceRange-method}
-\alias{getName,FunctionDecl-method}
+\alias{getName,NativeElement-method}
 
 \alias{getResultType}
 \alias{getResultType,CXCursor-method}

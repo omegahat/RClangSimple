@@ -11,21 +11,18 @@ S4 class for structure description. And change code in inst/generateCode.
 </item>
 
 
-<item status="done">
-CXIndex_setGlobalOptions - define bitwise enum and change
-the code to do the coercion.
-</item>
-
 <item>
 Generate documentation programmatically.
 Can get from comments.
 Also, see RCUDA TU/docs.R
 </item>
 
-<item>
+<item status="check">
 Finish off Reference classes for collectors.
 <br/>implement collectors as ReferenceClasses
 And recognize an S4 class also.
+<br/>
+visitTU() now handles these.
 </item>
 
 <item>
@@ -39,43 +36,13 @@ This would allow us to change the parameters and return types in routines,
 e.g. set the returnType on a FunctionDecl, e.g. isConstQualifiedType
 </item>
 
-<item status="done">
-Why aren't we seeing comment nodes.
-<br/>
-Only see the doxygen comments by default.
-If we want all the comments, use the argument "-fparse-all-comments" when creating the TU.
-Then the comments appear, not as their own cursor kind, but attched to certain cursors.
-(Found this by grepping for Comment in the clang/docs/ directory in llvm-devel.
-</item>
 
 <item>
 Make the structs and data types more accessible with 
 R-like operators on fields to get, e.g. line numbers, etc.
 </item>
 
-<item status="done">
-Cursors seem to be being freed or else getName() is broken on the cursors
-but works in the  visitor.  I wasn't cloning them!
-findGlobals
-</item>
 
-<item status="done">
-Explanation: not cloning the cursors.
-aborting in visitor. See explorations/protect.R
-Could it be anything to do with the cursors and not copying them deeply?
-No, it has to do with releasing the TU.
-Can we get the TU from a CXCursor? If so, could use an external
-table to keep references counts.
-Reading the source code ~/llvm-devel/tools/clang/tools/libclang/,
-it appears we can get this information from the data, in data[2].
-
-<r:output><![CDATA[
- visitTU(as(r$R_foobar_ctr$def, "CXCursor"), a$update)
-Decl that isn't part of DeclNodes.inc!
-UNREACHABLE executed at /Users/duncan/llvm-devel/tools/clang/tools/libclang/../../include/clang/AST/DeclVisitor.h:45!
-Abort
-]]></r:output>
-</item>
 
 <item>
 Show how to read C code and find references to global variables
@@ -94,10 +61,6 @@ So let's explore those:
 getCursorReferenced(),   getCursorUSR ?
 </item>
 
-<item status="done">
-set options on an index setGlobalOptions()
-Bitwise value.
-</item>
 
 <item>
 Pointer types in routines that require us to create one explicitly
@@ -155,17 +118,6 @@ change getRReference() call in native.R to one that checks the class
 of the object. So add the class name in the call.
 </item>
 
-<item status="done">
-Already Done:   getStructDef()
-<br/>
-Get the information about a struct, i.e. its fields - names and types.
-getOffsetOf(). But how do we get the  names.
-Are we supposed to capture these when traversing the TU.
-Similarly for FunctionProto?
-We can do this with a call to clang_visitChildren().
-visitChildren(cursor, simpleVisitor)
-</item>
-
 <item>
 Get details of a FunctionProto.
 See tests/fnPointer.R
@@ -192,10 +144,7 @@ Have to figure out how to synchronize the two versions.
 Add bindings for the different relevant methods
 </item>
 
-<item status="done">
-Fix up the getCString()'s that don't have a dispose.
-[Done] Make a routine for this? Already existed CXStringToSEXP().
-</item>
+
 
 <item>
 Add features that are in RGCCTU for code generation.
@@ -211,27 +160,11 @@ and garbage collect them properly.
 <item>
 generate code for enum classes.
 See REnum.R in inst/generateCode/
-</item>n
-
-
-
-<item status="done">
-Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
-Make the enum type a formal class. Check if it is now?
-Detect the typedefs. How do we find the parent?
-Can get the type in the enum def and then use its getName() method.
 </item>
-
-<item status="done">
-Generate code for clang_getInclusions.
-Function pointer and data.
-</item>
-
 
 <item>
 Turn on USE_S4_ENUMS in src/Makevars.in
 </item>
-
 
 <item>
 getType function 
@@ -247,11 +180,6 @@ Either tell RGCCTU what name to use, or change the existing code!
 We have enough of libclang to generate these using libclang and RCIndex.
 </item>
 
-<item status="done">
-Function to read a header file. Ideally w/o writing a .c file.
-<br/>
-libclang can do this w/o our intervention.
-</item>
 
 <item>
 Getting the name of a type doesn't seem to be working anymore.
@@ -272,11 +200,6 @@ If we can't create the TU, get an error message.
 The -Xclang doesn't work anymore.
 </item>
 
-<item status="done">
-If the visitor function  doesn't return an integer, do it for them.
-Can try to coerce, but probably not a great idea.
-</item>
-
 <item>
 Enumeration values when not default.
 </item>
@@ -288,10 +211,99 @@ Getting C++ routines, classes, etc.
 <item>
 Precompiled headers
 </item>
+
 <item>
 CodeCompletion
 </item>
+
 <item>
 Index actions
+</item>
+
+<item status="done">
+Function to read a header file. Ideally w/o writing a .c file.
+<br/>
+libclang can do this w/o our intervention.
+</item>
+
+<item status="done">
+If the visitor function  doesn't return an integer, do it for them.
+Can try to coerce, but probably not a great idea.
+</item>
+
+
+
+
+<item status="done">
+Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
+Make the enum type a formal class. Check if it is now?
+Detect the typedefs. How do we find the parent?
+Can get the type in the enum def and then use its getName() method.
+</item>
+
+<item status="done">
+Generate code for clang_getInclusions.
+Function pointer and data.
+</item>
+
+
+
+<item status="done">
+Why aren't we seeing comment nodes.
+<br/>
+Only see the doxygen comments by default.
+If we want all the comments, use the argument "-fparse-all-comments" when creating the TU.
+Then the comments appear, not as their own cursor kind, but attched to certain cursors.
+(Found this by grepping for Comment in the clang/docs/ directory in llvm-devel.
+</item>
+
+<item status="done">
+Cursors seem to be being freed or else getName() is broken on the cursors
+but works in the  visitor.  I wasn't cloning them!
+findGlobals
+</item>
+
+<item status="done">
+Explanation: not cloning the cursors.
+aborting in visitor. See explorations/protect.R
+Could it be anything to do with the cursors and not copying them deeply?
+No, it has to do with releasing the TU.
+Can we get the TU from a CXCursor? If so, could use an external
+table to keep references counts.
+Reading the source code ~/llvm-devel/tools/clang/tools/libclang/,
+it appears we can get this information from the data, in data[2].
+
+<r:output><![CDATA[
+ visitTU(as(r$R_foobar_ctr$def, "CXCursor"), a$update)
+Decl that isn't part of DeclNodes.inc!
+UNREACHABLE executed at /Users/duncan/llvm-devel/tools/clang/tools/libclang/../../include/clang/AST/DeclVisitor.h:45!
+Abort
+]]></r:output>
+</item>
+
+<item status="done">
+set options on an index setGlobalOptions()
+Bitwise value.
+</item>
+
+<item status="done">
+Already Done:   getStructDef()
+<br/>
+Get the information about a struct, i.e. its fields - names and types.
+getOffsetOf(). But how do we get the  names.
+Are we supposed to capture these when traversing the TU.
+Similarly for FunctionProto?
+We can do this with a call to clang_visitChildren().
+visitChildren(cursor, simpleVisitor)
+</item>
+
+<item status="done">
+Fix up the getCString()'s that don't have a dispose.
+[Done] Make a routine for this? Already existed CXStringToSEXP().
+</item>
+
+<item status="done">
+CXIndex_setGlobalOptions - define bitwise enum and change
+the code to do the coercion.
 </item>
 </items>

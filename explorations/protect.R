@@ -4,24 +4,24 @@
 #
 # not trying to handle protects within conditionals, or other more compex issues
 #
+library(RCIndex)
 
 
 genProtectAnalyzer =
 function()
 {
-
+  numAllocs = 0  
   numProtectCalls = 0
-  numUnprotectCalls = 0
+  numUnprotectCalls = numeric()
+
+  inUnprotect = FALSE  
+  allocCounterVarName = ""    
   unProtectParent = NULL
-  inUnprotect = FALSE
-  numAllocs = 0
-  allocCounterVarName = ""
-  
+
   update = function(cur, parent)    {
     k = cur$kind
 
-#if(inUnprotect) browser()    
-    if(FALSE && inUnprotect && identical(unProtectParent, parent) ) {
+    if(inUnprotect && identical(unProtectParent, cur) ) {
        unProtectParent <<- NULL
        inUnprotect <<- FALSE
      }
@@ -35,15 +35,16 @@ function()
         numUnprotectCalls <<- numUnprotectCalls
         unProtectParent <<- parent
         inUnprotect <<- TRUE
-      } else if(fn == "Rf_allocVector")
+        browser()
+      } else if(fn %in% c("Rf_allocVector", "NEW_NUMERIC", "NEW_INTEGER", "NEW_LOGICAL", "NEW_CHARACTER"))
           numAllocs <<- numAllocs + 1
-    }  else if(inUnprotect) {
-      if(k == CXCursor_IntegerLiteral) {
-         val = getCursorTokens(cur)["Literal"]
-         numUnprotectCalls <<-  numUnprotectCalls + as.integer(val)
-      } else if(k == CXCursor_FirstExpr) {
-          allocCounterVarName <<- getName(cur)
-      }
+    } else if(inUnprotect) {
+       if(k == CXCursor_IntegerLiteral) {
+          val = getCursorTokens(cur)["Literal"]
+          numUnprotectCalls <<-  c(numUnprotectCalls, as.integer(val))
+       } else if(k == CXCursor_FirstExpr) {
+           allocCounterVarName <<- getName(cur)
+       }
     }
     
     CXChildVisit_Recurse
@@ -58,12 +59,17 @@ function()
     allocCounterVarName <<- ""    
   }
 
-  list(update = update, info = function() { list(numProtectCalls = numProtectCalls, numUnprotectCalls = numUnprotectCalls, inUnprotect = inUnprotect, numAllocs = numAllocs)}, reset = reset)
+  list(update = update,
+       info = function() {
+                 list(numProtectCalls = numProtectCalls,
+                      numUnprotectCalls = numUnprotectCalls,
+                      inUnprotect = inUnprotect,
+                      numAllocs = numAllocs)},
+       reset = reset)
 }
 
 
-if(TRUE) {
- library(RCIndex)
+if(FALSE) {
 # source("explorations/protect.R")
  tu = createTU("inst/exampleCode/protectError.c", includes = sprintf("%s/include", R.home()))
  r = getRoutines(tu)
@@ -72,5 +78,5 @@ if(TRUE) {
 
  a <- genProtectAnalyzer()
  gctorture(TRUE)
- visitTU(as(r$R_foobar_ctr$def, "CXCursor"), a$update)
+ visitTU(as(r$R_foobar_ctr@def, "CXCursor"), a$update)
 }
