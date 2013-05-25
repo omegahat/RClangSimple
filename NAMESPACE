@@ -217,7 +217,8 @@ export(getNumElements, getArraySize, getArrayElementType, getSizeOf, hashCursor)
 
 export(CXXMethod_isVirtual, CXXMethod_isStatic)
 
-export(getTokenKind)
+#exportClass(CXTokenKind)
+#export(getTokenKind)
 
 
 export(getPointerDepth, getPointerInfo)
@@ -227,7 +228,7 @@ export(getModule)
 export(getCanonicalCursor, isCursorDefinition, isDynamicCall)
 
 export(getNumOverloadedDecls)
-exportClass("EnumerationDefinition")
+#exportClass("EnumerationDefinition")
 
 
 export(Type_getAlignOf)
@@ -252,55 +253,22 @@ export(Cursor_getArgument)
 export(Cursor_isBitField)
 
 
-export(Cursor_getReceiverType)
+export(Cursor_getReceiverType, getReceiverType)
 
-
-
-
-
-export(Cursor_getRawCommentText)
-
-
-export(Cursor_getBriefCommentText)
-
-
-
+export(Cursor_getRawCommentText, getRawCommentText)
+export(Cursor_getBriefCommentText, getBriefCommentText)
 
 export(Module_getParent)
-
-
-export(Module_getParent)
-
 
 export(Module_getName)
-
-
 export(Module_getFullName)
 
 
 export(Module_getNumTopLevelHeaders)
-
-
-export(Module_getTopLevelHeader)
-
-
-export(Module_getParent)
-
-
-export(Module_getName)
-
-
-export(Module_getFullName)
-
-
-export(Module_getNumTopLevelHeaders)
-
-
 export(Module_getTopLevelHeader)
 
 
 export(equalTypes)
-
 
 export(isPODType)
 
@@ -317,7 +285,6 @@ export(CXXMethod_isVirtual)
 export(Cursor_isDynamicCall)
 
 
-export(isCursorDefinition)
 
 
 export(isVirtualBase)
@@ -391,10 +358,10 @@ export(CXCursorSet_insert)
 export(CXCursorSet_contains)
 
 
-export(Location_isInSystemHeader)
+export(Location_isInSystemHeader, isInSystemHeader)
 
 
-export(getTranslationUnitSpelling)
+#export(getTranslationUnitSpelling)
 
 
 export(saveTranslationUnit)
@@ -411,42 +378,72 @@ export(getCursorUSR)
 
 export(isFileMultipleIncludeGuarded)
 
-
-export(getCursorReferenced)
-
-
-
 export(findGlobalUse)
 
 
 
 export(getDiagnosticSetFromTU)
-
-
+export(getDiagnosticInSet)
 export(getDiagnostic)
-
-
 export(getNumDiagnostics)
-
-
 export(defaultDiagnosticDisplayOptions)
-
-
 export(getDiagnosticSpelling)
-
-
 export(getDiagnosticLocation)
-
-
 export(getDiagnosticSeverity)
-
-
 export(formatDiagnostic)
+
 
 export(getCursorTokens)
 export(getDefines, genDefinesCollector)
 
 export(findCalls)
 
-export(isVoidType, isPointerType)
+export(isVoidType, isPointerType, isStringType, isIntegerType)
+
+
+
+
+export(getVariables, genVariablesCollector)
+
+
+#export(disposeIndex)
+
+export(toggleCrashRecovery)
+export(getFunctionTypeCallingConv)
+
+
+exportClasses(CXCallingConv, CXLanguageKind, CXLinkageKind, CX_CXXAccessSpecifier, CXCursorKind)
+
+export(getChildren)
+
+export(getInclusions)
+
+export(getInstantiationLocation,  getCursorExtent )
+
+export(getNumArguments, enableStackTraces, getTemplateCursorKind ,CXIndex_setGlobalOptions, CXIndex_getGlobalOptions)
+export(defaultSaveOptions, getEnumConstantDeclValue, getFieldDeclBitWidth, getSpecializedCursorTemplate, getElementType)
+export(getOverloadedDecl , getNumOverloadedDecls)
+export(getEnumDeclIntegerType)
+
+export(getCXTUResourceUsage, getTUResourceUsage)
+export(getEnumDeclIntegerType, getTypedefDeclUnderlyingType)
+
+export(equalRanges, equalLocations, equalCursors)
+
+export(getCursorLocation)
+export(getRange)
+
+export(getParsedComment, Cursor_getParsedComment)
+
+export(Comment_getKind, Comment_getNumChildren, Comment_getChild, Comment_isWhitespace)
+
+export(getCursorLexicalParent, getCursorSemanticParent)
+
+export(getIncludedFile)
+
+export(getNullCursor, getNullLocation)
+
+
+
+export(getCursorDefinition, getCursorReferenced)
 

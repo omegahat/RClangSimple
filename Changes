@@ -1,2 +1,16 @@
+  *  getEnums() extended to allow code with explicit assignments of values, using literals and earlier enumerated values.
+
+  *  getInclusions()
+
+  *  getVariables() function and collector.
+
+  *  More sophisticated garbage collection that preserves the TU object until references
+     to cursors & types are released by R.
+
+  *  Fast version of findCalls.
+
+  *  Faster (C code) version of getRoutines when not filtering with file names.
 
   *  Added the kind of token as names for getCursorTokens().
+
+  *  Helper functions for testing types.

@@ -1,4 +1,67 @@
 <items>
+<item status="done">
+CXIndex_setGlobalOptions - define bitwise enum and change
+the code to do the coercion.
+</item>
+
+<item>
+Generate documentation programmatically.
+Can get from comments.
+</item>
+
+<item>
+Finish off Reference classes for collectors.
+<br/>implement collectors as ReferenceClasses
+</item>
+
+<item>
+function to reparse a TU.
+</item>
+
+<item>
+Allow us to set our own types that mimic the libclang types, i.e. classes
+that have the same methods.
+This would allow us to change the parameters and return types in routines,
+e.g. set the returnType on a FunctionDecl.
+</item>
+
+<item>
+Why aren't we seeing comment nodes.
+<br/>
+Only see the doxygen comments by default.
+If we want all the comments, use the argument "-fparse-all-comments" when creating the TU.
+Then the comments appear, not as their own cursor kind, but attched to certain cursors.
+(Found this by grepping for Comment in the clang/docs/ directory in llvm-devel.
+</item>
+
+<item>
+Make the structs and data types more accessible with 
+R-like operators on fields to get, e.g. line numbers, etc.
+</item>
+
+<item status="done">
+Cursors seem to be being freed or else getName() is broken on the cursors
+but works in the  visitor.  I wasn't cloning them!
+findGlobals
+</item>
+
+<item status="done">
+Explanation: not cloning the cursors.
+aborting in visitor. See explorations/protect.R
+Could it be anything to do with the cursors and not copying them deeply?
+No, it has to do with releasing the TU.
+Can we get the TU from a CXCursor? If so, could use an external
+table to keep references counts.
+Reading the source code ~/llvm-devel/tools/clang/tools/libclang/,
+it appears we can get this information from the data, in data[2].
+
+<r:output><![CDATA[
+ visitTU(as(r$R_foobar_ctr$def, "CXCursor"), a$update)
+Decl that isn't part of DeclNodes.inc!
+UNREACHABLE executed at /Users/duncan/llvm-devel/tools/clang/tools/libclang/../../include/clang/AST/DeclVisitor.h:45!
+Abort
+]]></r:output>
+</item>
 
 <item>
 Show how to read C code and find references to global variables
@@ -17,7 +80,7 @@ So let's explore those:
 getCursorReferenced(),   getCursorUSR ?
 </item>
 
-<item>
+<item status="done">
 set options on an index setGlobalOptions()
 Bitwise value.
 </item>
@@ -26,6 +89,7 @@ Bitwise value.
 Pointer types in routines that require us to create one explicitly
 getFileUniqueID
 </item>
+
 <item>
 Speed of, e.g., getFunctions, slowed down by match and S4 classes.
 match may be from filtering file names.
@@ -43,6 +107,7 @@ match may be from filtering file names.
 <item>
 Allow post-processing the return value from the .Call(), e.g. 
 getFileTime() and make it a POSIXct.  (See cuda.R example.)
+Want to do it programmatically.
 </item>
 
 <item>
@@ -77,7 +142,7 @@ of the object. So add the class name in the call.
 </item>
 
 <item status="done">
-Already Done:   getStrutDef()
+Already Done:   getStructDef()
 <br/>
 Get the information about a struct, i.e. its fields - names and types.
 getOffsetOf(). But how do we get the  names.
@@ -131,11 +196,10 @@ and garbage collect them properly.
 
 <item>
 generate code for enum classes.
-</item>
+See REnum.R in inst/generateCode/
+</item>n
 
-<item>
-implement collectors as ReferenceClasses
-</item>
+
 
 <item status="done">
 Put the names of the enumeration types in <r:func>genEnumCollector</r:func>.
@@ -190,13 +254,12 @@ The -Xclang doesn't work anymore.
 </item>
 
 <item status="done">
-If the visitor function  doesn't return an integer,
-do it for them.
+If the visitor function  doesn't return an integer, do it for them.
 Can try to coerce, but probably not a great idea.
 </item>
 
 <item>
-Enumeration values when not default
+Enumeration values when not default.
 </item>
 
 <item>
@@ -205,5 +268,11 @@ Getting C++ routines
 
 <item>
 Precompiled headers
+</item>
+<item>
+CodeCompletion
+</item>
+<item>
+Index actions
 </item>
 </items>

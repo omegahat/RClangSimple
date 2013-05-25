@@ -1,10 +1,23 @@
 #include "RClang.h"
 #include <stdlib.h>
+//#define DEBUG_RCLANG_REF_COUNT 1
+
+typedef struct TUStatus {
+    const void *id;
+    unsigned int count;
+    struct TUStatus *next;
+    struct TUStatus *prev;
+} TUStatus;
+
+TUStatus *tuTable = NULL;
+
+int Rclang_incrementTURefCount(const void *id, const void *For);
+int Rclang_decrementTURefCount(const void *id, const void *For);
 
 
-SEXP R_makeCXCursor(CXCursor type);
-SEXP R_makeCXType(CXType type);
-
+R_MAKE(CXSourceLocation)
+R_MAKE(CXFile)
+R_MAKE(CXSourceRange)
 
 SEXP createRefWithFinalizer(void *val, const char * type, R_CFinalizer_t free);
 
@@ -25,6 +38,10 @@ void *
 getRReference(SEXP val)
 {
     SEXP tmp = val; 
+
+    if(val == R_NilValue)
+	return(NULL);
+
     if(TYPEOF(tmp) != EXTPTRSXP) 
          tmp = GET_SLOT(tmp, Rf_install("ref")); 
     else
@@ -32,20 +49,15 @@ getRReference(SEXP val)
     return(R_ExternalPtrAddr(tmp));
 }
 
-#define GET_REF(val, type) \
-    (type *) getRReference(val)
-
-#define R_createRef(val, type) R_createReference(val, type, type)
 
 
-R_MAKE(CXSourceLocation)
 
 
 SEXP
 R_clang_createIndex(SEXP localPCH, SEXP diagnostics)
 {
     CXIndex ans;
-    ans = clang_createIndex(1, 1);
+    ans = clang_createIndex(INTEGER(localPCH)[0], LOGICAL(diagnostics)[0]);
     return(R_createRef(ans, "CXIndex"));
 }
 
@@ -54,33 +66,50 @@ R_freeTU(SEXP rtu)
 {
     CXTranslationUnit ptr = (CXTranslationUnit) R_ExternalPtrAddr(rtu);
     if(ptr) {
-	clang_disposeTranslationUnit(ptr);
-	// set rtu contents to NULL.
+	Rclang_decrementTURefCount(ptr, ptr);
+//	clang_disposeTranslationUnit(ptr);
+	R_SetExternalPtrAddr(rtu, NULL);
     }
 }
 
 SEXP
-R_clang_createTUFromSource(SEXP r_idx, SEXP src, SEXP r_args)
+R_clang_createTUFromSource(SEXP r_idx, SEXP src, SEXP r_args, SEXP r_options) //SEXP r_unsavedFiles
 {
     int nargs = Rf_length(r_args);
     CXTranslationUnit ans;
     CXIndex idx = GET_REF(r_idx, CXIndex);
-#if 1
+
     int i;
+// "-Xclang" , "-include-pch=IndexTest.pch"
     const char * *args = (const char * *) malloc(nargs * sizeof(char *));
     for(i = 0; i < nargs; i++) 
 	args[i] = CHAR(STRING_ELT(r_args, i));
+
+#if 0
+    ans = clang_createTranslationUnitFromSourceFile(idx, CHAR(STRING_ELT(src, 0)), nargs, args, 0, 0);
 #else
-    const char * const args[] = { "-Xclang" };  // , "-include-pch=IndexTest.pch"
-    nargs = 1;
+    unsigned options  = INTEGER(r_options)[0];
+    struct CXUnsavedFile *unsaved = NULL;
+    int numUnsaved = 0;
+/*
+    if((numUnsaved = Rf_length(r_unsavedFiles))) {
+	unsaved = (CXUnsavedFile *) R_alloc(sizeof(CXUnsavedFile), numUnsaved);
+	SEXP r_filenames = GET_NAMES(r_unsagedFiles);
+	for(i = 0; i < numUnsaved; i++) {
+	    unsaved[i].Filename = CHAR(STRING_ELT(r_filenames, i));
+	    unsaved[i].Contents = CHAR(STRING_ELT(r_filenames, i));
+	}
+    }
+*/
+    ans = clang_parseTranslationUnit(idx, CHAR(STRING_ELT(src, 0)), args, nargs, unsaved, numUnsaved,  options);
 #endif
 
-    ans = clang_createTranslationUnitFromSourceFile(idx, CHAR(STRING_ELT(src, 0)), nargs, args, 0, 0);
     if(!ans) {
 	PROBLEM "can't create the translation unit for %s", CHAR(STRING_ELT(src, 0))
 	    ERROR;
     }
 
+    Rclang_incrementTURefCount(ans, ans);
     return(createRefWithFinalizer(ans, "CXTranslationUnit", R_freeTU));
 }
 
@@ -96,12 +125,15 @@ SEXP
 R_CXCursor_explore(SEXP r_cur)
 {
     CXCursor *cursor = GET_REF(r_cur, CXCursor);
-    if(cursor)
+    if(cursor) {
+#if 0
 #if 0
 	fprintf(stderr, "%d\n", (int )cursor->data[0]);
 #else
         fprintf(stderr, "%d\n", (int )cursor->kind);
 #endif
+#endif
+    }
     return(R_makeCXCursor(*cursor));    
 }
 
@@ -174,8 +206,89 @@ R_clang_visitChildren(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
     return(ScalarInteger(ans));
 }
 
+
+void
+R_inclusion_visitor(CXFile included_file, CXSourceLocation *stack, unsigned stackLen, CXClientData userData)
+{
+    SEXP ptr, r_stack;
+    RVisitorData *d;
+    int i;
+
+    d = (RVisitorData *) userData;
+    ptr = CDR(d->expr);
+
+    CXString str = clang_getFileName(included_file);
+//    fprintf(stderr, "CFile %s\n", clang_getCString(str));
+    clang_disposeString(str);    
+
+    PROTECT(r_stack = NEW_LIST(stackLen));
+    for(i = 0; i < stackLen; i++) {
+	SET_VECTOR_ELT(r_stack, i, R_createRef(stack + i, "CXSourceLocation"));
+    }
+
+    SETCAR(ptr, R_createRef(included_file, "CXFile"));
+    ptr = CDR(ptr);
+    SETCAR(ptr, r_stack);
+
+    Rf_eval(d->expr, R_GlobalEnv);
+    UNPROTECT(1);
+}
+
+
+SEXP
+R_clang_getInclusions(SEXP r_tu, SEXP r_visitor)
+{
+    CXTranslationUnit tu = (CXTranslationUnit) GET_REF(r_tu, CXTranslationUnit);
+    CXInclusionVisitor fun = R_inclusion_visitor;
+    RVisitorData data;
+//    data.clone = LOGICAL(r_clone)[0];
+
+    if(TYPEOF(r_visitor) == CLOSXP) {
+	PROTECT(data.expr = allocVector(LANGSXP, 3));
+        SETCAR(data.expr, r_visitor);
+    } else 
+	fun = (CXInclusionVisitor) R_ExternalPtrAddr(r_visitor);
+
+    clang_getInclusions(tu, fun, &data);   
+
+    if(TYPEOF(r_visitor) == CLOSXP)
+	UNPROTECT(1);
+
+    return(R_NilValue);
+}
+
+
+
+SEXP
+R_clang_getCXTUResourceUsage(SEXP r_tu)
+{
+
+    CXTranslationUnit tu =  (CXTranslationUnit) getRReference(r_tu);
+
+    CXTUResourceUsage usage = clang_getCXTUResourceUsage(tu);
+    SEXP r_ans, r_names;
+    int i;
+    PROTECT(r_ans = NEW_NUMERIC(usage.numEntries));
+    PROTECT(r_names = NEW_CHARACTER(usage.numEntries));
+    for(i = 0; i < usage.numEntries; i++) {
+	REAL(r_ans)[i] = usage.entries[i].amount;
+	SET_STRING_ELT(r_names, i, mkChar(clang_getTUResourceUsageName(usage.entries[i].kind)));
+    }
+    clang_disposeCXTUResourceUsage(usage);
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+
+
+
+
+
 #if 1
-/* This returns something on the stack not the heap. */
+/* This returns something on the stack not the heap. So R_makeCXCursor copies it.
+   Not recursively hoever.*/
 SEXP
 R_clang_getTranslationUnitCursor(SEXP r_tu)
 {
@@ -225,8 +338,16 @@ void
 R_free(SEXP obj)
 {
   void *tmp = R_ExternalPtrAddr(obj);
-  if(tmp)
+#if DEBUG_RCLANG_REF_COUNT
+  fprintf(stderr, "free: typeof %d\n", TYPEOF(obj));
+#endif
+  if(tmp) {
+#if DEBUG_RCLANG_REF_COUNT
+fprintf(stderr, "free: %p\n", tmp);
+#endif
       free(tmp);
+      R_SetExternalPtrAddr(obj, NULL);
+  }
 }
 
 SEXP
@@ -234,28 +355,127 @@ createRefWithFinalizer(void *val, const char * type, R_CFinalizer_t free)
 {
     SEXP r_ans;
     PROTECT(r_ans = R_createReference(val, type, type));
+#if DEBUG_RCLANG_REF_COUNT
+fprintf(stderr, " R reference to %s ", type);
+Rf_PrintValue(GET_SLOT(r_ans, Rf_install("ref")));
+#endif
     R_RegisterCFinalizer(GET_SLOT(r_ans, Rf_install("ref")), free);
     UNPROTECT(1);
     return(r_ans);
+}
+
+
+int
+Rclang_incrementTURefCount(const void *id, const void *For)
+{
+    TUStatus *ptr = tuTable;
+    while(ptr) {
+	if(ptr->id == id) {
+#if DEBUG_RCLANG_REF_COUNT
+ fprintf(stderr, "incrementing TU %p (%d) for %p\n", id, ptr->count + 1, For);
+#endif
+	    return(ptr->count++);
+	}
+	ptr = ptr->next;
+    }
+    if(!ptr) {
+#if DEBUG_RCLANG_REF_COUNT
+fprintf(stderr, "registering TU %p\n", id);
+#endif
+	ptr = malloc(sizeof(TUStatus));
+	ptr->id = id;
+	ptr->count = 1;
+	ptr->next = tuTable;
+	ptr->prev = NULL;
+	if(tuTable)
+	    tuTable->prev = ptr;
+	tuTable = ptr;
+    }
+    return(1);
+}
+
+void
+removeTuTable(TUStatus *ptr)
+{
+    if(!ptr)
+	return;
+
+    if(ptr == tuTable) {
+	tuTable = ptr->next;
+	if(tuTable)
+	    tuTable->prev = NULL;
+    } else {
+	ptr->prev->next = ptr->next;
+	if(ptr->next)
+	    ptr->next->prev = ptr->prev;
+    }
+    ptr->next = ptr->prev = NULL;
+    free(ptr);
+}
+
+int
+Rclang_decrementTURefCount(const void *id, const void *For)
+{
+    TUStatus *ptr = tuTable;
+    while(ptr) {
+	if(ptr->id == id) {
+#if DEBUG_RCLANG_REF_COUNT
+fprintf(stderr, "decrementing TU %p (%d) for %p\n", id, (int) ptr->count, For);
+#endif
+	    ptr->count--;
+	    if(ptr->count == 0) {
+#if DEBUG_RCLANG_REF_COUNT
+		fprintf(stderr, "!!!  releasing the translation unit\n");
+#endif
+		clang_disposeTranslationUnit(ptr->id);		
+		removeTuTable(ptr);
+	    }
+	    return(1);
+	}
+	ptr = ptr->next;
+    }
+    if(!ptr) {
+	// !
+#if DEBUG_RCLANG_REF_COUNT
+fprintf(stderr, "**** couldn't find TU %p  for %p\n", id, For);
+#endif
+    }
+    return(0);
+}
+
+
+void 
+R_freeCursor(SEXP r_obj)
+{
+    CXCursor *cur = (CXCursor *) R_ExternalPtrAddr(r_obj);
+    Rclang_decrementTURefCount(clang_Cursor_getTranslationUnit(*cur), cur);
+    R_free(r_obj); // (void*) cur);
+    R_SetExternalPtrAddr(r_obj, NULL);
 }
 
 SEXP
 R_makeCXCursor(CXCursor type)
 {
     CXCursor *ans = (CXCursor *) malloc(sizeof(CXCursor));
+#if DEBUG_RCLANG_REF_COUNT
+fprintf(stderr, "malloc cursor: %p\n", ans);
+#endif
     *ans = type;
-    return(createRefWithFinalizer(ans, "CXCursor", R_free));
+//fprintf(stderr, "cursor -> TU: %p\n", (void*) type.data[2]);
+    Rclang_incrementTURefCount(clang_Cursor_getTranslationUnit(*ans), ans);
+    return(createRefWithFinalizer(ans, "CXCursor", R_freeCursor));
 }
 
 
 SEXP
-R_clang_CXCursor_getCursorDefinition(SEXP r_cursor)
+R_clang_getCursorDefinition(SEXP r_cursor)
 {
     CXCursor *cur =  GET_REF(r_cursor, CXCursor);
     return(R_makeCXCursor(clang_getCursorDefinition(*cur)));
 }
 
 
+/* Redundant now with programattically generated version */
 SEXP
 R_clang_CXCursor_getCursorReferenced(SEXP r_cursor)
 {
@@ -308,11 +528,20 @@ CXStringToSEXP(CXString str)
 #else
    const char * const tmp = clang_getCString(str);
    SEXP ans = ScalarString(mkChar(tmp ? tmp : ""));
-   clang_disposeString(str);
+   clang_disposeString(str);  // ???? should we do this here.
 #endif
    return(ans);
 }
 
+
+void 
+R_freeType(SEXP r_obj)
+{
+    CXType *ty = (CXType *) R_ExternalPtrAddr(r_obj);
+    Rclang_decrementTURefCount(ty->data[1], ty);
+    R_free(r_obj); 
+    R_SetExternalPtrAddr(r_obj, NULL);
+}
 
 
 SEXP
@@ -320,7 +549,9 @@ R_makeCXType(CXType type)
 {
     CXType *ans = (CXType *) malloc(sizeof(CXType));
     *ans = type;
-    return(R_createRef(ans, "CXType"));
+    Rclang_incrementTURefCount(type.data[1], ans);//XXXX looking at the internal details of libclang.
+    return(createRefWithFinalizer(ans, "CXType", R_freeType));
+//    return(R_createRef(ans, "CXType"));
 }
 
 SEXP
@@ -456,18 +687,33 @@ R_clang_isVirtualBase(SEXP r_obj)
 
 
 SEXP
-R_clang_getInstantionLocation(SEXP r_cursor)
+R_clang_getCursorExtent(SEXP r_cursor)
 {
     CXCursor *cur = GET_REF(r_cursor, CXCursor);
     CXSourceRange range = clang_getCursorExtent(*cur);
-    CXSourceLocation loc = clang_getRangeStart(range);
+    return(R_makeCXSourceRange(range));
+}
+//    CXSourceLocation loc = clang_getRangeStart(range);
+
+SEXP
+R_clang_getInstantionLocation(SEXP r_loc)
+{
+    CXSourceLocation loc = * GET_REF(r_loc, CXSourceLocation);
     CXFile file;
     unsigned line, col, off;
     CXString ans;
 
     clang_getInstantiationLocation(loc, &file, &line, &col, &off);
     ans = clang_getFileName(file);
-    return(CXStringToSEXP(ans));
+    SEXP r_ans, tmp;
+    PROTECT(r_ans = NEW_LIST(2));
+    SET_VECTOR_ELT(r_ans, 0, CXStringToSEXP(ans));
+    SET_VECTOR_ELT(r_ans, 1,tmp = NEW_REAL(3));
+    REAL(tmp)[0] = line;
+    REAL(tmp)[1] = col;
+    REAL(tmp)[2] = off;
+    UNPROTECT(1);
+    return(r_ans);
 }
 
 
@@ -625,21 +871,6 @@ return(r_ans);
 }
 
 
-SEXP R_clang_getNumOverloadedDecls(SEXP r_cursor)
-{
-SEXP r_ans = R_NilValue;
-CXCursor cursor = * GET_REF(r_cursor, CXCursor);
-
-unsigned int ans;
-ans = clang_getNumOverloadedDecls(cursor);
-
-r_ans = ScalarReal(ans) ;
-
-return(r_ans);
-}
-
-
-
 
 SEXP R_clang_Type_getAlignOf(SEXP r_T)
 {
@@ -674,18 +905,6 @@ return(r_ans);
 
 
 
-SEXP R_clang_Cursor_getNumArguments(SEXP r_C)
-{
-SEXP r_ans = R_NilValue;
-CXCursor C = * GET_REF(r_C, CXCursor);
-
-int ans;
-ans = clang_Cursor_getNumArguments(C);
-
-r_ans = ScalarInteger(ans) ;
-
-return(r_ans);
-}
 
 SEXP R_clang_Cursor_getArgument(SEXP r_C, SEXP r_i)
 {
@@ -1093,33 +1312,6 @@ SEXP R_clang_getFile(SEXP r_tu, SEXP r_file_name)
 }
 
 
-SEXP R_clang_getCursorSemanticParent(SEXP r_cursor)
-{
-    SEXP r_ans = R_NilValue;
-    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
-    
-    CXCursor ans;
-    ans = clang_getCursorSemanticParent(cursor);
-    
-    r_ans = R_makeCXCursor(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_clang_getCursorLexicalParent(SEXP r_cursor)
-{
-    SEXP r_ans = R_NilValue;
-    CXCursor cursor = * GET_REF(r_cursor, CXCursor);
-    
-    CXCursor ans;
-    ans = clang_getCursorLexicalParent(cursor);
-    
-    r_ans = R_makeCXCursor(ans) ;
-    
-    return(r_ans);
-}
-
 
 SEXP R_clang_CXCursorSet_insert(SEXP r_cset, SEXP r_cursor)
 {
@@ -1280,6 +1472,32 @@ SEXP R_clang_getDiagnosticSetFromTU(SEXP r_Unit)
 }
 
 
+SEXP R_clang_getDiagnosticInSet(SEXP r_diags, SEXP r_index)
+{
+    SEXP r_ans = R_NilValue;
+    CXDiagnosticSet diags = (CXDiagnosticSet) getRReference(r_diags);
+    CXDiagnostic ans;
+    ans = clang_getDiagnosticInSet(diags, INTEGER(r_index)[0]);
+    
+    r_ans = R_createRef(ans, "CXDiagnostic") ;
+    
+    return(r_ans);
+}
+
+SEXP R_clang_getNumDiagnosticsInSet(SEXP r_Diags)
+{
+    SEXP r_ans = R_NilValue;
+    CXDiagnosticSet Diags = (CXDiagnosticSet) getRReference(r_Diags);
+    
+    unsigned int ans;
+    ans = clang_getNumDiagnosticsInSet(Diags);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+} 
+
+
 SEXP R_clang_getDiagnostic(SEXP r_Unit, SEXP r_Index)
 {
     SEXP r_ans = R_NilValue;
@@ -1379,6 +1597,73 @@ SEXP R_clang_formatDiagnostic(SEXP r_Diagnostic, SEXP r_Options)
 }
 
 
+SEXP R_clang_getDiagnosticNumRanges(SEXP r_arg1)
+{
+    SEXP r_ans = R_NilValue;
+    CXDiagnostic arg1 = (CXDiagnostic) getRReference(r_arg1);
+    
+    unsigned int ans;
+    ans = clang_getDiagnosticNumRanges(arg1);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+} 
+
+/*  */
+SEXP R_clang_disposeIndex(SEXP r_index)
+{
+    SEXP r_ans = R_NilValue;
+    CXIndex index = (CXIndex) getRReference(r_index);
+    
+    clang_disposeIndex(index);
+    
+    return(r_ans);
+} 
+
+
+SEXP R_clang_toggleCrashRecovery(SEXP r_isEnabled)
+{
+    SEXP r_ans = R_NilValue;
+    unsigned int isEnabled = REAL(r_isEnabled)[0];
+    
+    clang_toggleCrashRecovery(isEnabled);
+    
+    
+    return(r_ans);
+} 
+
+SEXP R_clang_getFunctionTypeCallingConv(SEXP r_T)
+{
+    SEXP r_ans = R_NilValue;
+    CXType T = * GET_REF(r_T, CXType);
+    
+    enum CXCallingConv ans;
+    ans = clang_getFunctionTypeCallingConv(T);
+    
+    r_ans = Renum_convert_CXCallingConv(ans) ;
+    
+    return(r_ans);
+} 
+
+
+SEXP R_clang_getLocation(SEXP r_tu, SEXP r_file, SEXP r_line, SEXP r_column)
+{
+    SEXP r_ans = R_NilValue;
+    CXTranslationUnit tu = (CXTranslationUnit) getRReference(r_tu);
+    CXFile file = (CXFile) getRReference(r_file);
+    unsigned int line = REAL(r_line)[0];
+    unsigned int column = REAL(r_column)[0];
+    
+    CXSourceLocation ans;
+    ans = clang_getLocation(tu, file, line, column);
+    
+    r_ans = R_makeCXSourceLocation(ans) ;
+    
+    return(r_ans);
+} 
+
+
 /*-------------------------------*/
 /* This is code that I can call from LLVM and use as a test. */
 
@@ -1407,7 +1692,7 @@ R_clang_visitChildren_LLVM_test(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
 int
 clang_CXCursor_kind(CXCursor cur)
 {
-    return(cur.kind);
+    return(clang_getCursorKind(cur));
 }
 
 const char *
@@ -1417,3 +1702,85 @@ clang_CXCursor_getName(CXCursor cur)
     const char *str =  clang_getCString(cstr);
     return(str);
 }
+
+
+/***********************************************/
+/* This is for faster, specialized  visitors for specific tasks
+   that we don't want to do with R functions, until we can compile them
+   with Rllvm to take a cursor as an argument, and not a pointer.
+  */
+typedef struct {
+    SEXP ans;
+    SEXP names;
+    int counter;
+    int protects;
+} RCallCounter;
+
+enum CXChildVisitResult 
+R_callVisitor(CXCursor cur, CXCursor parent, void *data)
+{
+    RCallCounter *d = (RCallCounter *) data;
+    if(cur.kind == CXCursor_CallExpr) {
+	CXString str = clang_getCursorSpelling(cur);
+	const char * const tmp = clang_getCString(str);
+	SET_STRING_ELT(d->ans, d->counter++, mkChar(tmp));
+	clang_disposeString(str);
+    }
+    return(CXChildVisit_Recurse);
+}
+
+
+SEXP
+R_getCalls(SEXP r_tu, SEXP r_ans)
+{
+    CXCursor tu = * (CXCursor *) getRReference(r_tu);
+    RCallCounter data;
+    data.counter = 0;
+    data.ans = r_ans;
+
+    clang_visitChildren(tu, R_callVisitor, &data);
+    SET_LENGTH(r_ans, data.counter);
+    return(r_ans);
+}
+
+
+enum CXChildVisitResult 
+R_routinesVisitor(CXCursor cur, CXCursor parent, void *data)
+{
+    RCallCounter *d = (RCallCounter *) data;
+    if(cur.kind == CXCursor_FunctionDecl) {
+	CXString str = clang_getCursorSpelling(cur);
+	const char * const tmp = clang_getCString(str);
+	int n = Rf_length(d->ans);
+	if(d->counter >= n) {
+	    PROTECT(SET_LENGTH(d->ans, 2*n));
+	    PROTECT(SET_LENGTH(d->names, 2*n));
+	    d->protects += 2;
+	}
+	SET_VECTOR_ELT(d->ans, d->counter, R_makeCXCursor(cur));
+	SET_STRING_ELT(d->names, d->counter, mkChar(tmp));
+	d->counter++;
+	clang_disposeString(str);
+    }
+    return(CXChildVisit_Recurse);
+}
+
+
+SEXP
+R_getRoutines(SEXP r_tu, SEXP r_ans, SEXP r_names)
+{
+    CXCursor tu = * (CXCursor *) getRReference(r_tu);
+    RCallCounter data;
+    data.counter = data.protects = 0;
+    data.ans = r_ans;
+    data.names = r_names;
+
+    clang_visitChildren(tu, R_routinesVisitor, &data);
+    SET_NAMES(data.ans, data.names);
+    SET_LENGTH(data.ans, data.counter);
+    UNPROTECT(data.protects);
+    
+    return(data.ans);
+}
+
+

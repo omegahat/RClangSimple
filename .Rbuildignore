@@ -13,3 +13,4 @@ tests/.*.o
 Experiments
 .*.tcp
 .*.cache.*
+template.Rd

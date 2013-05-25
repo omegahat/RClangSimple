@@ -39,8 +39,8 @@ function(desc, name = desc$name[1], isOpaque = FALSE)
                         name, paste(names(fieldDefs), sQuote(fieldDefs), sep = " = ", collapse = ", "))
 
    list(classDef= classDef,
-        getMethod =  makeSetStructGetMethod(desc, name),
-        setMethod =  makeSetStructSetMethod(desc, name),        
+        getMethod =  makeStructGetMethod(desc, name),
+        setMethod =  makeStructSetMethod(desc, name),        
         constructor = makeRConstructor(desc, name))
 }
 
@@ -64,7 +64,7 @@ makeRStructMethod =
 function(desc, name, get = TRUE, ops = if(get) c("get", "$") else c("set", "$<-"))
 {
   fun = RFunctionDefinition(character(), makeFieldMethod(desc, name, ops[1]), c("x", "name", if(!get) "value"))
-  sprintf("setMethod('%s', %s,\n %s\n)\n",
+  sprintf("setMethod('%s', '%s',\n %s\n)\n",
             ops[2L], name, as(fun, "character"))
 }
 
@@ -101,3 +101,53 @@ function(desc, name, isOpaque)
 
 }
 
+
+makeCCopyStructCode =
+function(desc, funName = sprintf("R_copyStruct_%s", gsub("struct ", "", getName(desc$def))), typeMap = NULL)
+{
+
+  copyFields =  mapply(function(f, name) {
+                          v = convertValueToR(f, sprintf("obj->%s", name), typeMap = typeMap)
+                          v[length(v)] = sprintf('SET_VECTOR_ELT(r_ans, i, %s);', gsub(";$", "", v))
+                          a = if(length(v) > 1) 
+                               c("{",
+                                 v,
+                                "}")
+                                else
+                                 v
+
+                            c(a, sprintf('SET_STRING_ELT(r_names, i++, mkChar("%s"));', name))
+                       },
+                       desc$fields, names(desc$fields))
+  nfields = length(desc$fields)
+  sig = sprintf("%s(%s *obj)", funName, getName(getCanonicalType(desc$def)))
+  code = c("SEXP",
+            sig,
+           "{",
+           "int i = 0;",
+           "SEXP r_ans, r_names;",
+           sprintf("PROTECT(r_ans = NEW_LIST(%d));", nfields),
+           sprintf("PROTECT(r_names = NEW_CHARACTER(%d));", nfields),    
+           unlist(copyFields),
+           "SET_NAMES(r_ans, r_names);",
+           "UNPROTECT(2);",
+           "return(r_ans);",
+           "}")
+  
+
+  
+  CRoutineDefinition(funName, code)
+}
+
+
+makeStructSetMethod =
+function(desc, className)
+{
+
+}
+
+makeStructGetMethod =
+function(desc, className)
+{
+
+}

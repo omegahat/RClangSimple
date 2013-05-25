@@ -2,8 +2,11 @@ createRProxy =
 function(fun, name = getName(fun), argNames = names(fun$params),
           nativeProxyName = sprintf("R_%s", getName(fun)),
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
-          typeMap = NULL)
+          typeMap = NULL, libPrefix = "clang_")
 {
+   if(length(libPrefix))
+     name = gsub(sprintf("^%s", libPrefix), "", name)
+  
    if(any(w <- (argNames == ""))) 
       argNames[w] = sprintf("arg%d", which(w))
   
@@ -89,7 +92,7 @@ function(parm, name, type = getType(parm), kind = getTypeKind(type))
          class = "character"
        else {
          class = getBuiltinRTypeFromKind(getTypeKind(info$baseType))
-         browser()
+#         browser()
          if(length(class) == 0) {
            if(grepl("*", typeName, fixed = TRUE))
              class = getName(info$baseType)
@@ -109,11 +112,11 @@ function(parm, name, type = getType(parm), kind = getTypeKind(type))
 
          if(grepl("^struct ", typeName)) 
             class =  gsub("^struct ", "", typeName)
-         else
-            browser()
+         #else
+         #   browser()
 
      } else {
-         browser()
+         #browser()
      }
    }
 

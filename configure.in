@@ -1,18 +1,37 @@
 AC_INIT(src/clang.c)
 
-if test -z "$CLANG_INC" ; then
- echo "****   for now, you must specify the directory containing the clang includes, e.g. .../clang/include"
- echo "      e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/tools/clang/include/"
-fi
-
-if test -z "$CLANG_LIB" ; then
- echo "****    for now, you must specify the directory containing the clang libraries, e.g .../clang/lib"
- echo "       e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/Debug+Asserts/lib"
-fi
-
 if test -z "$CLANG_LIB" || test -z "$CLANG_INC" ; then
+
+  if test -r $HOME/llvm-devel/tools/clang/include/clang-c ; then
+     CLANG_INC=$HOME/llvm-devel/tools/clang/include/
+  fi
+  if test -r $HOME/llvm-devel/build/Debug+Asserts/lib ; then
+     CLANG_LIB=$HOME/llvm-devel/build/Debug+Asserts/lib
+  fi
+
+  if test -z "$CLANG_LIB" || test -z "$CLANG_INC" ; then
+
+  if test -z "$CLANG_INC" ; then
+    echo "****   for now, you must specify the directory containing the clang includes, e.g. .../clang/include"
+    echo "      e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/tools/clang/include/"
+    echo "  Set the environment variable CLANG_INC"
+  fi
+
+  if test -z "$CLANG_LIB" ; then
+    echo "****    for now, you must specify the directory containing the clang libraries, e.g .../clang/lib"
+    echo "       e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/Debug+Asserts/lib"
+    echo "  Set the environment variable CLANG_LIB"
+  fi
+
   exit 1
+  fi
 fi
+
+if ! test -r $CLANG_INC/clang-c/Index.h; then 
+  echo "Cannot find $CLANG_INC/clang-c/Index.h"
+  echo "Is CLANG_INC correct"
+fi
+
 
 AC_SUBST(CLANG_INC)
 AC_SUBST(CLANG_LIB)
