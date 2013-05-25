@@ -10,14 +10,14 @@
   their parent. For example, a function call cursor would
   have the name of the function being called and the arguments in the call.
 }
-\usage{
-children(top)
+\usage{ 
+children(top, types = integer())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{top}{
-%%     ~~Describe \code{top} here~~
-}
+  \item{top}{}
+  \item{types}{the set of CXCursorKind values of the type of cursors we
+    want.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

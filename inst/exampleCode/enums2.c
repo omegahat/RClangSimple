@@ -24,3 +24,9 @@ enum {
     Mathematics,
     Statistics
 };
+
+int
+foo()
+{
+    return(History);
+}

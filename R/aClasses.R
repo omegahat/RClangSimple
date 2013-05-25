@@ -14,6 +14,50 @@ setClass("CXSourceRange", contains = "ExternalReference")
 setClass("CXSourceLocation", contains = "ExternalReference")
 setClass("CXSourceRange", contains = "ExternalReference")
 
+setClass("CXDiagnostic", contains = "ExternalReference")
+setClass("CXDiagnosticSet", contains = "ExternalReference")
+
+setClass("CXComment", contains = "ExternalReference")
+
+tmp = function(x, i, j, ...)
+         getDiagnosticInSet(x, i - 1)
+
+setMethod("[", c("CXDiagnosticSet", "numeric"), tmp)
+setMethod("[", c("CXDiagnosticSet", "integer"), tmp)
+
+
+setAs("CXDiagnostic", "character",
+      function(from)
+         getDiagnosticSpelling(from))
+
+
+setGeneric("getSpelling",
+           function(x, ...)
+             standardGeneric("getSpelling"))
+
+setMethod("getSpelling", "CXDiagnostic",
+            function(x, ...)
+               getDiagnosticSpelling(x))
+
+setMethod("getSpelling", "CXTranslationUnit",
+            function(x, ...)
+               getTranslationUnitSpelling(x))
+
+setMethod("getSpelling", "CXType",
+            function(x, ...)
+               getName(x))
+setMethod("getSpelling", "CXCursor",
+            function(x, ...)
+               getName(x))
+
+setAs("CXCursor", "character",
+      function(from)
+         getName(from))
+
+setAs("CXType", "character",
+      function(from)
+         getName(from))
+
 
 # Perhaps use a reference class for this.
 setClass("Collector", representation(update = "function", results = "function"))
@@ -63,6 +107,8 @@ setClass("CXCursorKind", contains = "Enum")
 setClass("CX_CXXAccessSpecifier", contains = "Enum")
 setClass("CXLinkageKind", contains = "Enum")
 setClass("CXLanguageKind", contains = "Enum")
+setClass("CXCallingConv", contains = "Enum")
+setClass("CXTokenKind", contains = "Enum")
 
 asEnum =
 function(val, defs, class)
@@ -225,6 +271,11 @@ setClass("RCallFunctionTable", contains = "data.frame")
 
 setClass("RDotCFunctionList", contains = "list")
 setClass("RDotCFunctionCode", contains = "character")
+
+
+setAs("FunctionDecl", "CXCursor",
+       function(from)
+         from$def)
 
 
           

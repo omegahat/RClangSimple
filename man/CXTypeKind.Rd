@@ -1,7 +1,8 @@
 \name{CXTypeKind}
 \alias{CXTypeKind}
 \alias{CXType_BlockPointer}
- \alias{CXType_Bool}
+\alias{CXType_ConstantArray}
+\alias{CXType_Bool}
  \alias{CXType_Char_S}
  \alias{CXType_Char_U}
  \alias{CXType_Char16}

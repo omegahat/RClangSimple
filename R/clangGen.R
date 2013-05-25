@@ -1,4 +1,4 @@
-getSizeOf <-
+Type_getSizeOf <- getSizeOf <-
 function( T )
 {
 .Call('R_clang_Type_getSizeOf', as(T, 'CXType'))
@@ -85,21 +85,6 @@ function( cursor )
 
 
 
-Type_getAlignOf <-
-function( T )
-{
-.Call('R_clang_Type_getAlignOf', as(T, 'CXType'))
-}
-
-
-
-
-Type_getOffsetOf <-
-function( T, S )
-{
-.Call('R_clang_Type_getOffsetOf', as(T, 'CXType'), as(S, 'character'))
-}
-
 
 Cursor_isNull <-
 function( cursor )
@@ -131,21 +116,21 @@ function( C )
 
 
 
-Cursor_getReceiverType <-
+Cursor_getReceiverType <- getReceiverType <-
 function( C )
 {
 .Call('R_clang_Cursor_getReceiverType', as(C, 'CXCursor'))
 }
 
 
-Cursor_getRawCommentText <-
+Cursor_getRawCommentText <- getRawCommentText <-
 function( C )
 {
 .Call('R_clang_Cursor_getRawCommentText', as(C, 'CXCursor'))
 }
 
 
-Cursor_getBriefCommentText <-
+getBriefCommentText <- Cursor_getBriefCommentText <-
 function( C )
 {
 .Call('R_clang_Cursor_getBriefCommentText', as(C, 'CXCursor'))
@@ -370,7 +355,7 @@ function( cset , cursor  )
 }
 
 
-Location_isInSystemHeader <-
+isInSystemHeader <- Location_isInSystemHeader <-
 function( location  )
 {
 .Call('R_clang_Location_isInSystemHeader', as(location, 'CXSourceLocation'))
@@ -385,7 +370,7 @@ function( CTUnit  )
 
 
 saveTranslationUnit <-
-function( TU , FileName , options  )
+function( TU , FileName , options = 0 )
 {
 .Call('R_clang_saveTranslationUnit', as(TU, 'CXTranslationUnit'), as(FileName, 'character'), as(options, 'numeric'))
 }
@@ -436,8 +421,28 @@ function( Unit  )
 getDiagnostic <-
 function( Unit , Index  )
 {
-.Call('R_clang_getDiagnostic', as(Unit, 'CXTranslationUnit'), as(Index, 'numeric'))
+  # 
+.Call('R_clang_getDiagnostic', as(Unit, 'CXTranslationUnit'), as(Index, 'numeric') - 1)
 }
+
+getDiagnosticInSet <-
+function( diags , Index  )
+{
+  # 
+.Call('R_clang_getDiagnosticInsSt', as(diags, 'CXDiagnosticSet'), as(Index, 'numeric') - 1)
+}
+
+clang_getNumDiagnosticsInSet <-
+function( Diags )
+{
+.Call('R_clang_getNumDiagnosticsInSet', as(Diags, 'CXDiagnosticSet'))
+}
+
+clang_getDiagnosticNumRanges <-
+function( arg1 )
+{
+.Call('R_clang_getDiagnosticNumRanges', as(arg1, 'CXDiagnostic'))
+} 
 
 
 getNumDiagnostics <-
@@ -479,4 +484,220 @@ formatDiagnostic <-
 function( Diagnostic , Options  )
 {
 .Call('R_clang_formatDiagnostic', as(Diagnostic, 'CXDiagnostic'), as(Options, 'numeric'))
+}
+
+
+disposeIndex <-
+function( index )
+{
+.Call('R_clang_disposeIndex', as(index, 'CXIndex'))
+}
+
+toggleCrashRecovery <-
+function( isEnabled )
+{
+.Call('R_clang_toggleCrashRecovery', as(isEnabled, 'numeric'))
+}
+
+
+getFunctionTypeCallingConv <-
+function( T )
+{
+.Call('R_clang_getFunctionTypeCallingConv', as(T, 'CXType'))
+} 
+
+
+CXIndex_getGlobalOptions <-
+function( arg1 )
+{
+ as(.Call('R_clang_CXIndex_getGlobalOptions', as(arg1, 'CXIndex')), "CXGlobalOptFlags")  # manually coerced.
+}
+
+CXIndex_setGlobalOptions <-
+function( arg1, options )
+{
+.Call('R_clang_CXIndex_setGlobalOptions', as(arg1, 'CXIndex'), as.numeric(as(options, 'CXGlobalOptFlags')))  # changed manually from numeric.
+}
+
+getTemplateCursorKind <-
+function( C )
+{
+.Call('R_clang_getTemplateCursorKind', as(C, 'CXCursor'))
+} 
+
+enableStackTraces <-
+function(  )
+{
+.Call('R_clang_enableStackTraces')
+} 
+
+
+getNumArguments <-
+function( C )
+{
+   .Call('R_clang_Cursor_getNumArguments', as(C, 'CXCursor'))
+} 
+
+defaultSaveOptions <-
+function( TU )
+{
+.Call('R_clang_defaultSaveOptions', as(TU, 'CXTranslationUnit'))
+}
+
+
+getEnumConstantDeclValue <-
+function( C )
+{
+.Call('R_clang_getEnumConstantDeclValue', as(C, 'CXCursor'))
+}
+
+getFieldDeclBitWidth <-
+function( C )
+{
+.Call('R_clang_getFieldDeclBitWidth', as(C, 'CXCursor'))
+} 
+
+getSpecializedCursorTemplate <-
+function( C )
+{
+.Call('R_clang_getSpecializedCursorTemplate', as(C, 'CXCursor'))
+} 
+
+
+getElementType <-
+function( T )
+{
+.Call('R_clang_getElementType', as(T, 'CXType'))
+} 
+
+
+getNumOverloadedDecls <-
+function( cursor )
+{
+.Call('R_clang_getNumOverloadedDecls', as(cursor, 'CXCursor'))
+}
+
+getOverloadedDecl <-
+function( cursor, index )
+{
+.Call('R_clang_getOverloadedDecl', as(cursor, 'CXCursor'), as(index, 'numeric'))
+}
+
+getEnumDeclIntegerType <-
+function( C )
+{
+.Call('R_clang_getEnumDeclIntegerType', as(C, 'CXCursor'))
+} 
+
+
+
+getTypedefDeclUnderlyingType <-
+function( C )
+{
+.Call('R_clang_getTypedefDeclUnderlyingType', as(C, 'CXCursor'))
+} 
+
+equalRanges <-
+function( range1, range2 )
+{
+.Call('R_clang_equalRanges', as(range1, 'CXSourceRange'), as(range2, 'CXSourceRange'))
+}
+
+equalLocations <-
+function( loc1, loc2 )
+{
+.Call('R_clang_equalLocations', as(loc1, 'CXSourceLocation'), as(loc2, 'CXSourceLocation'))
+}
+
+equalCursors <-
+function( arg1, arg2 )
+{
+.Call('R_clang_equalCursors', as(arg1, 'CXCursor'), as(arg2, 'CXCursor'))
+}
+
+
+getCursorLocation <-
+function( arg1 )
+{
+.Call('R_clang_getCursorLocation', as(arg1, 'CXCursor'))
+}
+
+getRange <-
+function( begin, end )
+{
+.Call('R_clang_getRange', as(begin, 'CXSourceLocation'), as(end, 'CXSourceLocation'))
+} 
+
+
+getParsedComment <- Cursor_getParsedComment <-
+function( C )
+{
+.Call('R_clang_Cursor_getParsedComment', as(C, 'CXCursor'))
+} 
+
+
+Comment_getChild <-
+function( Comment, ChildIdx )
+{
+.Call('R_clang_Comment_getChild', as(Comment, 'CXComment'), as(ChildIdx, 'numeric'))
+}
+
+
+Comment_getNumChildren <-
+function( Comment )
+{
+.Call('R_clang_Comment_getNumChildren', as(Comment, 'CXComment'))
+}
+
+Comment_getKind <-
+function( Comment )
+{
+.Call('R_clang_Comment_getKind', as(Comment, 'CXComment'))
+}
+
+Comment_isWhitespace <-
+function( Comment )
+{
+.Call('R_clang_Comment_isWhitespace', as(Comment, 'CXComment'))
+} 
+
+
+getIncludedFile <-
+function( cursor )
+{
+.Call('R_clang_getIncludedFile', as(cursor, 'CXCursor'))
+} 
+
+
+getNullCursor <-
+function(  )
+{
+.Call('R_clang_getNullCursor')
+}
+
+getNullLocation <-
+function(  )
+{
+.Call('R_clang_getNullLocation')
+}
+
+
+Type_getOffsetOf <- getOffsetOf <-
+function( T, S )
+{
+.Call('R_clang_Type_getOffsetOf', as(T, 'CXType'), as(S, 'character'))
+}
+
+
+Type_getAlignOf <- getAlignOf  <-
+function( T )
+{
+.Call('R_clang_Type_getAlignOf', as(T, 'CXType'))
+}
+
+
+getCursorDefinition <-
+function( arg1 )
+{
+.Call('R_clang_getCursorDefinition', as(arg1, 'CXCursor'))
 }

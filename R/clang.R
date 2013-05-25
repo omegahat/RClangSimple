@@ -3,22 +3,29 @@ function(cur)
  .Call("R_getCursorTokens", cur)
 
 createIndex =
-function(excludeFromPCH = FALSE, verbose = TRUE)
+  # verbose means show diagnostics.
+function(excludeFromPCH = FALSE, verbose = getOption("ShowParserDiagnostics", TRUE))
 {
   .Call("R_clang_createIndex", as.logical(excludeFromPCH), as.logical(verbose))
 }
 
 createTU =
-function(src, includes= character(),
-          idx = createIndex(), args = character()) #XXX was "-Xclang")
+function(src, includes = character(),
+         idx = createIndex(verbose = verbose), args = character(), verbose =  getOption("ShowParserDiagnostics", TRUE),
+         options = 0) #XXX was "-Xclang")
 {
   src = path.expand(src)
   if(!file.exists(src))
      stop("no such file: ", src)
 
+  includes = sapply(includes, path.expand)
+
   args = c(args, sprintf("-I%s", includes))
+
+  if(!missing(options))
+    options = as(options, "CXTranslationUnit_Flags")
   
-  .Call("R_clang_createTUFromSource", idx, as.character(src), args)
+  .Call("R_clang_createTUFromSource", idx, as.character(src), args, as.integer(options))
 }
 
 setAs("CXTranslationUnit", "CXCursor",
@@ -63,13 +70,46 @@ setMethod("getName", "FunctionDecl",
              getName(x$def))
 
 
+
 setGeneric("getFileName",
             function(x, ...)
               standardGeneric("getFileName"))
 
 setMethod("getFileName", "CXCursor",
-            function(x, ...)
-              .Call("R_clang_getInstantionLocation", x))
+            function(x, ...) {
+               getFileName(getCursorExtent(x))
+            })
+
+setAs("CXCursor", "CXSourceRange",
+       function(from)
+             getCursorExtent(from))
+
+getCursorExtent =
+function(x)
+  .Call("R_clang_getCursorExtent", as(x, "CXCursor"))
+
+getInstantiationLocation =
+function(x)
+{
+  ans = .Call("R_clang_getInstantionLocation", as(x, "CXSourceRange"))
+  names(ans) = c("file", "location")
+  names(ans$location) = c("line", "column", "offset")
+  ans
+}
+
+setMethod("getFileName", "CXSourceRange",
+            function(x, ...)          
+              .Call("R_clang_getInstantionLocation", x)[[1]])
+
+setMethod("getFileName", "CXSourceLocation",
+            function(x, ...)          
+              .Call("R_clang_getInstantionLocation", x)[[1]])
+
+setMethod("getFileName", "CXFile",
+            function(x, ...) {
+                .Call('R_clang_getFileName', x)
+            })
+
 
 
 clangVersion =
@@ -77,3 +117,54 @@ function()
   .Call("R_clang_getClangVersion")
 
 
+
+
+getChildren =
+function(x)
+{
+   kids = list()
+   update = function(cur, parent) {
+     kids[[length(kids) + 1L]] <<- cur
+     CXChildVisit_Continue
+   }
+   visitTU(as(x, "CXCursor"), update, clone = TRUE)
+   kids
+}
+  
+
+
+genInclusionCollector =
+function()
+{
+   files = character()
+   update = function(file, stack, ...) {
+     files <<- c(files, getFileName(file))
+     names(files)[length(files)] <<- if(length(stack) > 1) getFileName(stack[[1]]) else ""
+   }
+
+   list(update = update, files = function() files)
+}
+
+getInclusions =
+function(file, fun = genInclusionCollector(), ...)  
+{
+   if(is.character(file))
+      file = createTU(file, ...)
+   else
+      file = as(file, "CXTranslationUnit")
+
+   .Call("R_clang_getInclusions", file, fun$update)
+   fun$files()
+} 
+
+
+getTUResourceUsage = getCXTUResourceUsage =
+function(tu)
+{
+  .Call("R_clang_getCXTUResourceUsage", as(tu, "CXTranslationUnit"))
+}
+
+
+setMethod("getFileName", "CXTranslationUnit",
+           function(x, ...)
+             getTranslationUnitSpelling(x))

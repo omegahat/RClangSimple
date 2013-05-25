@@ -1,6 +1,13 @@
 \name{genFunctionCollector}
 \alias{genFunctionCollector}
 \alias{genVariableCollector}
+\alias{genCallCollector}
+\alias{genDataStructCollector}
+\alias{genDefinesCollector}
+\alias{genEnumCollector}
+\alias{genTypeCollector}
+\alias{genVariablesCollector}
+\alias{combineCollectors}
 
 \title{Constructor functions for collectors of information within
   translation unit}
@@ -12,54 +19,36 @@
   and \code{\link{visitChildren}}.
 }
 \usage{
-genFunctionCollector()
+genFunctionCollector(filenames = character())
+genCallCollector()
+genDataStructCollector(leaveAsCursor = FALSE)
+genDefinesCollector(names = character())
+genEnumCollector()
+genTypeCollector()
+genVariablesCollector()
+combineCollectors(..., .funs = list()) 
 }
-
-\details{
-
+\arguments{
+   \item{leaveAsCursor}{}
+   \item{names}{}
+   \item{filenames}{the names of files in which the routines of interest
+     are located. If this is empty, we accept routines from all files.}
+   \item{\dots}{}
+   \item{.funs}{}
 }
 \value{
 
 }
 \references{
-%% ~put references to the literature/web site here ~
+ libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
-%%  ~~who you are~~
+Duncan Temple Lang
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function () 
-{
-    funcs = list()
-    update = function(cur, parent) {
-        if (cur$kind != CXCursor_FunctionDecl) 
-            return(1L)
-        id = getName(cur)
-        ret = getResultType(cur$type)
-        params = children(cur)
-        names(params) = sapply(params, getName)
-        funcs[[id]] <<- list(returnType = ret, params = params, 
-            def = cur)
-        1L
-    }
-    list(update = update, funcs = function() funcs)
-  }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{programming}
+\keyword{interface} 
+

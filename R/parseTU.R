@@ -55,7 +55,7 @@ function(top, types = integer())
 }
 
 
-getFunctions = getRoutines = 
+getFunctions.R = getRoutines.R = 
 function(src, filenames = character(), col = genFunctionCollector(filenames), ...)
 {
   if(is(src, "CXTranslationUnit")) {
@@ -68,4 +68,17 @@ function(src, filenames = character(), col = genFunctionCollector(filenames), ..
     w = sapply(col$funcs(), function(x) getFileName(x$def))
     col$funcs()[w == src]
   }
+}
+
+
+getFunctions = getRoutines = 
+function(src, filenames = character(), col = genFunctionCollector(filenames), expectedNum = 500, ...)
+{
+  if(length(filenames))
+    return(getRoutines.R(src, filenames, col, ...))
+
+  if(is.character(src))
+    src = createTU(src, ...)
+  ans = .Call("R_getRoutines", as(src, "CXCursor"), vector("list", expectedNum), character(expectedNum))
+  lapply(ans, makeRoutineObject)
 }

@@ -33,19 +33,26 @@ function(filenames = character())
           || !checkFiles(cur, filenames))
         return(CXChildVisit_Continue)
 
-
      id = getName(cur)
-     ret = getResultType(cur$type)
-
-     params = children(cur, CXCursor_ParmDecl)
-     names(params) = sapply(params, getName)
-     funcs[[id]] <<- structure(list(returnType = ret, params = params, def = clone(cur)), class = "FunctionDecl")
-
+     funcs[[id]] <<- makeRoutineObject(cur)
+     
      CXChildVisit_Continue
   }
 
   list(update = update, funcs = function() funcs)
 }
+
+makeRoutineObject =
+function(cur)
+{
+     id = getName(cur)
+     ret = getResultType(cur$type)
+
+     params = children(cur, CXCursor_ParmDecl)
+     names(params) = sapply(params, getName)
+     structure(list(returnType = ret, params = params, def = clone(cur)), class = "FunctionDecl")
+}
+
 
 setAs("CXType", "character",
        function(from) {
@@ -75,6 +82,20 @@ print.FunctionDecl =
 function(x, ...)
     show(x)
 
+
+
+getEnums =
+function(src, visitor = genEnumCollector(), ...)
+{
+  if(is.character(src))
+     src = createTU(src, ...)
+
+  visitTU(as(src, "CXTranslationUnit"), visitor$update)
+  visitor$enums()
+}
+
+
+
 genEnumCollector =
 function()
 {
@@ -82,26 +103,16 @@ function()
 
   update = function(cur, parent) {
      if(cur$kind != CXCursor_EnumDecl)
-        return(1L)
+        return(CXChildVisit_Recurse)
 
      id = getName(cur)
 
      vars[[id]] <<- sapply(children(cur), getName)
-     1L
+     CXChildVisit_Recurse
   }
 
   list(update = update, enums = function() vars)
 }
-
-
-getEnums =
-function(src)
-{
-  e = genEnumCollector()
-  visitTU(as(src, "CXTranslationUnit"), e$update)
-  e$enums()
-}
-
 
 genEnumCollector =
 function() {
@@ -135,7 +146,21 @@ function() {
         if(is.na(curName) || curName == "")
             curName <<- getName(type)
      } else if(kind == CXCursor_EnumConstantDecl) {
-       curDef[getName( cur ) ] <<- length(curDef) #XX
+          # allow for repeats, e.g.  A, B = A,
+          # also pick up from the last value.
+          # Also allow for explicit numbering
+       val = if(length(curDef)) curDef[length(curDef)] + 1L else 0L
+       toks = getCursorTokens(cur)
+       if(length(toks) > 2) {
+          if( any(names(toks[-1]) == "Identifier")) {
+             val = toks[-1]["Identifier"]
+             val = curDef[val]
+          } else if( any(names(toks[-1]) == "Literal")) {
+             val = as.integer(toks[-1]["Literal"])
+          } else
+             stop("don't understand this enum yet")
+       }
+       curDef[getName( cur ) ] <<- val
      } else if(doStop) {
 
 #cat(names(cur$kind), getName(cur), "\n")
@@ -144,7 +169,7 @@ function() {
 #            browser()
      }
 
-     2L
+     CXChildVisit_Recurse
   }
   
   list(update = update, enums = function() { flush(); enums})
@@ -222,7 +247,7 @@ function()
                       calls <<- c(calls, getName(cur))
                   },
          calls = function() calls,
-         reset = function() calls <<- characters()
+         reset = function() calls <<- character()
        )
 }
 
@@ -230,10 +255,12 @@ function()
 findCalls =
   # vectorize
  # findCalls("../src/manual.c",  includes = c("/usr/local/cuda/include", sprintf("%s/../src/include", R.home()), sprintf("%s/include", R.home())))
-function(file, fun = genCallCollector(), ...)
+function(file, n = 10000, ...)
 {
-  parseTU(file, fun$update, ...)
-  fun$calls()
+  if(is.character(file))
+     file = createTU(file, ...)
+  
+  .Call("R_getCalls", as(file, "CXCursor"), character(n))
 }
 
 
@@ -337,4 +364,71 @@ function(names = character())
 
    
    list(update = update, defines = function() ans)
+}
+
+
+genVariablesCollector =
+function()
+{
+    variables = list()
+    update = function(cur, parent) {
+      k = cur$kind
+      if(k == CXCursor_VarDecl) {
+        n = length(variables) + 1
+        variables[[ n ]] <<- cur
+        names(variables)[n] <<- getName(cur)
+      }
+      CXChildVisit_Continue
+    }
+
+    list(update = update, variables = function() variables)
+}
+
+getVariables =
+function(file, visitor = genVariablesCollector(), ...)
+{
+  if(is.character(file))
+      file = createTU(file, ...)
+
+  visitTU(file, visitor$update)
+  visitor$variables()
+}
+
+genRoutineVariableRefsCollector =
+function()
+{
+   params = list()
+   localVars = list()
+   varRefs = list()
+
+   update = function(cur, kind) {
+      k = cur$kind
+      if(k == CXCursor_VarDecl) {
+        n = length(localVars) + 1
+        localVars[[ n ]] <<- cur
+        names(localVars)[n] <<- getName(cur)        
+      } else if(k == CXCursor_DeclRefExpr) {
+        n = length(varRefs) + 1
+        varRefs[[ n ]] <<- cur
+        names(varRefs)[n] <<- getName(cur)        
+      } else if(k == CXCursor_ParmDecl) {
+        n = length(params) + 1
+        params[[ n ]] <<- cur
+        names(params)[n] <<- getName(cur)
+      }
+
+      CXChildVisit_Recurse
+   }
+
+   list(update = update, info = function() list(params = params, localVars = localVars, varRefs = varRefs))
+}
+
+findGlobals =
+function(r, visitor = genRoutineVariableRefsCollector(), ...)
+{
+  visitTU(r, visitor$update, clone = TRUE)
+  info = visitor$info()
+browser()  
+  ids = lapply(info, function(x) sapply(x, getName))
+  setdiff(ids$varRefs,  c(ids$params, ids$localVars))
 }

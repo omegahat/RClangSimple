@@ -41,10 +41,10 @@ function(varNames = character())
 
 
 findGlobalUse =
-function(tu, visitor = globalUseVisitor())
+function(tu, visitor = globalUseVisitor(), ...)
 {
   if(is.character(tu))
-     tu =  createTU(tu)
+     tu =  createTU(tu, ...)
   else
     tu = as(tu, "CXTranslationUnit")
   

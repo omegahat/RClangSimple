@@ -2,10 +2,17 @@
 \alias{parseTU}
 \alias{createIndex}
 \alias{createTU}
+\alias{saveTranslationUnit}
+\alias{getFile}
+\alias{defaultSaveOptions}
+\alias{defaultReparseOptions}
+\alias{isFileMultipleIncludeGuarded}
+
 \alias{CXIndex-class}
 \alias{CXTranslationUnit-class}
 
 \alias{visitTU}
+\alias{visitCursor}
 \alias{visitChildren}
 \alias{simpleVisitor}
 
@@ -17,19 +24,38 @@
   about the contents.
 }
 \usage{
-parseTU(src, visitor = simpleVisitor, idx = createIndex(), tu = createTU(src, idx, ...), ..., clone = FALSE)
+parseTU(src, visitor = simpleVisitor, idx = createIndex(),
+          tu = createTU(src, idx = idx, ...), ..., clone = FALSE)
+createTU(src, includes = character(), idx = createIndex(verbose = verbose), args = character(),
+           verbose = getOption("ShowParserDiagnostics", TRUE), options = 0)
+saveTranslationUnit(TU, FileName, options = 0)
+getFile(tu, file_name)
+defaultReparseOptions(TU)
+defaultSaveOptions(TU)
+isFileMultipleIncludeGuarded(tu, file)
 }
 
 \arguments{
-  \item{src}{the fully-qualified name of the source code file}
+  \item{src,FileName}{the fully-qualified name of the source code file}
   \item{visitor}{a function that is called when iterating over the parse
   tree. This must return one of the CXChildVisit enumeration values}
   \item{idx}{a \code{CXIndex} object used to create the translation
-  unit. This is rarely specified.}
-  \item{tu}{a translation unit object. This is rarely specified by the caller.}
+    unit. This is rarely specified.}
+  \item{includes}{}
+  \item{args}{}
+  \item{verbose}{used when creating the index and controls whether
+  diagnostic messages are written to the console.}
+  \item{file}{}
+  \item{tu,TU}{a translation unit object. This is rarely specified by the caller.}
   \item{\dots}{additional parameters passed to \code{createTU}.}
   \item{clone}{a logical value controlling whether to clone the
-    \code{CXCursor} objects passed in each call to the \code{visitor} function.}
+    \code{CXCursor} objects passed in each call to the \code{visitor}
+    function.}
+  \item{options}{options for saving the translation unit. This is a
+  collection of values fromthe CXSaveTranslationUnit_Flags object, but
+  this is should always be 0 at present}
+  \item{file_name}{the name of the file for which we want a CXFile object}
+
 }
 \details{
 }

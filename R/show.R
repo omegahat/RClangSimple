@@ -9,12 +9,12 @@ function(x)
   x$type
 
 #setMethod("show", "FunctionDecl",
-print.FunctionDecl <- function(x) {
+print.FunctionDecl <- function(x, ...) {
                #
              object = x
              parms = sapply(object$params, makeDecl)
              print(sprintf("%s %s (%s)",
                        getName(object$returnType),
                        getName(object$def),
-                       paste(parms, collapse = ", ")))
+                       paste(parms, collapse = ", ")), ...)
            }

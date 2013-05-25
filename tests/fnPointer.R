@@ -1,6 +1,6 @@
 library(RCIndex)
 
-f = getFunctions("inst/exampleCode/funPointer.c")$foo
+f = getFunctions(system.file("exampleCode", "funPointer.c", package = "RCIndex"))$foo
 
 h = f$params[[1]]
 

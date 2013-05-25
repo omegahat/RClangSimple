@@ -1,4 +1,4 @@
 library(RCIndex)
-tu = createTU("inst/exampleCode/fib.c")
+tu = createTU(system.file("exampleCode", "fib.c", package = "RCIndex"))
 
 

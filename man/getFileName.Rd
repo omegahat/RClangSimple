@@ -1,10 +1,22 @@
 \name{getFileName}
 \alias{getFileName}
+\alias{getFileTime}
 \alias{getFileName,CXCursor-method}
+\alias{getFileName,CXTranslationUnit-method}
+\alias{getFileName,CXFile-method}
+\alias{getFileName,CXSourceLocation-method}
+\alias{getFileName,CXSourceRange-method}
+
 \alias{cursorKind}
 
 \alias{getName}
 \alias{getName,CXCursor-method}
+\alias{getName,CXType-method}
+\alias{getName,CXFile-method}
+\alias{getName,CXSourceLocation-method}
+\alias{getName,CXSourceRange-method}
+\alias{getName,FunctionDecl-method}
+
 \alias{getResultType}
 \alias{getResultType,CXCursor-method}
 
@@ -31,38 +43,24 @@
 }
 \usage{
 getFileName(x, ...)
+getFileTime(SFile) 
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
-  \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
+  \item{x,SFile}{}
+  \item{\dots}{}
 }
 \value{
-
 }
 \references{
-
+ libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
-
+Duncan Temple Lang
 }
-\note{
-
-}
-
-
 \seealso{
-
 }
 \examples{
-
 }
 \keyword{programming}
+\keyword{interface}
 

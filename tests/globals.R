@@ -1,6 +1,6 @@
 library(RCIndex)
 g = genVariableCollector()
-parseTU("inst/exampleCode/array.c", g$update)
+parseTU(system.file("exampleCode", "array.c", package = "RCIndex"), g$update)
 x = g$vars()$x
 ty = getType(x)
 getTypeKind(ty)

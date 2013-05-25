@@ -1,5 +1,5 @@
 library(RCIndex)
-parseTU("~/GitWorkingArea/RClangSimple/inst/exampleCode/const.c",
+parseTU(system.file("exampleCode", "const.c", package = "RCIndex"),
          function(cur, parent)  {
              if(cur$kind == CXCursor_ParmDecl) browser()
                NULL
