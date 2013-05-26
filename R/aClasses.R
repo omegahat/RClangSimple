@@ -91,8 +91,18 @@ setMethod("show", "CXCursor",
           })
 
 
+setMethod("$", "CXType",
+          function(x, name) {
+            if(name == "kind")
+              getTypeKind(x)
+            else if(name == "name")
+              getTypeName(x)
+            else
+              NULL
+          })
 
-# This looks like nonsense!
+
+# This looks like nonsense! And it capitalizes type names to, e.g. Int.
 setAs("CXType", "character",
        function(from) {
           ty = getCanonicalType(from)

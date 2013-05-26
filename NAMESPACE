@@ -364,7 +364,7 @@ export(Location_isInSystemHeader, isInSystemHeader)
 
 
 #export(getTranslationUnitSpelling)
-
+export(getTranslationUnitCursor)
 
 export(saveTranslationUnit)
 

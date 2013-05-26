@@ -2,7 +2,7 @@
 \alias{createRegistrationCode}
 \title{Generate code to register narive routines callable from R}
 \description{
-  This function is a high-level function to find
+  This is a high-level function to find
   the routines in C/C++ code that can be invoked
   via R's .C or .Call interface
   and then to generate the C code to register
@@ -10,7 +10,8 @@
   and their type information.
 }
 \usage{
-createRegistrationCode(dir, pkg = dirname(dir), routines = getCallableRoutines(dir))
+createRegistrationCode(dir, pkg = basename(dirname(dir)),
+                          routines = getCallableRoutines(dir, ...), ...)
 }
 \arguments{
   \item{dir}{the directory containing the source code.}
@@ -21,6 +22,9 @@ createRegistrationCode(dir, pkg = dirname(dir), routines = getCallableRoutines(d
     in the src/ directory of a package and the parent directory is the
     root of the package structure.}
   \item{routines}{the collection of .C and .Call invocable routines}
+  \item{\dots}{additional parameters such as \code{args} and
+    \code{includes} that are passed to \code{\link{createTU}} when
+    parsing the source files(s).}
 }
 \value{
 

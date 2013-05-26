@@ -25,6 +25,7 @@ plot(g, vertex.size = 2, vertex.label.cex = .6, edge.arrow.size = .5)
 
 
 pdf("Paper/callgraph.pdf", 6, 9)
+par(oma = c(0,0,0,0))
 plot(g, vertex.size = 2, vertex.label.cex = .6, edge.arrow.size = .5)
 dev.off()
 

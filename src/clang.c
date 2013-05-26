@@ -1828,3 +1828,12 @@ R_getRoutines(SEXP r_tu, SEXP r_ans, SEXP r_names)
 }
 
 
+
+SEXP
+R_getPointerAddress(SEXP r_ref)
+{
+    void *p = getRReference(r_ref);
+    char buf[100];
+    sprintf(buf, "%p", p);
+    return(mkString(buf));
+}

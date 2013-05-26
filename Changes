@@ -1,3 +1,7 @@
+  *  Simple efforts to map the cursor tree to igraph tree and a tikz figure in LaTeX.
+
+  *  Simple function to display networks/graphs of inter-routine calls.
+
   *  S4 classes for native element types
 
   *  getGlobalVariables() and optionally identifies static variables in routines

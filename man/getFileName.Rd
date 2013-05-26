@@ -22,6 +22,7 @@
 
 \alias{coerce,CXCursor,CXType-method}
 \alias{coerce,CXTranslationUnit,CXCursor-method}
+\alias{getTranslationUnitCursor}
 
 \alias{clone}
 \alias{clone,CXCursor-method}

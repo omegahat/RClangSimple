@@ -11,17 +11,6 @@
 #  giving the indices  of the vertices to which this vertex has an edge.
 #
 
-makeUniqueID =
-function(cur)
-{
-  toks = getCursorTokens(cur)
-  paste(toks[-length(toks)], collapse = " ")
-}
-
-makeCursorLabel =
-function(cur)
-   gsub("CXCursor_", "", names(cur$kind))
-
 igraphEdgeCollector =
   #
   # Using the R_getPointerAddress  doesn't work. It clones the cur and parent and so we get a new parent instance each time.

@@ -28,6 +28,10 @@ function(src, includes = character(),
   .Call("R_clang_createTUFromSource", idx, as.character(src), args, as.integer(options))
 }
 
+getTranslationUnitCursor =
+function(tu)
+         .Call("R_clang_getTranslationUnitCursor", as(tu, "CXTranslationUnit"))
+
 setAs("CXTranslationUnit", "CXCursor",
        function(from) {
          .Call("R_clang_getTranslationUnitCursor", from)

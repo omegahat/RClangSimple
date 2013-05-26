@@ -25,7 +25,7 @@ isDotCall =
    # returns a SEXP and takes only SEXPs
 function(fun)
 {
-  if(length(fun$params) > 0 && !all(sapply(fun$params, isSEXP)))
+  if(length(fun@params) > 0 && !all(sapply(fun@params, isSEXP)))
     return(FALSE)
 
   isSEXP(fun@returnType)
@@ -77,7 +77,7 @@ function(dir, src = list.files(dir, pattern = "\\.(c|cpp|cxx|C)$", full.names = 
      if(verbose)
         cat(i, "\n")
      parseTU(i, col$update, args = args, ..., clone = TRUE)
-     where = sapply(col$funcs(), function(x) getFileName(x$def))
+     where = sapply(col$funcs(), function(x) getFileName(x@def))
      funs = c(funs, col$funcs()[where == i])
   }
 
@@ -92,7 +92,7 @@ function(dir, src = list.files(dir, pattern = "\\.(c|cpp|cxx|C)$", full.names = 
   if("Call" %in%  names(tmp))
     tmp$Call = new("RCallFunctionTable",
                          data.frame(sym = names(tmp$Call),
-                                    nargs = sapply(tmp$Call, function(x) length(x$params))))
+                                    nargs = sapply(tmp$Call, function(x) length(x@params))))
 
   if("C" %in% names(tmp))
      tmp$C = new("RDotCFunctionList", tmp$C)
@@ -130,8 +130,8 @@ setAs("RCallableFunctions", "RegistrationTable",
        function(from) {
 
          new("RegistrationTable",
-             c(C = as(from$C, "character"),
-               Call = as(from$Call, "character")))
+             c(C = as(from[["C"]], "character"),
+               Call = as(from[["Call"]], "character")))
 
        })
 
@@ -151,12 +151,12 @@ setAs("RDotCFunctionList", "character",  makeDotCRegistration)
 getDotCSignature =
 function(fun, name)
 {
-  k = sapply(fun$params, getDotCType)
+  k = sapply(fun@params, getDotCType)
   list(typeDecl = sprintf("static R_NativePrimitiveArgType %s_t[%d] = {%s};",
-                              name, length(fun$params),
+                              name, length(fun@params),
                               paste(k, collapse = ", ")),
        decl = sprintf('{"%s", (DL_FUNC) & %s, %d, %s_t}',
-                        name, name, length(fun$params), name))
+                        name, name, length(fun@params), name))
 }
 
 DotCTypes = c(INTSXP = CXType_Int, REALSXP = CXType_Double, EXTPTRSXP = CXType_Void)
@@ -194,10 +194,9 @@ function(routines, pkg, id = sprintf("R_init_%s", pkg), useDynamic = TRUE)
 
 
 createRegistrationCode =
-function(dir, pkg = dirname(dir),
-          routines = getCallableRoutines(dir))
+function(dir, pkg = basename(dirname(dir)),
+          routines = getCallableRoutines(dir, ...), ...)
 {
     c(as(routines, "RegistrationTable"), "",
       createRegistrationRoutine(routines, pkg))
-    
 }
