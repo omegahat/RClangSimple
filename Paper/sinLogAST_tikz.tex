@@ -1,0 +1,80 @@
+\tikzset{font=\tiny,
+level distance=1.75cm,
+every node/.style=
+    {top color=white,
+    bottom color=blue!25,
+    rectangle,rounded corners,
+    minimum height=8mm,
+    draw=blue!75,
+    very thick,
+    drop shadow,
+    align=center,
+    text depth = 0pt
+    },
+level 4/.style={sibling distance=7cm},
+level 5/.style={sibling distance=7cm}, 
+level 6/.style={sibling distance=4cm}, 
+level 7/.style={sibling distance=3cm}, 
+%level distance=2cm, sibling distance=8cm,
+level/.style={distance=2cm, sibling distance=6cm}
+}
+
+\begin{tikzpicture}
+ \node {FunctionDecl}
+ child {
+  node {ParmDecl}
+ }
+ child {
+  node {CompoundStmt}
+  child {
+   node {ReturnStmt}
+   child {
+    node {ParenExpr}
+    child {
+     node {BinaryOperator}
+     child {
+      node {CallExpr}
+      child {
+       node {FirstExpr}
+       child {
+        node {DeclRefExpr}
+       }
+      }
+      child {
+       node {FirstExpr}
+       child {
+        node {DeclRefExpr}
+       }
+      }
+     }
+     child {
+      node {CallExpr}
+      child {
+       node {FirstExpr}
+       child {
+        node {DeclRefExpr}
+       }
+      }
+      child {
+       node {BinaryOperator}
+       child {
+        node {FirstExpr}
+        child {
+         node {DeclRefExpr}
+        }
+       }
+       child {
+        node {FirstExpr}
+        child {
+         node {IntegerLiteral}
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+
+    ;
+\end{tikzpicture}

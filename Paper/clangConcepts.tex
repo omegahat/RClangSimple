@@ -51,21 +51,50 @@ kinds for a cursor (enumerated in \Rpkg{RCIndex} via the variable
 CallExpr, IntegerLiteral, ClassDecl MacroDefinition, EnumDecl,
 StructDecl.  Hopefully the names indicate the purpose of the cursor.
 
+\begin{figure}
+\input{sinLogASFig.tex}  
+\cprotect\caption{This shows the structure of a cursor tree for the 
+\C{} routine \Cfunc{sinLog} shown in figure~\ref{fig:sinLogRoutine}.
+Each node in the tree shows the kind of the cursor
+and the text of the expression with which it is associated.
+The cursor kind \dquote{FirstExpr} essentially means unexposed or hidden.
+}
+\label{fig:sinLogTree}  
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{CCode}
+              double
+              fun(double x)
+              {
+                 return(sin(x) + log(x + 1));
+              }
+\end{CCode}  
+\caption{A simple routine that takes a single \Ctype{double} value
+and returns a new value. Figure~\ref{fig:sinLogTree} illustrates the
+parse tree for this routine.}\label{fig:sinLogRoutine}
+\end{figure}
+
+
 Along with its kind, a cursor has child cursors.  These are the
 components such as the reference to the routine and the parameters in
 a call, the fields and methods in a \Cpp{} class or the left and right
 hand side of an assignment expression. Each of these child cursors has
 a kind and also, possibly, its own sub-cursors. As a result, we have a
-tree, or hierarchical structure.  The translation unit is the
-container for the top-most or root cursor of the tree.  This root
-cursor has the abstract kind \ClangKind{TranslationUnit}.  Its
-children are the top-level elements of the source code file,
-e.g. global variables, routines, class definitions, pre-processor
-terms. Each of these has its own child cursors and so on.
+tree, or hierarchical structure.  Figure~\ref{fig:sinLogTree}
+illustrates this hierachy for a simple routine, along with the kind of
+cursor and the expression associated with each cursor.  The
+translation unit is the container for the top-most or root cursor of
+the tree.  This root cursor has the abstract kind
+\ClangKind{TranslationUnit}.  Its children are the top-level elements
+of the source code file, e.g. global variables, routines, class
+definitions, pre-processor terms. Each of these has its own child
+cursors and so on.
 
 This concept of a cursor tree is important when we examine how to
 extract information using the lower-level facilities in
-sections~\ref{ref:LowLevel}~and~\ref{sec:Examples}.  We will traverse
+sections~\ref{sec:BuildingBlocks}~and~\ref{sec:Examples}.  We will traverse
 the tree, either one node at a time or directly by querying child
 cursors and their children.
 

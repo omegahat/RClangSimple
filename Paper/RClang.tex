@@ -1,32 +1,42 @@
 \documentclass[article]{jss}
 \usepackage{comment}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shadows,trees}
+\usepackage{fancyvrb}
+\usepackage{cprotect}
+
+\usepackage[firstpage]{draftwatermark}
+\SetWatermarkLightness{.95}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% almost as usual
 \author{Duncan Temple Lang\\University of California at Davis}
-\title{RCIndex: Accessing C/C++ Code in R with libclang}
+\title{RCIndex: Querying C/C++ Code in R with libclang}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Duncan Temple Lang}
-\Plaintitle{RCIndex: Accessing C/C++ Code in R with libclang}
+\Plaintitle{RCIndex: Querying C/C++ Code in R with libclang}
 \Shorttitle{RCIndex}
 
 %% an abstract and keywords
 \Abstract{ 
-  The ability to get information about \C/\Cpp{} code routines
-  and data structures can allow us to do many things in an intrepreted
-  language such as \R.  We use \libclang{}, a flexible, embeddable
-  library, to develop \R{} functionality to obtain information about
-  native code.  We describe the \Rpkg{RCIndex} package which provides
-  high-level functionality to access this information and also
-  lower-level approaches to query and manipulate other aspects of
-  native code.  We describe how to use the package and scenarios in
-  which it is useful.
-  This functionality is infrastructural and not necessarily of
-  direct use or interest to end-users.
+
+The ability to get information about \C/\Cpp{} code routines and data
+structures can allow us to do many things in an intrepreted language
+such as \R.  We use \libclang{}, a flexible, embeddable library, to
+develop \R{} functionality to obtain information about native code.
+We describe the \Rpkg{RCIndex} package which provides high-level
+functionality to access this information and also lower-level
+approaches to query and manipulate other aspects of native code.  We
+describe how to use the package and scenarios in which it is useful.
+This functionality is infrastructural and is analogous to
+\Rpkg{codetools} for \R{} code.  It is not necessarily of direct
+interest to end-users, but it allows us to build numerous tools that
+can help end-users and developers.
+
 } 
 \Keywords{\R, \Rpkg{RCIndex} package}
 \Plainkeywords{R, RCIndex} %% without formatting
@@ -57,6 +67,7 @@
 \usepackage[T1]{fontenc} 
 \catcode`\_=12
 
+\def\llvm{LLVM}
 \def\C{\proglang{C}}
 \def\perl{\proglang{PERL}}
 \def\Cpp{\proglang{C$++$}}
@@ -67,11 +78,13 @@
 \def\Rpkg#1{\pkg{#1}}
 \def\Rfunc#1{\textsl{#1()}}
 \def\Rop#1{\texttt{#1}}
+\def\Rdollar{\texttt{\$}}
 \def\Rvar#1{\textsl{#1}}
 \def\Rel#1{\textbf{#1}}
 \def\Cfunc#1{\textit{#1()}}
 \def\Cvar#1{\textit{#1}}
 \def\file#1{\textbf{#1}}
+\def\dir#1{\textbf{#1}/}
 \def\Ctype#1{\texttt{#1}}
 \def\Rclass#1{\textit{#1}}
 \def\Rslot#1{\textbf{#1}}
@@ -103,6 +116,8 @@
 \DefineVerbatimEnvironment{ROutput}{Verbatim}{fontshape=bf}
 
 \begin{document}
+
+%XXX connect with codetools
 
 \section{Motivation}\label{sec:Introduction}
 
@@ -210,11 +225,12 @@ data, if possible.
 analyzing software is an important field.  Software defines several
 networks related to i) which routines call which other routines, ii)
 the hierarchical structure of \Cpp{} classes, iii) which files
-\texttt{\#include} other files, and so on.  We can find which
-global/non-local variables are used in which routines to help identify
-problems with parallelization and potential refactorzation of the
-code.  We can combine this data with version control history to better
-understand software projects.
+\texttt{\#include} other files, and so on.  We can explore how these
+networks change over time, i.e. modifications to the code. We can find
+which global/non-local variables are used in which routines to help
+identify problems with parallelization and potential refactorzation of
+the code.  We can combine this data with version control history to
+better understand software projects.
 
 
 \textbf{Detecting errors in native code for \R}: \R's package
@@ -273,10 +289,13 @@ arguments for the parser and the results are returned.  The user
 doesn't have to write any code to manipulate or traverse the parse
 tree (AST).  She doesn't have to necessarily create a translation unit
 before calling one of these functions. As such, they are ``atomic''.
-(There are occasions, however, when it is beneficial to create a
-translation unit and traverse that several times to extract different
-information on each traversal.)
+These functions can also take an existing, previously parsed,
+translation unit rather than the file name.  This is useful if we are
+going to make multiple separate queries of the same source code,
+i.e. we parse it once and query it multiple time.
 
+
+\paragraph{Finding routines}
 The \Rfunc{getRoutines} does as its name suggests. It takes a file
 name or an existing translation unit object and returns a list with an
 element for each routine declaration or definition in the code.  Each
@@ -289,6 +308,33 @@ location in that file and so on. In other words, information that
 we don't explicitly collect into the \R{} object can be determined
 later when we use this description of the routine.
 
+\paragraph{Data type definitions}
+The routines are typically our focus so that we can invoke them from
+\R{} or analyze their code. However, the routines work on data types
+and therefore we need to be able to find the definitions of these data
+types.  The \Rfunc{getDataStructures} function returns a list of the
+data types defined in a source file.  These include \Ckeyword{struct}
+and \Ckeyword{union} definitions, \Ckeyword{typedef}s for providing an
+alternative name for an existing type.
+
+\paragraph{\Cpp{} class definitions}
+For \Cpp{} code, we can use \Rfunc{getCppClasses} to traverse a
+translation unit, either pre-parsed or a source file, and construct a
+description for each of the \Cpp{} classes it contains. Each class
+description is an instance of the class \Rclass{C++Class}, with
+template classes using the derived class \Rclass{TemplateC++Class}.  A
+class description contains the name of the class, a list of its fields
+and another for its methods, and references to the base/super class
+cursors.  The fields and methods each have their type information and
+also the accessor qualifier, i.e. \Cppkeyword{private},
+\Cppkeyword{protected} or \Cppkeyword{public}.  It is relatively
+straightforward to generate \Cpp{} code that defines a derived
+sub-class whose methods we can implement with \R{} functions.  We can
+then provide \R{} instances of that class that operate transparently
+as regular \Cpp{} objects.
+
+
+\paragraph{Enumerated constant definitions}
 \Rfunc{getEnums} returns a list of the enumeration definitions in a
 source file. Each element is an instance of the S4 class
 \Rclass{EnumerationDefinition}.  Like the \Rclass{FunctionDecl} class,
@@ -300,27 +346,20 @@ literal values to which these names correspond.  These values allow us
 to cross the interface between \R{} and native code where there is no
 existing  association between the symbolic names.
 
-\Rfunc{getDataStructures} returns a list of the data types defined in
-a source file.
+\paragraph{Global Variables}
+The \Rfunc{getGlobalVariables} function returns information about all
+of the non-local variables within a source file.  From this, we have
+their names and types, and can also determine if they are constant,
+and if they are local to this file (i.e. \Ckeyword{static}) or
+accessible to routines in other files.  We may be interested in global
+variables for various reasons.  We can use either of the
+\Rpkg{rdyncall} or \Rpkg{Rffi} packages to dynamically access the
+current value of a global variable.  We also want to remove global
+variables when making code thread-safe or just for improving the logic
+of the code, i.e. avoiding side-effects.
 
 
-\Rfunc{getGlobalVariables} yields references to all of the non-local
-variables within a source file.  From this, we have their names and
-types.
-
-\Rfunc{getCppClasses} traverses a translation unit, either pre-parsed
-or a source file, and constructs a description for each of the \Cpp{}
-classes it contains. Each class description is an instance of the
-class \Rclass{C++Class}, with template classes using the derived class
-\Rclass{TemplateC++Class}.  A class description contains the name of
-the class, a list of its fields and another for its methods, and
-references to the base/super class cursors.  The fields and methods
-each have their type information and also the accessor qualifier,
-i.e. \Cppkeyword{private}, \Cppkeyword{protected} or
-\Cppkeyword{public}.
-
-
-
+\paragraph{Find calls to routines}
 The \Rfunc{findCalls} function takes a cursor -- typically either a
 routine or an entire translation unit -- and finds the names of
 routines in any call.  This allows us to determine which routines call
@@ -379,19 +418,244 @@ and it is displayed in figure~\ref{fig:callgraph}.
   \label{fig:callgraph}
 \end{figure}
 
+I use the \Rpkg{findCalls} function when creating bindings to
+third-party libraries to determine which routines currently have no
+wrapper routine.
 
-\subsection[Registering R-callable routines]{Registering \R-callable routines}
 
-\subsection{Building Blocks}\label{sec:BuildingBlocks}
+%\subsection[Registering R-callable routines]{Registering \R-callable routines}
+\paragraph{Registering \R-callable routines}
+We mentioned in section~\ref{sec:Introduction} registering native
+routines we can call from \R{} via the \Rfunc{.C}, \Rfunc{.Call} and
+\Rfunc{.External} interfaces.
+The registration information is \C{} code that looks something like
+\begin{CCode}
+static R_CallMethodDef CallEntries[] = {
+     {"R_csv_sample", (DL_FUNC) &R_csv_sample, 2},
+     {NULL, NULL, 0}
+};
 
-\Rfunc{createTU}
+void attribute_visible R_init_FastCSVSample(DllInfo *dll)
+{
+   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+   R_useDynamicSymbols(dll, TRUE);
+}  
+\end{CCode}
+This comes from the \Rpkg{FastCSVSample} package
+(\url{http://github.com/duncantl/FastCSVSample}) In this case, there
+is only one \C{} routine we invoke via the \Rfunc{.Call}.  In the
+\Rpkg{stats} package, there are $83$ \Rfunc{.Call} and $10$ \Rfunc{.C}
+routines, with registration information for all. 
+
+It is tedious, and hence error-prone, to manually create this
+registration information, and to update it as the code evolves.
+Instead, we can use the \Rfunc{createRegistrationCode} function to
+generate it for us.  This is often as simple as
+\begin{RCode}
+rg = createRegistrationCode("~/GitWorkingArea/FastCSVSample/src")  
+cat("#include <R_ext/Rdynload.h>",  rg, sep = "\n", file = "init.c")
+\end{RCode}
+For an \R{} package, we specify the \dir{src} directory of that
+package.  We can also provide arguments for the parser such as
+\Rarg{includes} or pre-processor definitions (via \Rarg{args}) via the
+\Rarg{\dots} parameter.  The function processes each \C{} and \Cpp{}
+file in the directory and determines which routines can be called via
+the \Rfunc{.C} interface and which can be called by \Rfunc{.Call}.  It
+does this by examining the signatures and determining which are
+consistent with the different call mechanism.  It then creates the
+registration information and also generates the \Cfunc{R_init_...}
+routine, using the name of the package as suffix.
+
+The \R{} registration mechanism doesn't currently permit the
+programmer to specify which type of \R{} object is expected for each
+parameter in a \Rfunc{.Call} routine, e.g. an integer or numeric
+vector, or a function or a list.  The \Rpkg{RCIndex} functionality
+does, however, allow us to infer this by analyzing the code within a
+routine and determine how it is being accessed.  This could be added
+to the registration information and allow \R{} to perform run-time
+checks or coercion to the appropriate types.
+
+
+\paragraph{Listing included files}
+The function \Rfunc{getInclusions} allows us to obtain a list of all
+the files included in our translation unit, both directly and
+indirectly.  The function also allows us to collect the information
+ourselves and so find out which files were include by which others,
+i.e. the hierarchy of inclusions.
+
+
+\subsection{Low-level building blocks}\label{sec:BuildingBlocks}
+
+The functions we described above do not require the user to know any
+of the details of \libclang{} and how \Rpkg{RCIndex} extracts the
+information from a source code file.  To work with the results of some
+of these functions, however, the \R{} programmer needs to know a
+little about \libclang's type system. Furthermore, to go beyond these
+functions and extract different information, a programmer needs to
+understand the lower-level tools on which these functions were built.
+At the very least, it is useful to know how to create a translation
+unit directly rather than re-parsing the same file multiple times.
+
+\paragraph{Creating a translation unit} 
+One of the two vital functions in \Rpkg{RCIndex} is \Rfunc{createTU}.
+This takes the name of a source file and parses it into a translation
+unit object in memory, returning a reference to that as an opaque \R{}
+object.
+The signature of the function is 
+\begin{RCode}
+createTU(src, includes = character(), 
+         idx = createIndex(verbose = verbose), 
+         args = character(), 
+         verbose = getOption("ShowParserDiagnostics", TRUE), options = 0)   
+\end{RCode}
+The \Rarg{includes} parameter allows us to specify one or more paths
+to directories in which to find \Ckeyword{\#include}'d header files. We
+can pass arguments to control the parser via the \Rvar{args}
+parameter. These can be pre-processor flags and definitions such as
+\verb+-DHAVE_CONFIG_H+, or any of the options the \libclang{} parser
+understands such as \verb+-ferror-limit=1000+ and
+\verb+-fparse-all-comments+.  The entire set of options is document in
+the \clang{} user manual
+(\url{http://clang.llvm.org/docs/UsersManual.html})\footnote{The code
+  generation options are not relevant as we are not generating code,
+  only parsing it.}.
+
+The \Rvar{options} parameter allows us specify certain additional
+control options beyond the \Rarg{args} parameter.  These control
+aspects such as skipping the bodies of routines when we just want the
+declarations, keeping a more complete record of the pre-processing
+steps, and other aspects we concern us less.
+We specify these options either as a combination of
+bitwise-enumeration values from the \Rvar{CXTranslationUnit_Flags}
+class.
+For instance, to skip the body of the routines and to indicate the 
+translation unit is incomplete, we can use
+\begin{RCode}
+CXTranslationUnit_SkipFunctionBodies | CXTranslationUnit_Incomplete  
+\end{RCode}
+These two \R{} variables represent these two options and we are
+combining them via the \Rop{|} operator.
+An alternative approach is to use short-hand names as a character
+vector, e.g.
+\begin{RCode}
+c("SkipFunctionBdies", "Incomplete")
+\end{RCode}
+
+The \Rarg{index} parameter is often omitted as we typically parse a
+single source file and work on it separately from others.  However, as
+we mentioned, routines often refer to other routines or variables in
+other source files in the same project.  The index is a container for
+related translation units and provides the mechanism for resolving
+references across  translation units it manages.
+Therefore, if we want to work on multiple related source files,
+we should first create an index and then pass this to each call
+to \Rfunc{createTU}, e.g.
+\begin{RCode}
+index = createIndex()
+tus = lapply(list.files("src", pattern = "\\.c$", full.names = TRUE),
+               createTU, index = index)
+\end{RCode}
+%$
+
+When creating an index, we can control whether it displays errors,
+warnings and general diagnostic information about the code on the
+console.  We can disable this via the \Rarg{verbose} parameter and
+passing \Rfalse as its value.
+
+\paragraph{Working with cursors}
+A translation unit is a container for the parse tree.
+We can query the name of the source file  with
+\Rfunc{getFileName}. More importantly, we can 
+access the root cursor in a translation unit
+with either 
+\begin{RCode}
+as(tu, "CXCursor")
+getTranslationUnitCursor(tu)
+\end{RCode}
+A cursor in \R{} has the class \Rclass{CXCursor}.
+
+A cursor is a representation  of a general semantic concept such
+as a call expression, a binary operation, a variable declaration and
+so on.  We find out its particular kind or purpose using
+the \Rfunc{getCursorKind}  function or the short-hand
+\Rdollar{} operator. So the following are equivalent
+\begin{RCode}
+  getCursorKind(cur)
+  cur$kind
+\end{RCode}
+
+
+Most cursors have an associated string such as the name of the routine
+being invoked in a call expression or a variable being referenced in a
+variable declaration.  We get this string via \Rfunc{getName}.
+
+We can retrieve the actual text from the source file associated with a
+cursor using \Rfunc{getCursorTokens}. This is important in some cases
+when the kind of the cursor doesn't give us enough detail to
+disambiguate between various possibilities.  For example, a binary
+operator doesn't tell us what operator was being used.  For this, we
+look at the actual text. \Rfunc{getCursorTokens} conveniently returns
+the associated source code text already broken into lexical tokens.
+
+If we parse the code using the \verb+-fparse-all-comments+ argument to
+\Rfunc{createTU}, we can retrieve the comments associate with certain
+kinds of cursors, i.e. variable, routine and type declarations.  There
+are several functions to access the comment.  We can get the text with
+\Rfunc{getRawCommentText}. We can also get a brief version of the
+comment corresponding to certain conventions for marking up
+documentation in comments via \Rfunc{getBriefComment}.  The
+\Rfunc{getParsedComment} returns an actual \Rclass{CXComment} object
+and we can treat this as a hierarchical object with child comments.
+
+In some situations, it is important to map a cursor to its location in
+the source file. \Rfunc{getLocation} returns the filename and the line
+and column numbers and the number of bytes (or offset) from the start
+of the file.
+
+Some kinds of cursors are references to other elements in the
+translation unit. For example, in a call expr, then routine being
+called is represented by a reference cursor that refers to the actual
+routine. We can resolve that reference with the
+\Rfunc{getCursorReferenced} function.
+
+Recall that cursors are recursive structures with child cursors.  We
+typically write functions that traverse this tree using
+\Rfunc{visitCursor} and we will discuss this in the next section.
+However, it is convenient at times to explicitly access a cursors
+children, and their children and so.  We can conceptually think of the
+cursor as being like an \R{} list with the children as its
+elements. This allows us to access the children individually using
+\Rexpr{cur[[i]]}, where \Rvar{i} is the index of the child ( with the
+first child at index 1). We can't use names to index the children or
+the \Rdollar{} operator. We can find the number of children a
+cursor has using \Rfunc{length}.  We can access the entire list of
+children explicitly with \Rfunc{children} and this allows us to loop
+over them with \Rfunc{lapply} or \Rfunc{sapply}.
+
+In addition to being able to descend the cursor tree, we can use
+\Rfunc{getCursorSemanticParent} and in a slightly different hierarchy
+\Rfunc{getCursorLexicalParent}.
+
+
+
+\paragraph{Traversing a cursor tree}
+To traverse a cursor tree, we typically use the \Rfunc{visitCursor} function.
+
+
+This is (currently) more efficient the recursively processing the
+entire tree with \R{} code looping over the children. However, writing
+visitor functions can be complicated as it typically involves
+maintaining state across calls to the same function. This is not very
+common in \R{} so needs some discussion.
+
+
 
 \input{writingVisitorFunctions}
 
 
 
 
-\section{Extended Examples and Applications}
+\section{Extended Examples and Applications}\label{sec:Examples}
 In this section, we explore some more advanced examples of how to use
 the \Rpkg{RCIndex} package to get different information from a
 translation unit.  One of the best sources of such examples is the set
@@ -430,10 +694,29 @@ bindings to these routines.
 Given these basic bindings, we plan to develop additional high-level
 functionality to process different aspects of native code. We are
 interested in processing the bodies of the routines to understand
-their characteristics.
+their characteristics.  We also plan to extend the \R{} code to
+generate bindings to routines and data structures.  This code is
+currently in a sub-directory of the package (\dir{generateCode}) and
+so not directly exposed to \R{} users.  We also used this to generate
+many of the bindings for the \Rpkg{RCUDA} package
+(\url{http://github.com/duncantl/RCUDA}). We will merge the code
+generation mechanisms from our previous work on
+\Rpkg{RGCCTranslationUnit} and SWIG.
 
-While not exclusively related to \Rpkg{RCIndex},
-we are experimenting with ways to 
+Over the last decade, some of us have considered making the \R{}
+source code thread-safe and introduce user-level threads.  While there
+are many technical and non-technical reasons why this hasn't been
+done, it would be easier to do with tools that analyze the source code
+and identify where and how the code needs to change.  While we don't
+have to develop these tools in \R{} itself, it is convenient and
+\Rpkg{RCIndex} can be useful for developing such re-factoring tools.
+
+While not exclusively related to \Rpkg{RCIndex}, we are experimenting
+with ways to compile aspects of the \R{} language and \R{} code to
+native machine code.  We can then compile visitor functions to make
+them significantly faster.  Not coincidentally, the compilation uses
+\llvm{} as the code generator and \llvm{} is the backend for \clang{},
+the \C/\Cpp{} compiler from which \libclang{} came.
 
 \bibliography{rclang}
 
