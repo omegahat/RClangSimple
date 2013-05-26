@@ -1,5 +1,6 @@
 \documentclass[article]{jss}
 \usepackage{comment}
+\usepackage{graphicx}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -50,7 +51,8 @@
   URL: \url{http://www.omegahat.org}
 }
 
-\usepackage[T1]{fontenc}
+
+\usepackage[T1]{fontenc} 
 \catcode`\_=12
 
 \def\C{\proglang{C}}
@@ -74,7 +76,9 @@
 \def\Rarg#1{\textbf{#1}}
 \def\Roption#1{\dquote{\textsl{#1}}}
 \def\Cppkeyword#1{\textbf{#1}}
+\def\Ckeyword#1{\textbf{#1}}
 \def\Cexpr#1{\textsl{#1}}
+\def\Rexpr#1{\textit{#1}}
 
 \def\Rtrue{TRUE}
 \def\Rfalse{FALSE}
@@ -158,7 +162,7 @@ and remove humans from the process.
 interface to third-party libraries, we typically read documentation to
 identify and understand the important routines and data structures.
 In some situations, it can be convenient to find this information
-interfactively within an environment such as \R.  Rather than reading
+interactively within an environment such as \R.  Rather than reading
 static document, we can query the code for information such as how
 often a particular data type is returned by a routine or passed as an
 argument? or what idioms does the library use?  We can use \R's
@@ -196,7 +200,7 @@ data, if possible.
 
 \textbf{Software as Data}: While we may not think of code as data,
 analyzing software is an important field.  Software defines several
-networks relatd to i) which routines call which other routines, ii)
+networks related to i) which routines call which other routines, ii)
 the hierarchical structure of \Cpp{} classes, iii) which files
 \texttt{\#include} other files, and so on.  We can find which
 global/non-local variables are used in which routines to help identify
@@ -213,7 +217,7 @@ It would be valuable to perform similar tests on \C{} code in \R{}
 packages.  We might identify common issues such as not protecting
 allocated \R{} objects from garbage collection.  We could do this by
 analyzing uses of \Cfunc{PROTECT} and \Cfunc{UNPROTECT} calls and
-ensuring there is an appropriate correspondance.  These are
+ensuring there is an appropriate correspondence.  These are
 \R-specific checks and will not be done by other code-analyzing
 software.
 
@@ -264,13 +268,15 @@ as stable or as readily usable or developed as \libclang.
 GCC-XML is an extension to \gcc{} that, like the
 \ShFlag{-fdump-translation-unit} option, can export information about
 routines and data structures contained in \C/\Cpp{} source code.  As
-the name suggets, it exports in an \XML{} format.  We can then read
+the name suggest, it exports in an \XML{} format.  We can then read
 this into \R{} with, for example, the \Rpkg{XML}~\cite{bib:RSXML}
 package.  We can convert the \XML{} content into descriptions of the
 routines and types.  Again, we have to implement this type registry.
 Also, GCC-XML does not give us access to the bodies of the routines
 and so we cannot address several of the applications we discussed in
 section~\ref{sec:Introduction}.
+While it is not very difficult, since GCC-XML does not come with
+\gcc{} itself, one has to install it separately.
 
 
 I also explored SWIG (Simplified Wrapper and Interface
@@ -314,7 +320,7 @@ All of the approaches are reasonable and have their
 advantages. However, \libclang{} is a significant improvement over all
 of these other approaches for various different reasons. It provides
 most of the infrastructure we need and removes the burden for
-conusmers to create this.  It is flexible but not excessively complex.
+consumers to create this.  It is flexible but not excessively complex.
 It is tied to serious, ongoing projects and so continues to evolve. It
 allows us to work in the language in which we want to program,
 i.e. \R.  It provides access to all aspects of the native code, not
@@ -323,17 +329,22 @@ just the declarations. It processes both \C{} and \Cpp.
 
 \section[Concepts of libclang]{Concepts of \libclang}\label{sec:libclangConcepts}
 
-Translation unit,  AST and cursors, traversing the tree, 
+Translation units,  AST and cursors, traversing the tree, types
 
 \section[The RCIndex package]{The \Rpkg{RCIndex} package}\label{sec:RCIndex}
 The \Rpkg{RCIndex} provides numerous high-level functions that return
-information about \C{} code.
+information about \C{} code.  These refer to functions that I have
+developed building on the lower-level tools and which users can call
+directly to get useful information or to perform high-level tasks such
+as generating registration information or getting all the routines or
+\Cpp{} classes. These might be initial steps in a higher-level task,
+but they are high-level relative to the primitive functions in
+the \Rpkg{RCIndex} package with which we implemented these functions.
 
 \subsection{High-level Functionality}
 
 % Talk about filtering based on the file name. (Implement this
 % consistently).  Mention can do it afterwords or during the collection.
-
 
 We might consider functions that take a source file and extract one or
 more of the types of top-level elements in that file, e.g. routines,
@@ -344,7 +355,7 @@ arguments for the parser and the results are returned.  The user
 doesn't have to write any code to manipulate or traverse the parse
 tree (AST).  She doesn't have to necessarily create a translation unit
 before calling one of these functions. As such, they are ``atomic''.
-(There are occasssions, however, when it is benficial to create a
+(There are occasions, however, when it is beneficial to create a
 translation unit and traverse that several times to extract different
 information on each traversal.)
 
@@ -362,14 +373,14 @@ later when we use this description of the routine.
 
 \Rfunc{getEnums} returns a list of the enumeration definitions in a
 source file. Each element is an instance of the S4 class
-\Rclass{EnumerationDefinition}.  Like the \Rclass{FunctionDecl}, this
-contains a reference to the definition in case we want to query it
-further at a later time.  The actual values in the enumeration are
+\Rclass{EnumerationDefinition}.  Like the \Rclass{FunctionDecl} class,
+this contains a reference to the definition in case we want to query
+it further at a later time.  The actual values in the enumeration are
 stored in the \Rslot{values} slot as a named integer vector.  The
 names are the symbolic names we should use, while the values are the
 literal values to which these names correspond.  These values allow us
 to cross the interface between \R{} and native code where there is no
-existin association between the symbolic names.
+existing  association between the symbolic names.
 
 \Rfunc{getDataStructures} returns a list of the data types defined in
 a source file.
@@ -391,7 +402,69 @@ i.e. \Cppkeyword{private}, \Cppkeyword{protected} or
 \Cppkeyword{public}.
 
 
-\subsection{Building Blocks}
+
+The \Rfunc{findCalls} function takes a cursor -- typically either a
+routine or an entire translation unit -- and finds the names of
+routines in any call.  This allows us to determine which routines call
+which other routines and so describe a graph/network.  We can then
+discover potentially interesting things about the routines.  For
+example, we might look at just the routines within a single file and
+see which of these call other routines in the file and which are
+called by other routines in the file.  This might identify isolated
+routines that don't necessarily belong in this particular file. It
+might also help us to understand how the the routines interact.
+We can use the \Rpkg{igraph} and \Rpkg{graph} packages to perform
+computations on the network and also to visualize it.
+
+We'll show how to do this on a file \file{memory.c} in the \R{}
+interpreter's source.
+We start by obtaining the routines from the file:
+\begin{RCode}
+f = sprintf("%s/../src/main/memory.c", R.home())
+r = getRoutines(f, TRUE, args = "-DHAVE_CONFIG_H",
+                  includes = c(sprintf("%s/../src/include", R.home()),
+                               sprintf("%s/include", R.home())))
+\end{RCode}
+We'll discuss the extra arguments in section~\ref{sec:BuildingBlocks}
+
+For each of these routines, we find which routines they call with
+\begin{RCode}
+kalls = lapply(r, findCalls)
+\end{RCode}
+To restrict the routines to only those within this file
+and create the adjacency matrix, we use 
+\begin{RCode}
+withinFileCalls = lapply(kalls, intersect, names(r))    
+m = matrix(0, length(r), length(r), dimnames = list(names(r), names(r)))
+invisible(sapply(names(withinFileCalls), 
+           function(id) 
+              m[id,  withinFileCalls[[id]]] <<- 1))
+i = rowSums(m) == 0 & colSums(m) == 0
+m = m[!i, !i]
+\end{RCode}
+The final two lines discard the routines which are neither called or
+call any other routines.
+% We could do this more elegantly.
+Finally, we can draw the graph
+\begin{RCode}
+library(igraph)
+g = graph.adjacency(mm, "directed")       
+plot(g, vertex.size = 2, vertex.label.cex = .6, edge.arrow.size = .5)
+\end{RCode}
+and it is displayed in figure~\ref{fig:callgraph}.
+
+\begin{figure}
+\includegraphics{callgraph.pdf}
+\caption{A display of the call graph for the file \file{memory.c} in
+  \R's source. This displays which routines call which other routines
+  within just that file. The clusters and important nodes become evident.}
+  \label{fig:callgraph}
+\end{figure}
+
+
+\subsection[Registering R-callable routines]{Registering \R-callable routines}
+
+\subsection{Building Blocks}\label{sec:BuildingBlocks}
 
 \Rfunc{createTU}
 
@@ -475,7 +548,7 @@ when we assign the line number to the element of our \Rvar{locations}
 vector.  Thirdly, note that the \Rvar{locations} vector is defined in
 the body of \Rvar{genRoutineLocations}, not within our visitor
 function. The visitor function merely modifies it.  Fourthly, our
-second function in the returned list (\Rel{locations}) is an anoymous
+second function in the returned list (\Rel{locations}) is an anonymous
 function also defined during a call to \Rfunc{genRoutineLocations} and
 it returns the current value of the \Rvar{locations} variable.  This
 allows us to retrieve the results after they were added in the
@@ -591,7 +664,7 @@ allow \Rfunc{visitCursor} to identify the two functions.
 
 
 
-\section{Examples}
+\section{Extended Examples and Applications}
 In this section, we explore some more advanced examples of how to use
 the \Rpkg{RCIndex} package to get different information from a
 translation unit.  One of the best sources of such examples is the set
@@ -610,7 +683,9 @@ is to illustrate how to work with \libclang's type system.
 
 \input{protect}
 
+\input{rffi}
 
+\input{mutability}
 
 
 \section{Future Work}

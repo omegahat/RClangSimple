@@ -9,7 +9,9 @@ additional wrapper code.  Both require a description of the signature
 of the routine to be called. That is, we need the return type and the
 number and types of the parameters.  We don't want the user to have to
 know the signature so we want to be able compute it for them.
-We can do this directly from the results of 
+\Rpkg{rdyncall} uses GCC-XML to get the information about the routines
+and generate the corresponding signatures.  Here we'll show how to do
+it with \Rpkg{RCIndex} and directly from the results of
 \Rfunc{getRoutines} applied to the source code describing the
 routine(s) of interest.
 
@@ -212,8 +214,12 @@ sapply(r, makeSig)
 square_sin    string1    string2   typedefn 
  "*ii*d)i"      "Z)v"      "Z)v"      "l)v" 
 \end{ROutput}
-
-
+The final signature illustrates mapping the
+\Ckeyword{typedef} 
+\begin{CCode}
+typedef long VecSize;
+\end{CCode}
+to its canonical type and the \Rpkg{rdyncall} string \dquote{l}.
 
 %We can identify whether a parameter is identified as being immutable.
 %This allows us to avoid copying the argument before we pass it to

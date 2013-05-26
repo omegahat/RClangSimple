@@ -1,11 +1,11 @@
 RClang.pdf:
 
 # Examples.tex
-%.pdf: %.tex rclang.bib  protect.tex
-	-pdflatex $*
-	-pdflatex $*
-	bibtex $*
-	-pdflatex $*
+RClang.pdf: RClang.tex rclang.bib  protect.tex rffi.tex protectCodeFigure.tex mutability.tex mutabilityFigure.tex callgraph.pdf
+	-pdflatex RClang
+	-pdflatex RClang
+	bibtex RClang
+	-pdflatex RClang
 
 clean:
 	-rm  rclang.{aux,log,out,blg}

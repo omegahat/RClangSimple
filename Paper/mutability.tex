@@ -1,0 +1,145 @@
+\subsection{Determining unmodified inputs to a routine}\label{sec:MutabilityEg}
+
+We mentioned in section~\ref{sec:Introduction} that it is can be
+useful to determine if a routine modifies the memory pointed to by its
+arguments.  Ideally, programmers would qualify parameters with a
+\Ckeyword{const} declaration to indicate that it is not
+modified. However, when this is not provided we do not know if it was
+omitted or if the routine does actually change a parameter.
+If we knew that it did not, we could avoid making a copy
+of the inputs before calling it. 
+In this example, we will build a simple-minded mechanism to try to
+determine which parameters are modified within a routine.
+
+%Similarly, if we could determine
+%whether the routine allocated memory or expected to be allocated
+%by the caller, we 
+
+\input{mutabilityFigure}
+In this example, we show an alternative approach to traversing nodes
+in the tree. We use a visitor but within the visitor explicitly
+subset the children and their children with a single function call.
+
+Consider the two routines in
+figures~\ref{fig:Mutability1}~and~\ref{fig:Mutability2}.  Both take a
+pointer to a collection of \Ckeyword{int} values.  The first changes
+each element of the array. The second merely reads the elements of the
+array. From the declaration, we cannot tell the difference.  We will
+write a visitor function that traverses the code of the routine and
+identifies expressions which modify one of the (pointer) parameters.
+For simplicity, we will identify the names of the parameters of
+interest, however, our function could compute the parameters as it
+traverses the entire tree for the routine.  We'll start with a simple
+visitor function, defined in a generator function to create the
+closure. We can define this as 
+\begin{RCode}
+update =
+function(cur, parent)  {
+  k = cur$kind
+  if(k == CXCursor_BinaryOperator && "=" %in% (toks <- getCursorTokens(cur)) ) 
+      processLHS(cur[[1]])
+
+  CXChildVisit_Recurse
+}
+\end{RCode}
+%$
+
+The basic strategy is that for each cursor, we determine if it is an
+assignment operator. There is no simple function to do this in the
+\libclang{} API, but we can combine different pieces of information to
+get the answer. We check the kind of the cursor is
+\Rvar{CXCursor_BinaryOperator} and then use \Rfunc{getCursorTokens} to
+find the actual operator as a token.  If it is a \dquote{=}, we have
+indentified our condition.  Using cursor tokens is a little less
+precise than querying a specific cursor. The tokens may include
+additional text before and after our cursor that may be misleading.
+
+Once we have a binary operator, we are interested in its left-hand
+side, i.e. the first child.  Rather than setting a state variable and
+continuing to traverse the sub-cursors, we will explicitly process
+this first child. We may have to traverse its children, but we will do
+that with a separate visitor function -- \Rfunc{processLHS}.  This may
+make the computations a little simpler.  So in our top-level visitor,
+we access the first child of the current cursor with \Rexpr{cur[[1]]}
+and  then call the function that will determine what is being modified.
+
+Our next task is to define the \Rfunc{processLHS} function.  We could
+define another visitor function, but instead we will manually traverse
+the cursor tree.  We have various different situations to consider.
+This left-hand side can be arbitrary \C{} code. Examples of the entire
+expression include
+\begin{CCode}
+x[i] = 2*x[i];
+total = 2*x[i];
+*(x + i) = 2*x[i];  
+y[ x[i] ] = 2*x[i];
+*addr(y, x, i) = 2*x[i];
+y[ f(x, i, y) ] = 2*x[i];
+\end{CCode}
+These illustrate assigning to an element, a variable,
+a unary operator indexing \Cvar{x}, nested subsetting, 
+calling a routine to get an address, and subsetting
+with the index determined by a call to a routine.
+The last two of these call other routines and we would have
+to analyze their code to determine what is being modified.
+
+We'll focus on the first four examples above.  We define a function
+that can handle each of these different casesm.  \Rfunc{processLHS}
+will be called with the cursor corresponding to the left-hand side of
+the assignment.  We check to see if this is an array subscript
+(\verb+[+), a variable reference (\verb+total+), a unary operator
+(\verb+*+), another binary operator (\verb|x+i|), a call expression
+(\verb+f(x, i, y)+ or \verb+addr(y,x, i)+) and so on.
+The function is defined as
+\begin{RCode}
+processLHS = 
+function(cur) {
+  k = cur$kind
+
+  id = if(k == CXCursor_ArraySubscriptExpr) { # x[i], y[x[i]], x[foo()]
+         processLHS(cur[[2]])
+         getName(cur[[1]])
+       } else if(k == CXCursor_UnaryOperator){
+         if(cur[[1]]$kind == CXCursor_ParenExpr)
+           return(processLHS(cur[[1]][[1]]))
+         else if(cur[[1]]$kind == CXCursor_DeclRefExpr)
+           getName(cur[[1]])
+         else if(cur[[1]]$kind == CXCursor_CallExpr)
+             calls <<- c(calls, getName(cur[[1]]))
+       } else if(k == CXCursor_FirstExpr || k == CXCursor_DeclRefExpr) {  
+           # recursively from *( x + i) with x and again with i
+         getName(cur)
+       } else if(k == CXCursor_BinaryOperator) { # x + i arising in *(x + i)
+         return(sapply(children(cur), processLHS))
+       } else if(k == CXCursor_CallExpr)
+             return(calls <<- c(calls, getName(cur)))
+  
+  if(!is.null(id) && id %in% paramNames)
+      modifiedVars <<- c(modifiedVars, id)
+} 
+\end{RCode}
+This function does ``visit'' the child cursors. Instead, it actively
+extracts and processes them without returning control to the
+\libclang{} iterator. This makes the logic a little easier to
+understand.
+
+Note that this function is defined within our generator function so
+that it has access to the \Rvar{modifiedVars} variable and also so
+that the \Rfunc{update} function can refer to it.
+
+This visitor function identifies the basic assignments to 
+parameters.  It identifies cases it cannot understand due to calls to
+other routines to identify what is being assigned. 
+It does not handle simple cases of aliasing such as
+\begin{CCode}
+void fun(int *x)
+{
+  int *y = x;
+  y[0] = 10;
+}
+\end{CCode}
+Here, we have a local variable that corresponds to \Cvar{x} and then
+we modify its contents.  We can extend our function to identify these
+cases.
+
+

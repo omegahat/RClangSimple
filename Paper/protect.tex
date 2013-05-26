@@ -1,4 +1,4 @@
-\subsection[Checking for garbage collection errors in native code for R]{Checking for garbage collection errors in native code for \R{}}
+\subsection[Checking for garbage collection errors in native code for R]{Checking for garbage collection errors in native code for \R{}}\label{sec:ProtectEG}
 In this example, we will write code that can examine a \C{} routine
 written to be called via \R's \Rfunc{.Call} interface and try to
 identify if there are possible errors related to ensuring \R{} objects
@@ -75,6 +75,11 @@ We define our generator  function as
 genProtectAnalyzer =
 function()
 {
+  R_AllocRoutineNames = c("Rf_allocVector", 
+                          "NEW_NUMERIC", 
+                          "NEW_INTEGER", 
+                          "NEW_LOGICAL", 
+                          "NEW_CHARACTER")
   numAllocs = 0  
   numProtectCalls = 0
   numUnprotectCalls = numeric()
@@ -100,7 +105,7 @@ function()
         numUnprotectCalls <<- numUnprotectCalls
         unProtectParent <<- parent
         inUnprotect <<- TRUE
-      } else if(fn %in% c("Rf_allocVector", "NEW_NUMERIC", "NEW_INTEGER", "NEW_LOGICAL", "NEW_CHARACTER"))
+      } else if(fn %in% R_AllocRoutineNames)
           numAllocs <<- numAllocs + 1
     } else if(inUnprotect) {
        if(k == CXCursor_IntegerLiteral) {
@@ -122,9 +127,19 @@ function()
                       numAllocs = numAllocs)})
 \end{RCode}
 %$
-For the present, ignore that second expression
-in our visitor function, the \Rfunc{if} expression.
-We'll discuss this below.
+For the present, ignore the second expression in our visitor function,
+the \Rfunc{if} expression.  We'll discuss this below.  However,
+observe the code in the \Rexpr{if(unProtect)} block.  This becomes
+active when we are within a call to \Cfunc{UNPROTECT}.  We check to
+see if the current cursor is a \Rvar{CXCursor_IntegerLiteral} type or
+a \Rvar{CXCursor_FirstExpr}.  The former indicates that we have a
+literal integer value.  Unfortunately, there is no function in the
+\libclang{} API for us to access that value directly. Instead, we use
+the \Rfunc{getCursorTokens} function. This gives us the text around
+the cursor, broken into tokens or atomic elements that make sense at
+the \C/\Cpp-level.  The elements in the resulting character vector are
+named with their token types and so we can extract the
+\dquote{Literal} value.
 
 
 
@@ -207,9 +222,12 @@ if(arg$kind == CXCursor_IntegerLiteral)
 %$
 This makes the visitor function a great deal simpler and also slightly
 faster as we can avoid traversing the sub-cursors again.  However,
-sometimes we have to use state, in particular when the information we
-need to extract is not in sub-cursors but in silbing cursors and their
-descendants.
+firstly, this doesn't take into account that the information may not
+be as readily accessible via the immediate children but may be in
+their descendants.  We could write a separate function to visit these
+and call it from our visitor.  Secondly, sometimes we have to use
+state, in particular when the information we need to extract is not in
+sub-cursors but in silbing cursors and their descendants.
 
 
 As a final remark about this example, we could make this more general
@@ -225,10 +243,14 @@ each time. Then we pass this to \Cfunc{UNPROTECT}, e.g.
 
  UNPROTECT(n);
 \end{CCode}
- It is easy to omit incrementing the counter in one
-or more cases. We can try to trace this by identifying the variable in
-the call to \Cfunc{UNPROTECT} and then finding out where it is
-incremented and try to find cases where it is not.
+It is easy to omit incrementing the counter in one or more cases. We
+can try to trace this by identifying the variable in the call to
+\Cfunc{UNPROTECT} and then finding out where it is incremented and try
+to find cases where it is not.  In our code above, this should be the
+adjacent sibling of the call to \Cfunc{PROTECT}. This is an example of
+requiring state across calls.  We should note that if we find the
+\Cfunc{UNPROTECT} uses a variable, we can make a second pass over the
+cursor tree to find out where it is used.
 % Show example code
 
 
