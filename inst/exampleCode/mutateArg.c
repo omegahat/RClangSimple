@@ -25,6 +25,48 @@ foo1(int *x, int len)
     return(len);
 }
 
+/*  This is one is more tricky and doesn't modify x. */
+int
+foo2(int *x, int len)
+{
+    double *y;
+    for(int i = 0; i < len; i++)
+	y[ x[i] ] = 2*x[i];
+    return(len);
+}
+
+int*
+addr(double *y, int *x, int i)
+{
+    return(y + x[i]);
+}
+
+int
+foo3(int *x, int len)
+{
+    double *y;
+    for(int i = 0; i < len; i++)
+	*addr(y, x, i) = 2*x[i];
+    return(len);
+}
+
+
+int
+f(int *x, int i, double *y)
+{
+    x[i] = y;
+    return(i);
+}
+
+int
+foo4(int *x, int len)
+{
+    double *y;
+    for(int i = 0; i < len; i++)
+	y[ f(x, i, y) ] = 2*x[i];
+    return(len);
+}
+
 
 void
 simple(int *x)

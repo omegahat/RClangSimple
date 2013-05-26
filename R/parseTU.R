@@ -73,7 +73,7 @@ function(src, filenames = character(), col = genFunctionCollector(filenames), ..
 
 
 getFunctions = getRoutines = 
-function(src, filenames = character(), col = genFunctionCollector(filenames), expectedNum = 500, ...)
+function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedNum = 500, ...)
 {
 #  if(length(filenames))
 #    return(getRoutines.R(src, filenames, col, ...))
@@ -82,7 +82,10 @@ function(src, filenames = character(), col = genFunctionCollector(filenames), ex
     src = createTU(src, ...)
   ans = .Call("R_getRoutines", as(src, "CXCursor"), vector("list", expectedNum), character(expectedNum))
 
-  if(length(filenames)) 
+  if(is.logical(filenames) && filenames)
+    filenames = getFileName(src)
+  
+  if(length(filenames) && is.character(filenames) )
     ans = ans[ sapply(ans, function(x) getFileName(x) %in% filenames) ]
   
   lapply(ans, makeRoutineObject)

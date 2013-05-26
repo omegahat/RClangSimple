@@ -69,9 +69,48 @@ setAs("CXCursor", "character",
       function(from)
          getName(from))
 
+setAs("CXTranslationUnit", "character",
+      function(from)
+         getFileName(from))
+
+setMethod("[[", c("CXCursor", "numeric"),
+          function(x, i, j, ...)  {
+            children(x)[[i]]
+          })
+
+# length of CXCursor is the number of children
+setMethod("length", "CXCursor",
+          function(x) {
+            length(children(x))
+          })
+
+
+setMethod("show", "CXCursor",
+          function(object) {
+            cat(names(object$kind), paste(getCursorTokens(object), sep = " "),"\n")
+          })
+
+
+
+# This looks like nonsense!
+setAs("CXType", "character",
+       function(from) {
+          ty = getCanonicalType(from)
+          if(getTypeKind(ty) == CXType_Pointer)
+              return(sprintf("%s *", as(getPointeeType(ty), "character")))
+
+          decl = getTypeDecl(ty)
+          if(decl$kind == CXCursor_NoDeclFound || getTypeKind(decl) == CXType_Invalid)
+            names(getTypeKind(ty))
+          else
+            getName(decl)
+       })
+
+
 setAs("CXType", "character",
       function(from)
          getName(from))
+
 
 
 # Perhaps use a reference class for this.

@@ -55,33 +55,9 @@ function(cur)
 }
 
 
-setAs("CXType", "character",
-       function(from) {
-          ty = getCanonicalType(from)
-          if(getTypeKind(ty) == CXType_Pointer)
-              return(sprintf("%s *", as(getPointeeType(ty), "character")))
-
-          decl = getTypeDecl(ty)
-          if(decl$kind == CXCursor_NoDeclFound || getTypeKind(decl) == CXType_Invalid)
-            names(getTypeKind(ty))
-          else
-            getName(decl)
-       })
-
-setMethod("show", "FunctionDecl",
-          function(object) {
-             show(sprintf("%s %s(%s)", as(object@returnType, "character"),
-                                  getName(object@def),
-                                  paste(sapply(object@params,
-                                                function(x)
-                                                    sprintf("%s %s", as(x$type, "character"), getName(x))),
-                                           collapse = ", ")))
-          })
 
 
-print.FunctionDecl =
-function(x, ...)
-    show(x)
+
 
 
 
