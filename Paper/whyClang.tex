@@ -1,0 +1,91 @@
+% This could come near the end.
+\section[Why libclang?]{Why \libclang?}\label{sec:Whylibclang}
+
+I have explored how we can get information about \C/\Cpp{} code in
+\R{} for many years and have used various different approaches.
+\libclang{} appears to be the most robust, stable and flexible so far.
+\clang{} and \libclang{} are very active projects and important pieces
+of software. This means they will continue to improve, evolve and be
+maintained.  The API (Application Programming Interface) is
+intentionally stable.  As we will see later, \libclang{} does the hard
+work in resolving types uniquely and simplifying the complexities of
+native code.  \libclang{} allows us to readily associate concepts in
+the parse tree with precise locations in the text of the source
+code. \libclang{} doesn't allow us to modify the parse tree and
+rewrite native code. However, there is a quite different and more
+advanced API related to \libclang{} that does and some of the concepts
+will carry over to that, should we need those facilities in \R.
+
+In the past, I have used the GNU compiler (\gcc)~\cite{bib:GCC} to
+export information about the source code using its
+\ShFlag{-fdump-translation-unit} command-line argument.  This outputs
+many of the details of the source code in a reasonably low-level
+format. I developed the \Rpkg{RGCCTranslationUnit}~\cite{bib:RGCCTU}
+package to both parse the output from \gcc{} and also to collate the
+information into higher-level descriptions of routines, data
+structures, and so on.  Unfortunately, the format of \gcc's output is
+not well document, and the information it exports has changed over
+releases.  Generally, this a valuable source of information, but not
+as stable or as readily usable or developed as \libclang.
+
+GCC-XML is an extension to \gcc{} that, like the
+\ShFlag{-fdump-translation-unit} option, can export information about
+routines and data structures contained in \C/\Cpp{} source code.  As
+the name suggest, it exports in an \XML{} format.  We can then read
+this into \R{} with, for example, the \Rpkg{XML}~\cite{bib:RSXML}
+package.  We can convert the \XML{} content into descriptions of the
+routines and types.  Again, we have to implement this type registry.
+Also, GCC-XML does not give us access to the bodies of the routines
+and so we cannot address several of the applications we discussed in
+section~\ref{sec:Introduction}.
+While it is not very difficult, since GCC-XML does not come with
+\gcc{} itself, one has to install it separately.
+
+
+I also explored SWIG (Simplified Wrapper and Interface
+Generator)~\cite{bib:SWIG} as a means to programmatically generate
+interfaces to native code. The idea was to leverage a widely used tool
+that could generate code for different languages.  SWIG is written in
+\perl{} and was somewhat complex. It is more desirable to write the
+code generation mechanism in \R{} itself rather than another language.
+This is because it is more natural and also because more users can
+understand the code and contribute and extend the development.  Also,
+as the name suggests, the focus of SWIG is to generate bindings to
+existing native code.  It does not allow us to examine the body of the
+routines.
+
+
+Many years ago, we adapted and embedded the little \C{} compiler
+(lcc)~\cite{bib:lcc} in \S.  This gave us many of the features we
+obtain with \libclang, allowing us to access information about
+routines, data structures, etc. in source code.  It does not support
+\Cpp. Unfortunately, it did not readily deal with extensions to the
+\C{} language used in the Linux header files. As a result, other than
+extending the code base, we couldn't continue to use it for our
+purposes.
+ 
+Microsoft Windows provides facilities for accessing the information
+about routines and data structures in native code via its type
+libraries.  I developed the
+\Rpkg{SWinTypeLibs}~\cite{bib:SWinTypeLibs} package to read this
+information generally. This gives us access to much of the information
+we need. Of course, it is specific to Microsoft Windows. It works on
+previously compiled code, not the source code.  Accordingly, it gives
+us no access to the bodies of the native code.
+
+
+% SWIG
+% gcc-xml
+% Slcc
+% Type libraries on Windows.
+
+All of the approaches are reasonable and have their
+advantages. However, \libclang{} is a significant improvement over all
+of these other approaches for various different reasons. It provides
+most of the infrastructure we need and removes the burden for
+consumers to create this.  It is flexible but not excessively complex.
+It is tied to serious, ongoing projects and so continues to evolve. It
+allows us to work in the language in which we want to program,
+i.e. \R.  It provides access to all aspects of the native code, not
+just the declarations. It processes both \C{} and \Cpp.
+

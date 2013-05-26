@@ -1,7 +1,7 @@
 RClang.pdf:
 
 # Examples.tex
-RClang.pdf: RClang.tex rclang.bib  protect.tex rffi.tex protectCodeFigure.tex mutability.tex mutabilityFigure.tex callgraph.pdf
+RClang.pdf: RClang.tex rclang.bib  protect.tex rffi.tex protectCodeFigure.tex mutability.tex mutabilityFigure.tex callgraph.pdf clangConcepts.tex
 	-pdflatex RClang
 	-pdflatex RClang
 	bibtex RClang

@@ -25,6 +25,8 @@
   lower-level approaches to query and manipulate other aspects of
   native code.  We describe how to use the package and scenarios in
   which it is useful.
+  This functionality is infrastructural and not necessarily of
+  direct use or interest to end-users.
 } 
 \Keywords{\R, \Rpkg{RCIndex} package}
 \Plainkeywords{R, RCIndex} %% without formatting
@@ -91,6 +93,9 @@
 \def\dquote#1{``#1''}
 
 \def\ShFlag#1{\textit{#1}}
+
+\def\ClangKind#1{\textit{#1}}
+\def\ClangTypeKind#1{\textsl{#1}}
 
 \DefineVerbatimEnvironment{RCode}{Verbatim}{fontshape=sl}
 \DefineVerbatimEnvironment{CCode}{Verbatim}{fontshape=tt}
@@ -169,21 +174,24 @@ argument? or what idioms does the library use?  We can use \R's
 graphics capabilities to visualize the code and which routines call
 which other routines.
 
+%documentation in comments - see RCUDA.
 \textbf{In-line documentation as comments}: Often third-party native
 libraries contain document in comments adjacent to the corresponding
 routines and data structures.  It is convenient to be able to easily
 access this documentation and potentially reuse it as \R{}
-documentation for functions that interface to the routines.
+documentation for functions that interface to the routines, as we did
+for the \Rpkg{RCUDA} package (\url{http://github.com/duncantl/RCUDA}).
 
-\textbf{Compiling \R{} code}:  Recently, we have been developing \R{} facilities for compiling \R{}
-code to native instructions to by-pass the \R{} interpreter.  This
-allows us to rewrite and translate \R{} code so that it is essentially
-native code and can call other existing native routines, for example,
-in the \R{} engine or standard \C{} libraries.  This results in
-significant speedup.  However, to make this work, we need to know the
-signature -- parameter types and return type -- of these native
-routines.  Again, if we can find these programmatically, we greatly
-simplify and improve the entire process of generating the code.
+\textbf{Compiling \R{} code}: Recently, we have been developing \R{}
+facilities for compiling \R{} code to native instructions to by-pass
+the \R{} interpreter.  This allows us to rewrite and translate \R{}
+code so that it is essentially native code and can call other existing
+native routines, for example, in the \R{} engine or standard \C{}
+libraries.  This results in significant speedup.  However, to make
+this work, we need to know the signature -- parameter types and return
+type -- of these native routines.  Again, if we can find these
+programmatically, we greatly simplify and improve the entire process
+of generating the code.
 
 \textbf{Determining memory management and mutability of inputs and
   outputs}: When we call existing native routines, we often want need
@@ -234,102 +242,12 @@ the fundamental concepts of \libclang{} in
 section~\ref{sec:libclangConcepts}.  We follow this in
 section~\ref{sec:RCIndex} by discussing the \R{} interface
 
-%documentation in comments - see RCUDA.
-
-\section[Why libclang?]{Why \libclang?}\label{sec:Whylibclang}
-
-I have explored how we can get information about \C/\Cpp{} code in
-\R{} for many years and have used various different approaches.
-\libclang{} appears to be the most robust, stable and flexible so far.
-\clang{} and \libclang{} are very active projects and important pieces
-of software. This means they will continue to improve, evolve and be
-maintained.  The API (Application Programming Interface) is
-intentionally stable.  As we will see later, \libclang{} does the hard
-work in resolving types uniquely and simplifying the complexities of
-native code.  \libclang{} allows us to readily associate concepts in
-the parse tree with precise locations in the text of the source
-code. \libclang{} doesn't allow us to modify the parse tree and
-rewrite native code. However, there is a quite different and more
-advanced API related to \libclang{} that does and some of the concepts
-will carry over to that, should we need those facilities in \R.
-
-In the past, I have used the GNU compiler (\gcc)~\cite{bib:GCC} to
-export information about the source code using its
-\ShFlag{-fdump-translation-unit} command-line argument.  This outputs
-many of the details of the source code in a reasonably low-level
-format. I developed the \Rpkg{RGCCTranslationUnit}~\cite{bib:RGCCTU}
-package to both parse the output from \gcc{} and also to collate the
-information into higher-level descriptions of routines, data
-structures, and so on.  Unfortunately, the format of \gcc's output is
-not well document, and the information it exports has changed over
-releases.  Generally, this a valuable source of information, but not
-as stable or as readily usable or developed as \libclang.
-
-GCC-XML is an extension to \gcc{} that, like the
-\ShFlag{-fdump-translation-unit} option, can export information about
-routines and data structures contained in \C/\Cpp{} source code.  As
-the name suggest, it exports in an \XML{} format.  We can then read
-this into \R{} with, for example, the \Rpkg{XML}~\cite{bib:RSXML}
-package.  We can convert the \XML{} content into descriptions of the
-routines and types.  Again, we have to implement this type registry.
-Also, GCC-XML does not give us access to the bodies of the routines
-and so we cannot address several of the applications we discussed in
-section~\ref{sec:Introduction}.
-While it is not very difficult, since GCC-XML does not come with
-\gcc{} itself, one has to install it separately.
 
 
-I also explored SWIG (Simplified Wrapper and Interface
-Generator)~\cite{bib:SWIG} as a means to programmatically generate
-interfaces to native code. The idea was to leverage a widely used tool
-that could generate code for different languages.  SWIG is written in
-\perl{} and was somewhat complex. It is more desirable to write the
-code generation mechanism in \R{} itself rather than another language.
-This is because it is more natural and also because more users can
-understand the code and contribute and extend the development.  Also,
-as the name suggests, the focus of SWIG is to generate bindings to
-existing native code.  It does not allow us to examine the body of the
-routines.
 
 
-Many years ago, we adapted and embedded the little \C{} compiler
-(lcc)~\cite{bib:lcc} in \S.  This gave us many of the features we
-obtain with \libclang, allowing us to access information about
-routines, data structures, etc. in source code.  It does not support
-\Cpp. Unfortunately, it did not readily deal with extensions to the
-\C{} language used in the Linux header files. As a result, other than
-extending the code base, we couldn't continue to use it for our
-purposes.
- 
-Microsoft Windows provides facilities for accessing the information
-about routines and data structures in native code via its type
-libraries.  I developed the
-\Rpkg{SWinTypeLibs}~\cite{bib:SWinTypeLibs} package to read this
-information generally. This gives us access to much of the information
-we need. Of course, it is specific to Microsoft Windows. It works on
-previously compiled code, not the source code.  Accordingly, it gives
-us no access to the bodies of the native code.
-
-
-% SWIG
-% gcc-xml
-% Slcc
-% Type libraries on Windows.
-
-All of the approaches are reasonable and have their
-advantages. However, \libclang{} is a significant improvement over all
-of these other approaches for various different reasons. It provides
-most of the infrastructure we need and removes the burden for
-consumers to create this.  It is flexible but not excessively complex.
-It is tied to serious, ongoing projects and so continues to evolve. It
-allows us to work in the language in which we want to program,
-i.e. \R.  It provides access to all aspects of the native code, not
-just the declarations. It processes both \C{} and \Cpp.
-
-
-\section[Concepts of libclang]{Concepts of \libclang}\label{sec:libclangConcepts}
-
-Translation units,  AST and cursors, traversing the tree, types
+% This could come after the high-level material, but it may make sense here.
+\input{clangConcepts}
 
 \section[The RCIndex package]{The \Rpkg{RCIndex} package}\label{sec:RCIndex}
 The \Rpkg{RCIndex} provides numerous high-level functions that return
@@ -468,198 +386,7 @@ and it is displayed in figure~\ref{fig:callgraph}.
 
 \Rfunc{createTU}
 
-
-\subsection{Writing visitor functions}
-%Closures, reference classes
-%Reference class and inheritance.
-
-
-%XXX Correct this to talk about traversing any cursor, not just the TU.
-The primary way to extract information from a translation unit is to
-use the \Rfunc{visitTU} function.  This takes the name of a source
-file or an already parsed translation unit.  The second argument is a
-``visitor''.  This can take various forms but essentially it is an
-\R{} function (or the address of a native symbol).  \libclang{}
-iterates over some or all of the cursors in the translation unit and
-calls the \R{} function for each each of these cursors, passing it
-both the current cursor and its parent cursor, for context.  The
-function can perform any computations it desires and typically
-extracts any information it wants from each cursor. 
-% Move this to after the closures and explain that we can always
-% Recurse, but it can be a waste of time.
-It then returns a
-value to indicate to \libclang{} how it should continue to traverse
-the cursor tree.  We can instruct \libclang{} to stop, to traverse
-only the siblings of the current cursor, or to recursively process the
-child cursors.  We can specify a different return value for each call
-and so change how \libclang{} traverses the tree dynamically.  For
-example, we might want to process all of the nodes in a particular
-routine but no other routines. So we would return
-\Rvar{CXChildVisit_Recurse} when we first encounter the \Rvar{CXCursor_FuncDecl}%??? 
-with the name of interest.  When we encounter the start of an other routine, we return
-\Rvar{CXCursor_Continue} or we can simply terminate the traversal with
-\Rvar{CXCursor_Break}.
-
-The visitor function typically stores information that persists across
-calls to it by \libclang.  We then access these objects when
-\libclang{} has completed traversing the tree.  While we may be
-inclined to use global variables, e.g. in \R{}'s global environment or
-interactive ``work space'', this is a bad idea.  Instead, we want to
-use variables that are local to this particular visitor.  We can do
-this in two basic ways -- reference classes or closures, also known as
-lexical scoping.  In fact, these two are very similar.
-
-We'll focus on a very simple example which merely
-iterates over the sub-cursors and finds the name and location of each
-routine in the translation unit.  We are looking for cursors at the
-top-level of the translation unit which have a cursor kind
-\Rvar{CXCursors_FunctionDecl}.  We ignore any other cursors.
-
-We will store the name of the routine and also its line number.
-We have to put these into a non-local variable within a call to our
-visitor  function and then be able to retrieve them. This is a closure.
-Creating a closure is quite simple but requires understanding how \R{}
-finds variables.  One approach to creating a closure is to define a
-function that returns one or more functions.  We often call this a
-generator function.
-We can define our generator function something like
-\begin{RCode}
-genRoutineLocations = 
-function() 
-{
-   locations = integer()
-
-    visitor = function(cur, parent) {
-       if(cur$kind == CXCursor_FunctionDecl) 
-         locations[[ getName(cur) ]] <<- getLocation(cur)$location["line"]
-
-        CXChildVisit_Continue
-    }
-
-    list(update = visitor, locations = function() locations)
-}
-\end{RCode}
-There are several things to note.  Firstly, we have defined the
-\Rfunc{genRoutineLocations} function. That is not what we will use to
-traverse the tree. Instead, we call it to get a new pair of functions
-returned in a list.  We will pass the \Rel{visitor} element of that
-list to \Rfunc{visitCursor}.  Secondly, note the use of \verb+<<-+
-when we assign the line number to the element of our \Rvar{locations}
-vector.  Thirdly, note that the \Rvar{locations} vector is defined in
-the body of \Rvar{genRoutineLocations}, not within our visitor
-function. The visitor function merely modifies it.  Fourthly, our
-second function in the returned list (\Rel{locations}) is an anonymous
-function also defined during a call to \Rfunc{genRoutineLocations} and
-it returns the current value of the \Rvar{locations} variable.  This
-allows us to retrieve the results after they were added in the
-different calls to our visitor function.  Lexical scoping and closures
-are described in various texts about \R and \cite{bib:LexicalScoping}
-is the definitive reference.
-
-We can now use our generator function and obtain the line numbers of
-the different routines. We do so with
-\begin{RCode}
-f = system.file("exampleCode", "fib.c", package = "RCIndex")
-col = genRoutineLocations()
-visitCursor(f, col$visitor)
-col$locations()
-\end{RCode}
-Our call to \Rfunc{genRoutineLocations} returns the list of two
-functions.
-We pass the \Rel{visitor} element  to \Rfunc{visitCursor} (along with
-the name of the source code file).
-Then we retrieve the updated contents with the second function \Rel{locations}.
-
-
-As an aside, note that in this particular case, we don't need to
-recursively descend through the cursors as the routines will all be
-immediate children of the translation unit.  Therefore, our visitor
-function returns \Rvar{CXChildVisit_Continue} to move to the next
-sibling and not down across its children.  This saves times processing
-irrelevant cursors.
-
-Closures are very powerful but confuse some \R{} programmers.
-Reference classes may be more familiar, especially to those familiar
-with classes in \Cpp, \Java{} or \Python.  The idea is that we define
-a class that has methods that share variables.  Our methods will be
-our \Rel{visitor} and \Rel{locations} functions in the generator
-function above, and the fields or variables will be the
-\Rvar{locations} numeric vector.  We can use the same code, but
-aggregate it in a different way to define a reference class as:
-\begin{RCode}
-RoutineLocationVisitor =
-setRefClass("RoutineLocationVisitor",
-    fields = list(locations = "numeric"),
-    methods = list(getLocations = function() 
-                                     locations,
-                   visitor = 
-                       function(cur, parent) {
-                         if(cur$kind == CXCursor_FunctionDecl) 
-                            locations[[ getName(cur) ]] <<- 
-                                   getLocation(cur)$location["line"]
-                               
-                         CXChildVisit_Continue
-                       }))
-\end{RCode}
-Here we explicitly identify the shared variable and the methods.  The
-only real difference is that we have call our function to retrieve the
-\Rvar{locations} value \Rfunc{getLocations} rather than
-\Rfunc{locations}.  This is merely to avoid have a field and a method
-with the same name.
-
-We can now use this reference class in almost exactly the same way we
-used our  generator function:
-\begin{RCode}
-col = RoutineLocationVisitor()
-visitCursor(f, col$visitor)
-col$getLocations()
-\end{RCode}
-The \Rfunc{RoutineLocationVisitor} function returned by
-\Rfunc{setRefClass} creates a new instance of this reference class.
-We pass the \Rfunc{visitor} method to \Rfunc{visitCursor} and then
-call the function \Rfunc{getLocations} to obtain the results.
-
-
-
-You can use any reference class you want and then pass the visitor or
-update method to \Rfunc{visitTU}.  However, it can be convenient to
-define your reference class to extend the \Rclass{RefVisitor} class in
-the \Rpkg{RCIndex} package. This allows you to pass the entire
-reference object to \Rfunc{visitTU} and to get the results back
-directly. This is merely syntactic sugar to simplify the
-programming. It changes the code above to create the reference class,
-call \Rfunc{visitCursor} and retrieve the results to the more succinct
-\begin{RCode}
-visitCursor(cur, RoutineLocationVisitor)
-\end{RCode}
-Essentially, extending the \Rclass{RefVisitor} class allows
-\Rfunc{visitCursor} to identify the visitor and the result functions.
-The only change we need to make when defining our reference class
-is to add the \Rarg{contains} argument in the call to
-\Rfunc{setRefClass}, i.e.
-\begin{RCode}
-setRefClass("RoutineLocationVisitor",
-            contains = "RefVisitor",
-            fields = list(locations = "numeric"),
-            methods = list(getLocations = function() locations,
-                       .....))
-\end{RCode}
-
-
-
-Similar to the reference class, we can use an S4 class
-\Rclass{S4Visitor} to combine the visitor and result function
-and pass the two together to \Rfunc{visitCursor}.
-We typically create our two functions as before
-via a generator function, and then combine the two 
-functions into a formal object with, for example,
-\begin{RCode}
-col = genCollector()
-visitCursor( cur, new("S4Visitor",  update = col$update, result = col$vars))
-\end{RCode}
-Again, the purpose of this \Rclass{S4Visitor} class is merely to 
-allow \Rfunc{visitCursor} to identify the two functions.
-
+\input{writingVisitorFunctions}
 
 
 
@@ -687,15 +414,12 @@ is to illustrate how to work with \libclang's type system.
 
 \input{mutability}
 
+%%%%%%%%%%%%%%%%%%%%%
+
+\input{whyClang}
+
 
 \section{Future Work}
-
-Given the basic bindings, we plan to develop additional functionality
-to process different aspects of native code. We are interested in
-processing the bodies of the routines to understand them better.
-
-The functions to generate bindings might benefit from being
-reorganized and made more general and extensible.
 
 We have created bindings for most of the facilities provided by
 \libclang.  However, we have ignored the code-completion routines and
@@ -703,6 +427,13 @@ the various indexing facilities.  Now that we have the basic tools
 provided by \Rpkg{RCIndex} in \R, we can programmatically generate
 bindings to these routines. 
 
+Given these basic bindings, we plan to develop additional high-level
+functionality to process different aspects of native code. We are
+interested in processing the bodies of the routines to understand
+their characteristics.
+
+While not exclusively related to \Rpkg{RCIndex},
+we are experimenting with ways to 
 
 \bibliography{rclang}
 
