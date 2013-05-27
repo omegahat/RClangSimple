@@ -1,6 +1,11 @@
 <items>
 
 <item>
+Make the collectors return an S4Visitor object.
+Consider what happens when we have multiple TUs
+</item>
+
+<item>
 Clean up the Module_ functions, i.e. get rid of Module_ and connect to methods, e.g. getName.
 </item>
 

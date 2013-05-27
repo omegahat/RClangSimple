@@ -5,6 +5,9 @@
 \alias{isReference}
 \title{Predicates for CXCursorKind objects}
 \description{
+These are functions that allow us query if a given cursor kind
+represents a particular characteristic. This is short hand for
+checking the kind against a particular set.
 }
 \usage{
 isPreprocessing(arg1)
@@ -24,9 +27,7 @@ isReference(arg1)
 \author{
 Duncan Temple Lang
 }
-\seealso{
-}
-\examples{
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

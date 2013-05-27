@@ -24,44 +24,28 @@ isSEXP(param, quick = TRUE)
   \item{quick}{a logical value indicating whether to check the name of
     the type as being equal to "SEXP"}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+ A logical value
 }
 \references{
-%% ~put references to the literature/web site here ~
+  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
+  Writing R Extensions manual
 }
 \author{
-%%  ~~who you are~~
+Duncan Temple Lang
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+  \code{\link{createRegistrationCode}}
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (fun) 
-{
-    getTypeKind(fun$returnType) == CXType_Void && all(sapply(fun$params, 
-        isDotCParamType))
-  }
+f = system.file("exampleCode", "register.c", package = "RCIndex")
+args = "-DHAVE_CONFIG_H"
+includes = c(sprintf("\%s/../src/include", R.home()), sprintf("\%s/include", R.home()))
+r = getRoutines(f, includes = includes, args = args)
+sapply(r, isDotCall)
+sapply(r, isDotC)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\keyword{programming}
+\keyword{interface}

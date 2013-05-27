@@ -96,7 +96,7 @@ setMethod("$", "CXType",
             if(name == "kind")
               getTypeKind(x)
             else if(name == "name")
-              getTypeName(x)
+              getName(x)
             else
               NULL
           })
@@ -120,6 +120,10 @@ setAs("CXType", "character",
 setAs("CXType", "character",
       function(from)
          getName(from))
+
+setAs("FunctionDecl", "CXSourceRange",
+       function(from)
+          as(as(from, "CXCursor"), "CXSourceRange"))
 
 
 

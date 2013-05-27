@@ -181,17 +181,11 @@
  Named int [1:3] 1 2 4
  - attr(*, "names")= chr [1:3] "CXDiagnostic_DisplaySourceLocation" "CXDiagnostic_DisplayColumn" "CXDiagnostic_DisplaySourceRanges"
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
-\source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
-}
+
 \references{
-%%  ~~ possibly secondary sources and usages ~~
+   libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \examples{
 CXCursorKind
-## maybe str(CXCursorKind) ; plot(CXCursorKind) ...
 }
 \keyword{datasets}

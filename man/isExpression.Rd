@@ -38,31 +38,18 @@ isExpression(x, ...)
 }
 
 \arguments{
-  \item{x}{
-
-}
-  \item{\dots}{
-
-}
-}
-\details{
-
+  \item{x}{a cursor}
+  \item{\dots}{additional arguments for any methods}
 }
 \value{
-
+A logical value (or numeric representing TRUE or FALSE).
 }
 \references{
-
+ libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{Duncan Temple Lang}
-\note{
-}
 
-\seealso{
-
-}
-\examples{
-
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 

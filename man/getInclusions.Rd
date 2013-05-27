@@ -2,6 +2,9 @@
 \alias{getInclusions}
 \title{Collect all of the include files for a source file}
 \description{
+  This function computes which header files a
+  source file includes, both directly and indirectly
+  and which file includes which other files.
 }
 \usage{
 getInclusions(file, flat = FALSE,
@@ -48,7 +51,7 @@ Duncan Temple Lang
 \code{\link{createTU}}
 }
 \examples{
-inc = getInclusions("inst/exampleCode/file1.c", FALSE)
+inc = getInclusions(system.file("exampleCode", "file1.c", package = "RCIndex"), FALSE)
 }
 \keyword{programming}
 \keyword{interface} 

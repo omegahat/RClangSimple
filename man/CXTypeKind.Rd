@@ -61,17 +61,14 @@
  Named int [1:44] 0 1 2 3 4 5 6 7 8 9 ...
  - attr(*, "names")= chr [1:44] "CXType_Invalid" "CXType_Unexposed" "CXType_Void" "CXType_Bool" ...
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
+
 \source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
+libclang API
 }
 \references{
-%%  ~~ possibly secondary sources and usages ~~
+   libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \examples{
 CXTypeKind
-## maybe str(CXTypeKind) ; plot(CXTypeKind) ...
 }
 \keyword{datasets}

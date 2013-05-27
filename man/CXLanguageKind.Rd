@@ -22,7 +22,7 @@
 clang API
 }
 \references{
-
+  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \examples{
 CXLanguageKind

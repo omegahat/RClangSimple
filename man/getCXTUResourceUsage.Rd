@@ -16,6 +16,8 @@ getCXTUResourceUsage(tu)
      be coerced to a translation unit.}
 }
 \value{
+  a numeric vector with named elements describing the resources and how
+  much of that resource was used.
 }
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}

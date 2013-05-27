@@ -39,7 +39,8 @@ getCallableRoutines(dir, src = list.files(dir, pattern = "\\\\.(c|cpp|cxx|C)$", 
 
 
 \seealso{
-
+  \code{\link{isDotCall}}
+  \code{\link{createRegistrationCode}}  
 }
 \examples{
   a = getCallableRoutines(system.file("exampleCode", package = "RCIndex"))

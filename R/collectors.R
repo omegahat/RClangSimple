@@ -319,10 +319,10 @@ function(..., .funs = list())
 
 getDefines =
   #' @example  defs = getDefines("inst/exampleCode/defines.c")
-function(tu, names, col = genDefinesCollector(names))
+function(tu, col = genDefinesCollector(), ...)
 {
    if(is.character(tu))
-     tu = createTU(tu)
+     tu = createTU(tu, ...)
 
    visitTU(tu, col$update, clone = FALSE)
    col$defines()

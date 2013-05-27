@@ -20,7 +20,5 @@ Duncan Temple Lang
 }
 
 %\seealso{}
-\examples{
-
-}
+%\examples{}
 \keyword{programming}

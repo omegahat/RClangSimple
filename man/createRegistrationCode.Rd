@@ -27,6 +27,8 @@ createRegistrationCode(dir, pkg = basename(dirname(dir)),
     parsing the source files(s).}
 }
 \value{
+  A string that contains the C code for registering the routines
+  along with the data declarations it uses.
 }
 %\references{}
 \author{

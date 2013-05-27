@@ -4,6 +4,8 @@
 \title{Get/Set options in a CXIndex object managing one or more
   translation units}
 \description{
+  Functions for querying and setting options for libclang's CXIndex
+  objects.  Thes are not typically of interest to us in R. 
 }
 \usage{
 CXIndex_getGlobalOptions(arg1)
@@ -16,6 +18,7 @@ CXIndex_setGlobalOptions(arg1, options)
      explicitly \code{|}'ing the values together.}
 }
 \value{
+  The get method returns an numeric value.
 }
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
@@ -23,9 +26,7 @@ CXIndex_setGlobalOptions(arg1, options)
 \author{
 Duncan Temple Lang
 }
-\seealso{
-}
-\examples{
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

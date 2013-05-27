@@ -9,6 +9,9 @@
 \alias{Location_isInSystemHeader}
 \title{Functions involving Location information}
 \description{
+  These functions deal with the location of a \code{CXCursor}
+  in  a source file. They can retrieve the file line and column number
+  an offset from the beginning of the file of a cursor.
 }
 \usage{
 getLocation(x, type = "Expansion")
@@ -23,8 +26,7 @@ isInSystemHeader(location)
      or \code{Presumed}}
    \item{begin,end,location}{a \code{CXSourceLocation} object}
 }
-\value{
-}
+%\value{}
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }

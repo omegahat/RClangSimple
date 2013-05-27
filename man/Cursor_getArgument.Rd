@@ -44,6 +44,8 @@
 \alias{getCursorTranslationUnit}
 \title{Functions for operating on CXCursor objects}
 \description{
+  This is a large collection of functions from the libclang API for
+  working with \code{CXCursor} objects.
 }
 \usage{
 Cursor_getArgument(C, i)

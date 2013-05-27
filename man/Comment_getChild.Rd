@@ -5,8 +5,7 @@
 \alias{Comment_isWhitespace}
 \alias{getParsedComment}
 \title{Functions for querying comments}
-\description{
-}
+%\description{}
 \usage{
 Comment_getChild(Comment, ChildIdx)
 Comment_getKind(Comment)
@@ -15,12 +14,11 @@ Comment_isWhitespace(Comment)
 getParsedComment(C)
 }
 \arguments{
-   \item{Comment}{}
-   \item{ChildIdx}{}
-   \item{C}{}
+   \item{Comment,C}{a \code{CXComment} object}
+   \item{ChildIdx}{the index of the child of interest. This is 0-based
+     so the first element is at position 0, not 1.}
 }
-\value{
-}
+%\value{}
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
@@ -31,7 +29,6 @@ Duncan Temple Lang
 \code{\link{Cursor_getBriefCommentText}},
 \code{\link{Cursor_getParsedComment}}, \code{\link{Cursor_getRawCommentText}}
 }
-\examples{
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

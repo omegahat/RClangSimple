@@ -1,42 +1,47 @@
 \name{getCppClasses}
 \alias{getCppClasses}
 \alias{readCppClass}
-
-\title{Get class descriptions from a C++ source file}
+\title{Retrieve information about C++ classes}
 \description{
-  These functions traverse a translation unit and extract
-  descriptions of C++ classes and their fields and methods.
+  These functions obtain information about C++ classes in a source
+  file or translation unit.
 }
 \usage{
 getCppClasses(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...)
-readCppClass(cursor, visitor = genCppClassInfoCollector(cursor))
 }
-
 \arguments{
-  \item{tu}{}
-  \item{nodesOnly}{}
-  \item{visitor}{}
-  \item{\dots}{}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
+  \item{tu}{either the name of a source file or an already parsed
+    translation unit object}
+  \item{nodesOnly}{a logical value that controls whether we just want
+    the cursors for the C++  class definitions or whether we want full
+    descriptions of the classes.}
+  \item{visitor}{a function or S4/reference class object used as the
+    visitor function passed to \code{\link{visitCursor}} to collect the
+    enumeration definitions.}  
+  \item{\dots}{arguments passed \code{\link{createTU}} if \code{src} is
+    the name of source file.}
 }
 \value{
-
+  A named list of \code{C++Class} objects.
 }
 \references{
+ libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
-DTL
+Duncan Temple Lang
 }
-\seealso{
 
+\seealso{
+  \code{\link{getRoutines}},
+  \code{\link{getGlobalVariables}},
+  \code{\link{getDataStructures}},    
+  \code{\link{getEnums}},
+  \code{\link{getInclusions}}        
 }
 \examples{
-kl = getCppClasses(system.file("exampleCode", "simpleClass.cpp", package = "RCIndex"))
-
-
-tkl = getCppClasses(system.file("exampleCode", "templateClass.cpp", package = "RCIndex"))
+f = system.file("exampleCode", "simpleClass.cpp", package = "RCIndex")
+kl = getCppClasses(f)
+names(kl)
 }
 \keyword{programming}
 \keyword{interface}

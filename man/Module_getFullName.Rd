@@ -7,6 +7,7 @@
 \alias{getModule}
 \title{Functions for querying a libclang Module}
 \description{
+  These functions work with libclang Module objects.
 }
 \usage{
 getModule(C)
@@ -17,22 +18,19 @@ Module_getParent(Module)
 Module_getTopLevelHeader(arg1, Module, Index)
 }
 \arguments{
-  \item{C}{}
-   \item{Module}{}
-   \item{arg1}{}
-   \item{Index}{}
+  \item{C}{a \code{CXCursor} object.}
+   \item{Module}{a \code{CXModule} object}
+   \item{arg1}{a translation unit}
+   \item{Index}{an integer or numeric value}
 }
-\value{
-}
+%\value{}
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
 Duncan Temple Lang
 }
-\seealso{
-}
-\examples{
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

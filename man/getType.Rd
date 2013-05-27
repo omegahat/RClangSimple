@@ -8,6 +8,7 @@
 \alias{getFunctionTypeCallingConv}
 \title{Get the type of a CXCursor object}
 \description{
+  Functions dealing with \code{CXType} objects.
 }
 \usage{
 getType(x)
@@ -18,17 +19,14 @@ getFunctionTypeCallingConv(T)
   \item{x}{the CXCursor object}
   \item{T}{the CXType object}
 }
-\value{
-}
+%\value{}
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
 Duncan Temple Lang
 }
-\seealso{
-}
-\examples{
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

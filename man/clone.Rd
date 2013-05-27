@@ -4,7 +4,7 @@
 \alias{CXCursor-class}
 \alias{length,CXCursor-method}
 \alias{$,CXCursor-method}
-\alias{[[,CXCursor,numeric-method}
+\alias{[[,CXCursor,numeric,ANY-method}
 \alias{show,CXCursor-method}
 \title{The \code{CXCursor} class}
 \description{
@@ -30,12 +30,13 @@ clone(x, ...)
  \code{clone} returns a new object made from copying the input.
 }
 \references{
+     libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
 Duncan Temple Lang
 }
 \seealso{
-
+\code{\link{CXCursor-class}}
 }
 \examples{
 f = system.file("exampleCode", "fib.c", package = "RCIndex")

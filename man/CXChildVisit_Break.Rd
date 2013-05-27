@@ -2,7 +2,6 @@
 \alias{CXChildVisit_Break}
 \alias{CXChildVisit_Continue}
 \alias{CXChildVisit_Recurse}
-%\docType{data}
 \title{Enumerations for controlling how traversing a parse tree is done}
 \description{
   These are enumeration values that are used when returning a value from
@@ -20,17 +19,10 @@
   The format is:
  num 0
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
-\source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
-}
 \references{
-%%  ~~ possibly secondary sources and usages ~~
+  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \examples{
 CXChildVisit_Break
-
 }
 \keyword{datasets}

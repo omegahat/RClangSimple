@@ -14,7 +14,7 @@ equalRanges(range1, range2)
 equalTypes(A, B)
 }
 \arguments{
-   \item{arg1,arg1}{object of class \code{CXCursor}}
+   \item{arg1,arg2}{object of class \code{CXCursor}}
    \item{loc1,loc2}{object of class \code{CXSourceLocation}}
    \item{range1,range2}{object of class \code{CXRange}}
    \item{A,B}{object of class \code{CXType}}

@@ -18,17 +18,13 @@
  Named int [1:5] 0 1 2 3 4
  - attr(*, "names")= chr [1:5] "CXToken_Punctuation" "CXToken_Keyword" "CXToken_Identifier" "CXToken_Literal" ...
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
 \source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
+libclang API
 }
 \references{
-%%  ~~ possibly secondary sources and usages ~~
+   libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \examples{
 CXTokenKind
-## maybe str(CXTokenKind) ; plot(CXTokenKind) ...
 }
 \keyword{datasets}

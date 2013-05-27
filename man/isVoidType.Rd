@@ -34,7 +34,7 @@ isVolatileQualifiedType(T)
  A logical value
 }
 \references{
- libclang
+ libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
 Duncan Temple Lang
@@ -44,6 +44,6 @@ Duncan Temple Lang
   \code{\link{getDataStructures}}
   \code{\link{getRoutines}}  
 }
-\examples{}
+%\examples{}
 \keyword{programming}
 \keyword{interface}

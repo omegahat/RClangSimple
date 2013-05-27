@@ -20,17 +20,14 @@
  Named int [1:5] 0 1 2 3 4
  - attr(*, "names")= chr [1:5] "CXLinkage_Invalid" "CXLinkage_NoLinkage" "CXLinkage_Internal" "CXLinkage_UniqueExternal" ...
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
+
 \source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
+libclang API
 }
 \references{
-%%  ~~ possibly secondary sources and usages ~~
+   libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \examples{
 CXLinkageKind
-## maybe str(CXLinkageKind) ; plot(CXLinkageKind) ...
 }
 \keyword{datasets}

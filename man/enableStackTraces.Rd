@@ -2,7 +2,9 @@
 \alias{enableStackTraces}
 \alias{toggleCrashRecovery}
 \title{Set global state in libclang}
-%\description{}
+\description{
+  These are functions for setting global state about how libclang behaves.
+}
 \usage{
 enableStackTraces()
 toggleCrashRecovery(isEnabled)

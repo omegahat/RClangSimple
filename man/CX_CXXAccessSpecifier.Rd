@@ -17,17 +17,13 @@
  Named int [1:4] 0 1 2 3
  - attr(*, "names")= chr [1:4] "CX_CXXInvalidAccessSpecifier" "CX_CXXPublic" "CX_CXXProtected" "CX_CXXPrivate"
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
 \source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
+libclang API
 }
 \references{
-%%  ~~ possibly secondary sources and usages ~~
+   libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \examples{
 CX_CXXAccessSpecifier
-## maybe str(CX_CXXAccessSpecifier) ; plot(CX_CXXAccessSpecifier) ...
 }
 \keyword{datasets}

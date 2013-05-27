@@ -3,6 +3,9 @@
 \title{Get the names of all routines called in any code in a translation
 unit}
 \description{
+  This function finds the names of routines  that are called by other
+  code. It traverses the specified code, i.e. a translation unit, a
+  source file or a routine and finds the calls.
 }
 \usage{
 findCalls(file, n = 10000, ...)
@@ -33,7 +36,7 @@ Duncan Temple Lang
   \code{\link{visitCursor}}  
 }
 \examples{
-findCalls("RClangSimple/inst/exampleCode/fib.c")
+findCalls(system.file("exampleCode", "fib.c", package = "RCIndex"))
 }
 \keyword{programming}
 \keyword{interface} 

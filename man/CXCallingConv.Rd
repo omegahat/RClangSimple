@@ -2,9 +2,8 @@
 \alias{CXCallingConv-class}
 \docType{data}
 \title{Enumeration type for calling convention}
-\description{
-}
-\usage{}
+%\description{}
+%\usage{}
 \format{
   The format is:
  Named int [1:12] 0 1 2 3 4 5 6 7 8 9 ...
@@ -14,7 +13,5 @@
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{datasets}

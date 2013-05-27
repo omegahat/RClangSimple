@@ -14,6 +14,8 @@
 
 \title{Functions for accessing compiler diagnostic messages}
 \description{
+  These are functions for working with the diagnostic messages
+  the libclang parser provides for errors, warnings, etc.
 }
 \usage{
 defaultDiagnosticDisplayOptions()
@@ -27,24 +29,24 @@ getDiagnosticSpelling(arg1)
 getNumDiagnostics(Unit)
 }
 \arguments{
-   \item{Diagnostic}{}
-   \item{Options}{}
-   \item{Unit}{}
-   \item{Index}{}
-   \item{diags}{}
-   \item{arg1}{}
+   \item{Diagnostic,arg1}{a \code{CXDiagnostic} object}
+   \item{Options}{options controlling how the diagnostic is
+     formatted. This is obtained by coming values from the
+     CXDiagnosticDisplayOptions enumeration type. See \code{CXDiagnostic}.}
+   \item{Unit}{a translation unit object or an object that can be
+     coerced to a \code{CXTranslationUnit}}
+   \item{Index}{an integer or numeric value identifying the element of
+     interest. This is 0-based, not 1-based.}
+   \item{diags}{a \code{CXDiagnosticSet} object}
 }
-\value{
-}
+%\value{}
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
 Duncan Temple Lang
 }
-\seealso{
-}
-\examples{
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 
