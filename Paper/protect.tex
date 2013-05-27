@@ -65,22 +65,27 @@ of interest will be identified by a cursor with a kind
 \Rvar{CXCursor_CallExpr}.  We can get the name of the routine being
 called using \Rfunc{getName} applied to this cursor. (There are other
 ways also, but this is the simplest.)  Based on this name, we update
-the relevant counter or ignore the call.  If the call is to
-\Cfunc{Rf_unprotect}, we have to arrange to get its argument.  We can
-use either of two approaches for this.  We can set a flag in our
-closure to indicate we are processing the sub-cursors of a
+the relevant counter or ignore the call. 
+
+If the call in the cursor is to \Cfunc{Rf_unprotect} or
+\Cfunc{UNPROTECT}, we have to arrange to get the call's first and only
+argument.  We can use either of two approaches for this.  We can set a
+flag in our closure to indicate we are processing the sub-cursors of a
 \Cfunc{Rf_unprotect} call and then subsequent calls to our visitor
 function can check this and interpret the sub-cursors
 appropriately. Alternatively, we can explicitly traverse the children
-of the current call cursor to determine the argument.  We'll use the
-former approach.
+of the current call cursor within our visitor function to determine
+the argument.  We'll use the former approach as it illustrates setting
+and unsetting state across calls. We'll illustrate the second approach
+later in this example.
 
 We define our generator  function as
 \begin{RCode}
+R_AllocRoutineNames = c("Rf_allocVector", "NEW_NUMERIC", "NEW_INTEGER",
+                        "NEW_LOGICAL", "NEW_CHARACTER", "NEW_LIST")
+
 genProtectAnalyzer = function() 
 {
-  R_AllocRoutineNames = c("Rf_allocVector", "NEW_NUMERIC", 
-                          "NEW_INTEGER", "NEW_LOGICAL", "NEW_CHARACTER")
   numAllocs = 0  
   numProtectCalls = 0
   numUnprotectCalls = numeric()
@@ -90,16 +95,14 @@ genProtectAnalyzer = function()
   unProtectParent = NULL
 
   update = function(cur, parent)    {
-    k = cur$kind
-
     if(inUnprotect && identical(unProtectParent, cur) ) {
        unProtectParent <<- NULL
        inUnprotect <<- FALSE
-     }
-    
+    }
+
+   k = cur$kind    # get the kind of this cursor
    if(k == CXCursor_CallExpr) {
-      fn = getName(cur)
-      print(fn)
+      fn = getName(cur) # name of the routine being called
       if(fn == "PROTECT" || fn == "Rf_protect")
         numProtectCalls <<- numProtectCalls + 1
       else if(fn == "UNPROTECT" || fn == "Rf_unprotect") {
@@ -117,7 +120,7 @@ genProtectAnalyzer = function()
        }
     }
     
-    CXChildVisit_Recurse
+    CXChildVisit_Recurse  # visit this cursor's children
   }
 
   list(update = update,
@@ -129,67 +132,38 @@ genProtectAnalyzer = function()
 }
 \end{RCode}
 %$
-For the present, ignore the second expression in our visitor function,
-the \Rfunc{if} expression.  We'll discuss this below.  However,
-observe the code in the \Rexpr{if(unProtect)} block.  This becomes
-active when we are within a call to \Cfunc{UNPROTECT}.  We check to
-see if the current cursor is a \Rvar{CXCursor_IntegerLiteral} type or
-a \Rvar{CXCursor_FirstExpr}.  The former indicates that we have a
-literal integer value.  Unfortunately, there is no function in the
-\libclang{} API for us to access that value directly. Instead, we use
-the \Rfunc{getCursorTokens} function. This gives us the text around
-the cursor, broken into tokens or atomic elements that make sense at
-the \C/\Cpp-level.  The elements in the resulting character vector are
+For the present, ignore the first expression in our visitor function,
+the \Rfunc{if} expression.  We'll discuss this below.  Our code
+examines the kind of the cursor and if it is \Rvar{CXType_CallExpr} it
+does one thing and otherise does another.  For a call, we check which
+category of interest it is in, or not and update the relevant
+variables.  For an unprotect call, we set the variable
+\Rvar{inUnprotect} so that subsequent calls to this function will
+recognize this and extract the information from the argument to the
+unprotect call.
+
+If the cursor is not a call expression, then we check to see if
+\Rvar{inUnprotect} is \Rtrue.  If it is, then we attempt to interpret
+the current cursor as (part of) the argument to the unprotect routine.
+Our goal is to get the value of that argument.  Our simplified version
+checks to see if the current cursor is a
+\Rvar{CXCursor_IntegerLiteral} type or a \Rvar{CXCursor_FirstExpr}.
+The former indicates that we have a literal integer value.
+Unfortunately, there is no function in the \libclang{} API for us to
+access the associated value directly. Instead, we use the
+\Rfunc{getCursorTokens} function. This gives us the text around the
+cursor, broken into tokens or atomic elements that make sense at the
+\C/\Cpp-level.  The elements in the resulting character vector are
 named with their token types and so we can extract the
-\dquote{Literal} value.
+value named \dquote{Literal}.  If the cursor is so-called
+\Rvar{CXCursor_FirstExpr}, we get its name as the value of a
+variable. In reality, we would process its sub-cursors.
 
-
-
-Before we can check the routine, we have to read it into \R{}.
-We can do this with \Rfunc{getRoutines} via
-\begin{RCode}
-f = system.file("exampleCode", "protectIncorrect.c", package = "RCIndex")
-r = getRoutines(f, f, includes = sprintf("%s/include", R.home()))
-\end{RCode}
-Note that we specified the include directories so that
-the parser could find \file{Rinternals.h} and the other 
-\R{} header files.
-
-We create our visitor function by calling the generator function
-and then we pass the visitor to \Rfunc{visitCursor},
-along with our routine we want to check:
-\begin{RCode}
-v = genProtectAnalyzer()
-visitCursor(r$R_foo_incorrect, v$update)
-v$info()
-\end{RCode}
-The output is 
-\begin{ROutput}
-$numProtectCalls
-[1] 0
-
-$numUnprotectCalls
-numeric(0)
-
-$numAllocs
-[1] 2
-\end{ROutput}
-We can see there are two allocations and no calls to protect or
-unprotect.  
-In constrast, when we run this on the correct version, 
-each of the three counts has a value of $2$.
-
-\begin{comment}
-f = system.file("exampleCode", "protectCorrect.c", package = "RCIndex")
-r = getRoutines(f, f, includes = sprintf("%s/include", R.home()))
-v = genProtectAnalyzer()
-visitCursor(r$R_foo, v$update)
-v$info()
-\end{comment}
-%$
-
-We should revisit the \Rfunc{if} expression near the beginning
-of our visitor function:
+The logic is quite simple -- deal with a call expression or, if
+\Rvar{inUnprotect} is \Rtrue{}, deal with other kinds of cursors.
+This raises the question as to when \Rvar{inUnprotect} is ever set
+back to \Rfalse.  This brings us back to the initial \Rfunc{if}
+expression in the function:
 \begin{RCode}
 if(inUnprotect && identical(unProtectParent, cur) ) {
    unProtectParent <<- NULL
@@ -199,17 +173,18 @@ if(inUnprotect && identical(unProtectParent, cur) ) {
 The purpose of this is to ensure that we don't continue to collect
 information from other cursors after we have processed any call to
 \Cfunc{UNPROTECT}.  If we didn't have this, the variable
-\Rvar{inUnprotect} would remain \Rtrue.  As a result, if there are
-\C{} expressions in the body of the routine after the call to
-\Cfunc{UNPROTECT} and they contain literal values or
+\Rvar{inUnprotect} would remain \Rtrue{} even after we have process
+the entire call expression to the unprotect routine.  As a result, if
+there are \C{} expressions in the body of the routine after the call
+to \Cfunc{UNPROTECT} and they contain literal values or
 \Rvar{CXCursor_FirstExpr} cursors, we will continue to accumulate
-these as if they related to the \Cfunc{UNPROTECT} call.  As a result,
-we need to determine when we have finished examining the sub-cursors
-of the \Cfunc{UNPROTECT} call.  To do this, we record the parent
-cursor of the \Cfunc{UNPROTECT} call in \Rvar{unProtectParent}. Each
-time our visitor is called, we can compare the current cursor to this
-cursor and if they are the same, we are back to a sibling of the
-\Cfunc{UNPROTECT} call.
+information from these as if they related to the \Cfunc{UNPROTECT}
+call. Accordingly, we need to determine when we have finished
+examining the sub-cursors of the \Cfunc{UNPROTECT} call.  To do this,
+we record the parent cursor of the \Cfunc{UNPROTECT} call in
+the variable \Rvar{unProtectParent}. Each time our visitor is called, we can
+compare the current cursor to this cursor and if they are the same, we
+are back to a sibling of the \Cfunc{UNPROTECT} call.
 
 Setting and unsetting a state variable across calls to a visitor
 function can be complex and often requires clear thinking.
@@ -229,7 +204,55 @@ be as readily accessible via the immediate children but may be in
 their descendants.  We could write a separate function to visit these
 and call it from our visitor.  Secondly, sometimes we have to use
 state, in particular when the information we need to extract is not in
-sub-cursors but in silbing cursors and their descendants.
+sub-cursors but in silbing cursors and their descendants.  This is not
+uncommon.
+
+
+With our visitor function defined, we are now ready to use on
+some routines. 
+Before we can check a routine, we have to read it into \R{}.
+We  do this with \Rfunc{getRoutines} via
+\begin{RCode}
+f = system.file("exampleCode", "protectIncorrect.c", package = "RCIndex")
+r = getRoutines(f, f, includes = sprintf("%s/include", R.home()))
+\end{RCode}
+Note that we specified the include directories so that
+the parser could find \file{Rinternals.h} and the other 
+\R{} header files.
+
+We create our visitor function by calling the generator function
+\Rfun{genProtectAnalyzer} and then we pass the visitor element to
+\Rfunc{visitCursor}, along with the routine we want to check:
+\begin{RCode}
+v = genProtectAnalyzer()
+visitCursor(r$R_foo_incorrect, v$update)
+v$info()
+\end{RCode}
+The output is 
+\begin{ROutput}
+$numProtectCalls
+[1] 0
+
+$numUnprotectCalls
+numeric(0)
+
+$numAllocs
+[1] 2
+\end{ROutput}
+We can see there are two allocations and no calls to protect or
+unprotect \R{} objects.  
+In constrast, when we run this on the correct version, 
+each of the three counts has a value of $2$.
+
+\begin{comment}
+f = system.file("exampleCode", "protectCorrect.c", package = "RCIndex")
+r = getRoutines(f, f, includes = sprintf("%s/include", R.home()))
+v = genProtectAnalyzer()
+visitCursor(r$R_foo, v$update)
+v$info()
+\end{comment}
+%$
+
 
 
 As a final remark about this example, we could make this more general
@@ -251,7 +274,7 @@ can try to trace this by identifying the variable in the call to
 to find cases where it is not.  In our code above, this should be the
 adjacent sibling of the call to \Cfunc{PROTECT}. This is an example of
 requiring state across calls.  We should note that if we find the
-\Cfunc{UNPROTECT} uses a variable, we can make a second pass over the
+\Cfunc{UNPROTECT} call uses a counter variable, we can make a second pass over the
 cursor tree to find out where it is used.
 % Show example code
 
