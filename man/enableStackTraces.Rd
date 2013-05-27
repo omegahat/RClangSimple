@@ -2,26 +2,22 @@
 \alias{enableStackTraces}
 \alias{toggleCrashRecovery}
 \title{Set global state in libclang}
-\description{
-}
+%\description{}
 \usage{
 enableStackTraces()
 toggleCrashRecovery(isEnabled)
 }
 \arguments{
-   \item{isEnabled}{}
+   \item{isEnabled}{a logical value}
 }
-\value{
-}
+%\value{}
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{
 Duncan Temple Lang
 }
-\seealso{
-}
-\examples{
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

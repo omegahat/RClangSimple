@@ -25,10 +25,8 @@ Description: This package is currently an interface to some of the
     permit parallel execution.
     We can, in the extreme, recover simple C routines into higher
     level instructions and then try to parallelize them in R.
-License: GPL2
+License: GPL-2
 Depends: R (>= 2.7.0), methods, RAutoGenRunTime
 URL: http://www.omegahat.org/RCIndex
 Imports: RAutoGenRunTime
-
-
-
+Suggests: igraph

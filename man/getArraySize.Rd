@@ -5,6 +5,8 @@
 \alias{getElementType}
 \title{Get information about container types}
 \description{
+  These functions allow us to query information about
+  a container type, i.e. an array.
 }
 \usage{
 getArraySize(T)
@@ -13,9 +15,10 @@ getNumElements(T)
 getElementType(T)
 }
 \arguments{
-   \item{T}{}
+   \item{T}{the \code{CXType} object being queried}
 }
 \value{
+  an number or a \code{CXType}
 }
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
@@ -24,8 +27,9 @@ getElementType(T)
 Duncan Temple Lang
 }
 \seealso{
+  \code{\link{getType}}
+ \code{\link{getPointeeType}}  
 }
-\examples{
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

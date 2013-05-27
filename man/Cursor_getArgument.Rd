@@ -41,6 +41,7 @@
 \alias{CXXMethod_isVirtual}
 \alias{getReceiverType}
 \alias{getCursorDefinition}
+\alias{getCursorTranslationUnit}
 \title{Functions for operating on CXCursor objects}
 \description{
 }
@@ -83,18 +84,16 @@ getFieldDeclBitWidth(C)
 getIncludedFile(cursor)
 CXXMethod_isStatic(C)
 CXXMethod_isVirtual(C)
+getCursorTranslationUnit(cursor)
 }
 \arguments{
-   \item{C,cursor}{}
-   \item{i}{}
-   \item{cset}{}
-   \item{arg1}{}
-   \item{x}{}
-   \item{cur}{}
-   \item{index}{}
+   \item{C,cursor,cur,arg1,x}{the \code{CXCursor} object on which to operate and query}
+   \item{i,index}{an integer specifying which element to retrieve. This
+     (probably) uses 0-based counting, i.e. the first argument is
+     numbered 0.}
+   \item{cset}{the cursor set object}
 }
-\value{
-}
+%\value{}
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
@@ -102,8 +101,8 @@ CXXMethod_isVirtual(C)
 Duncan Temple Lang
 }
 \seealso{
+  \code{\link{clone}}
 }
-\examples{
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

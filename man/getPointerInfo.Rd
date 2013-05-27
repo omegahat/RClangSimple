@@ -10,8 +10,8 @@ getPointerDepth(type, kind = getTypeKind(type))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{type}{}
-  \item{kind}{}
+  \item{type}{the \code{CXType} object being queried}
+  \item{kind}{the kind of the type obtained by \code{type$kind} or \code{getTypeKind(type)}}
 }
 \value{
   \code{getPointerInfo} returns a  list with two elements:

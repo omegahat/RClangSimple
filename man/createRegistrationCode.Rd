@@ -27,11 +27,8 @@ createRegistrationCode(dir, pkg = basename(dirname(dir)),
     parsing the source files(s).}
 }
 \value{
-
 }
-\references{
-
-}
+%\references{}
 \author{
 Duncan Temple Lang
 }

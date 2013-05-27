@@ -27,15 +27,16 @@
 The ability to get information about \C/\Cpp{} code routines and data
 structures can allow us to do many things in an intrepreted language
 such as \R.  We use \libclang{}, a flexible, embeddable library, to
-develop \R{} functionality to obtain information about native code.
-We describe the \Rpkg{RCIndex} package which provides high-level
-functionality to access this information and also lower-level
-approaches to query and manipulate other aspects of native code.  We
-describe how to use the package and scenarios in which it is useful.
-This functionality is infrastructural and is analogous to
-\Rpkg{codetools} for \R{} code.  It is not necessarily of direct
-interest to end-users, but it allows us to build numerous tools that
-can help end-users and developers.
+develop \R{} functionality to obtain and use information about native
+code.  We describe the \Rpkg{RCIndex} package which provides
+high-level functionality to access and utilize this information and
+also lower-level approaches to query and manipulate other aspects of
+native code.  We describe how to use the package and scenarios in
+which it is useful.  This functionality is infrastructural and some of
+the functionality of the package is the native code analogy to the
+\Rpkg{codetools} package for \R{} code.  It is not necessarily of
+direct interest to end-users, but it allows us to build numerous tools
+that can help end-users and developers.
 
 } 
 \Keywords{\R, \Rpkg{RCIndex} package}
@@ -124,19 +125,19 @@ can help end-users and developers.
 We typically think of \C{} and \Cpp{} code as something we write,
 compile and call. It is rarely the input to anything but the compiler.
 However, such code is a source of potentially useful information that
-we can use in statistical and scientific computing.  In order to
+we can exploit in statistical and scientific computing.  In order to
 leverage this information, we need to be able to access it in a
-structured manner in a form that we can compute on and in the
+structured manner and in a form that we can compute on and in the
 programming environment in which we want to use it.
-\libclang{}~\cite{bib:libclang,bib:libclangSlides} has
+\libclang{}~\cite{bib:libclang}, \cite{bib:libclangSlides} has
 emerged as a powerful, industrial-strength library that provides
 valuable functionality for working with \C/\Cpp{} source code and that
-we can embed in \R (and many other languages).
+we can embed in \R{} (and many other languages).
 
 There are several applications of being able to programmatically
-understand \C/\Cpp{} code.
+understand \C/\Cpp{} code in a high-level language such as \R.
 
-\textbf{Registering \R-callable routines}: When we write \C/\Cpp code
+\textbf{Registering \R-callable routines}: When we write \C/\Cpp{} code
 to use in an \R{} package, it is useful to explicitly register the
 routines that we can call via any of the
 \Rfunc{.C}/\Rfunc{.Call}/\Rfunc{.External} interfaces.  When the
@@ -556,6 +557,14 @@ tus = lapply(list.files("src", pattern = "\\.c$", full.names = TRUE),
                createTU, index = index)
 \end{RCode}
 %$
+Alternatively, we can pass a vector of file names in the call to
+\Rfunc{createTU} and it will create a translation unit for each, using
+the same index and \Rarg{args} and \Rarg{includes}. So our example
+could be  written as 
+\begin{RCode}
+tus = createTU(list.files("src", pattern = "\\.c$", full.names = TRUE))  
+\end{RCode}
+%$
 
 When creating an index, we can control whether it displays errors,
 warnings and general diagnostic information about the code on the
@@ -691,6 +700,20 @@ the various indexing facilities.  Now that we have the basic tools
 provided by \Rpkg{RCIndex} in \R, we can programmatically generate
 bindings to these routines. 
 
+Many of the bindings for \Rpkg{RCIndex} were generated
+programmatically. Accordingly, there is little documentation for
+these. We plan to adapt the documentation from the source code
+to provide more direct documentation in \R.
+
+The package provides a reasonably involved way to garbage collect the
+common \C{} data types from \libclang{} used in \R,
+i.e. \Ctype{CXCursor} and \Ctype{CXTranslationUnit}.  This is
+complicated as there is a dependency between these types as a
+\Ctype{CXTranslationUnit} object cannot be released when it is no
+longer directy referenced in \R. This is because there may be
+\Ctype{CXCursor} objects it contains still referenced by \R.  We hope
+to extend this mechanism to \Ctype{CXType} and \Ctype{CXIndex}.
+
 Given these basic bindings, we plan to develop additional high-level
 functionality to process different aspects of native code. We are
 interested in processing the bodies of the routines to understand
@@ -702,6 +725,7 @@ many of the bindings for the \Rpkg{RCUDA} package
 (\url{http://github.com/duncantl/RCUDA}). We will merge the code
 generation mechanisms from our previous work on
 \Rpkg{RGCCTranslationUnit} and SWIG.
+
 
 Over the last decade, some of us have considered making the \R{}
 source code thread-safe and introduce user-level threads.  While there

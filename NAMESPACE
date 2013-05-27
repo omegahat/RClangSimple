@@ -453,3 +453,5 @@ export(getCursorDefinition, getCursorReferenced)
 
 exportClasses(S4Visitor, RefVisitor)
 
+
+export(getCursorTranslationUnit)

@@ -9,7 +9,7 @@
 \description{
 }
 \usage{
-Module_getModule(C)
+getModule(C)
 Module_getFullName(Module)
 Module_getName(Module)
 Module_getNumTopLevelHeaders(arg1, Module)

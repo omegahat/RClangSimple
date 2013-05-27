@@ -10,14 +10,17 @@
   translation unit.
 }
 \usage{
-getFunctions(src, filenames = character(), col = genFunctionCollector(filenames), expectedNum = 500, ...)
+getFunctions(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedNum = 500, ...)
 }
 \arguments{
   \item{src}{the already created CXTranslationUnit object, or the name
     of the source file}
-  \item{filenames}{a character vector giving file names from which you
+  \item{filenames}{a logical value or a a character vector giving file names from which you
     want the routines. If this is specified, routines defined in other
-    files are not returned. So this is a way to filter.}
+    files are not returned. So this is a way to filter the results.
+    \code{FALSE} means include all routines.  \code{TRUE} means only
+    routines in the source file identified by \code{src}.
+  }
   \item{col}{the collector function. This is only used if
     \code{filenames} is specified}
   \item{expectedNum}{the expected number of routines. This should be
@@ -39,7 +42,7 @@ Duncan Temple Lang
 \seealso{
   \code{\link{createTU}}, \code{\link{parseTU}},
   \code{\link{getEnums}},   \code{\link{getDataStructures}},
-  \code{\link{visitTU}}
+  \code{\link{visitCursor}}
 }
 \examples{
 src = system.file("exampleCode", "func.c", package = "RCIndex")

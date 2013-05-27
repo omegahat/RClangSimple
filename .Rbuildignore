@@ -14,3 +14,7 @@ Experiments
 .*.tcp
 .*.cache.*
 template.Rd
+Paper/.*.o
+Paper/.*.so
+inst/exampleCode/.*.o
+

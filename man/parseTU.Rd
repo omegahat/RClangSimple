@@ -41,11 +41,19 @@ isFileMultipleIncludeGuarded(tu, file)
   tree. This must return one of the CXChildVisit enumeration values}
   \item{idx}{a \code{CXIndex} object used to create the translation
     unit. This is rarely specified.}
-  \item{includes}{}
-  \item{args}{}
+  \item{includes}{a character vector specifying the paths to directories
+  in which the parser can look for \code{\#include}'d header files}
+  \item{args}{a character vector of flags or arguments for the
+  parser. These can include pre-processor definitions, e.g
+  \code{-DHAVE_CONFIG_H},  and also arguments that clang understands,
+  e.g. \code{-fparse-all-comments} and \code{-ferror-limit=1000}.
+  The arguments need to be separate elements of the vector and should
+  not be combined into a single string.
+  The possible arguments are described in the clang user manual.
+  }
   \item{verbose}{used when creating the index and controls whether
   diagnostic messages are written to the console.}
-  \item{file}{}
+  \item{file}{a \code{CXFile} object representing a file}
   \item{tu,TU}{a translation unit object. This is rarely specified by the caller.}
   \item{\dots}{additional parameters passed to \code{createTU}.}
   \item{clone}{a logical value controlling whether to clone the
@@ -57,18 +65,19 @@ isFileMultipleIncludeGuarded(tu, file)
   \item{file_name}{the name of the file for which we want a CXFile object}
 
 }
-\details{
-}
+%\details{}
 \value{
   An integer value indicating whether the parsing was successful (0)
   or not (non-zero).
 }
 \references{
-
+ libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
 }
 \author{Duncan Temple Lang}
 
 \seealso{
+  \code{\link{visitTU}}
+  \code{\link{createIndex}}
 }
 \examples{
 col = genFunctionCollector()
@@ -78,5 +87,6 @@ parseTU(system.file("exampleCode", "register.c", package = "RCIndex"),
 names(col$funcs())
 
 }
-\keyword{}
+\keyword{programming}
+\keyword{interface} 
 

@@ -1,5 +1,6 @@
 \name{children}
 \alias{children}
+\alias{getChildren}
 
 \title{Get the CXCursor children of a CXCursor object}
 \description{
@@ -12,10 +13,12 @@
 }
 \usage{ 
 children(top, types = integer())
+getChildren(x)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{top}{}
+  \item{top,x}{the cursor or an object that can be coerced to a cursor,
+      e.g. translation unit }
   \item{types}{the set of CXCursorKind values of the type of cursors we
     want.}
 }

@@ -26,9 +26,23 @@ getCursorTokens(cur)
 }
 
 \seealso{
- \code{\link{visitTU}},  \code{\link{parseTU}}
+ \code{\link{visitCursor}},  \code{\link{parseTU}}
 }
 \examples{
+f = system.file("exampleCode", "fib.c", package = "RCIndex")
+r = getRoutines(f)
+r$fib
+cur = as(r$fib, "CXCursor")
+cur[[1]]  # the ParmDecl
+cur[[2]] # the body of the routine
+cur[[2]][[2]] # the return
+cur[[2]][[2]][[1]][[1]] # the BinaryOperator for fib(n-1) + fib(n-2)
+getCursorTokens(cur[[2]][[2]][[1]][[1]]) #
+
+bin = cur[[2]][[2]][[1]][[1]]
+# get operator
+toks = getCursorTokens(bin[[1]])
+toks[length(toks)]
 
 }
 \keyword{programming}

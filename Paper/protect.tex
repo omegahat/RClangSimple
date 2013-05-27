@@ -72,14 +72,10 @@ We'll use the former approach.
 
 We define our generator  function as
 \begin{RCode}
-genProtectAnalyzer =
-function()
+genProtectAnalyzer = function() 
 {
-  R_AllocRoutineNames = c("Rf_allocVector", 
-                          "NEW_NUMERIC", 
-                          "NEW_INTEGER", 
-                          "NEW_LOGICAL", 
-                          "NEW_CHARACTER")
+  R_AllocRoutineNames = c("Rf_allocVector", "NEW_NUMERIC", 
+                          "NEW_INTEGER", "NEW_LOGICAL", "NEW_CHARACTER")
   numAllocs = 0  
   numProtectCalls = 0
   numUnprotectCalls = numeric()
@@ -125,6 +121,7 @@ function()
                       numUnprotectCalls = numUnprotectCalls,
                       inUnprotect = inUnprotect,
                       numAllocs = numAllocs)})
+}
 \end{RCode}
 %$
 For the present, ignore the second expression in our visitor function,

@@ -24,12 +24,6 @@
 \alias{coerce,CXTranslationUnit,CXCursor-method}
 \alias{getTranslationUnitCursor}
 
-\alias{clone}
-\alias{clone,CXCursor-method}
-\alias{CXCursor-class}
-\alias{$,CXCursor-method}
-
-
 \title{CXCursor class and related methods}
 \description{
   These functions operate on CXCursor objects and
@@ -47,10 +41,12 @@ getFileName(x, ...)
 getFileTime(SFile) 
 }
 \arguments{
-  \item{x,SFile}{}
-  \item{\dots}{}
+  \item{x,SFile}{a \code{CXFile} object or something that can be coerced
+  to that class, e.g. a cursor, a translation unit.}
+  \item{\dots}{additional arguments for methods}
 }
 \value{
+  A string (character vector of length 1) giving the name of the file.
 }
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
@@ -59,8 +55,13 @@ getFileTime(SFile)
 Duncan Temple Lang
 }
 \seealso{
+  \code{\link{getLocation}}
 }
 \examples{
+f = system.file("exampleCode", "fib.c", package = "RCIndex")
+tu = createTU(f)
+getFileName(tu)
+getFileName(as(tu, "CXCursor"))
 }
 \keyword{programming}
 \keyword{interface}

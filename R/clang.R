@@ -10,13 +10,19 @@ function(excludeFromPCH = FALSE, verbose = getOption("ShowParserDiagnostics", TR
 }
 
 createTU =
+  #
+  # Multiple TUs in one call.
+  # tus = createTU(list.files("src", pattern = "\\.c$", full.names = TRUE), includes = c("~/llvm-devel/tools/clang/include", c(sprintf("%s/../src/include", R.home()), sprintf("%s/include", R.home()))))
+  #
+  #
 function(src, includes = character(),
          idx = createIndex(verbose = verbose), args = character(), verbose =  getOption("ShowParserDiagnostics", TRUE),
          options = 0) #XXX was "-Xclang")
 {
   src = path.expand(src)
-  if(!file.exists(src))
-     stop("no such file: ", src)
+ 
+  if(!all(m <- file.exists(src)))
+     stop("no such file: ", paste(src[m], collapse = ", "))
 
   includes = sapply(includes, path.expand)
 
@@ -24,8 +30,14 @@ function(src, includes = character(),
 
   if(!missing(options))
     options = as(options, "CXTranslationUnit_Flags")
+
+  tus = lapply(src, function(src)
+                    .Call("R_clang_createTUFromSource", idx, as.character(src), args, as.integer(options)))
   
-  .Call("R_clang_createTUFromSource", idx, as.character(src), args, as.integer(options))
+  if(length(src) == 1) {
+    tus[[1]]
+  } else
+    structure(tus, names = src, class = "CXTranslationUnitList")
 }
 
 getTranslationUnitCursor =
@@ -46,8 +58,7 @@ function(tu, fun, clone = FALSE, ...)
 {
    if(is.character(tu))
      tu = createTU(tu, ...)
-   
-   tu = as(tu, "CXCursor")
+
 
    orig = fun
    if(is(fun, "S4Visitor"))
@@ -57,8 +68,17 @@ function(tu, fun, clone = FALSE, ...)
    
    if(!is.function(fun) && !is(fun, "NativeSymbol"))
      stop("must supply an R function to visitTU")
+
+      do = function(tu) {
+        tu = as(tu, "CXCursor")            
+        .Call("R_clang_visitChildren", tu, fun, as.logical(clone))
+      }
    
-   ans = .Call("R_clang_visitChildren", tu, fun, as.logical(clone))
+   ans = if(is(tu, "CXTranslationUnitList"))
+            lapply(tu, do)
+         else
+            do(tu)
+
    
    fun = orig
    if(is(fun, "S4Visitor"))
@@ -113,6 +133,7 @@ function(x)
 getLocation =
 function(x, type = "Expansion")
 {
+  type = match.arg(type, c("Expansion", "Presumed", "Instantiation"))
   routine = sprintf("R_clang_get%sLocation", type)
   
   ans = .Call(routine, as(x, "CXSourceRange"))
@@ -172,19 +193,34 @@ function(x)
 
 
 genInclusionCollector =
-function()
+function(flat, base = "<base>")
 {
-   files = character()
+   files = if(flat)
+              character()
+           else
+              list()
+   
+   if(!is.character(base))
+     base = getFileName(base)
+
+   
    update = function(file, stack, ...) {
-     files <<- c(files, getFileName(file))
-     names(files)[length(files)] <<- if(length(stack) > 1) getFileName(stack[[1]]) else ""
+browser()     
+     f = getFileName(file)
+     parent = if(length(stack) > 1) getFileName(stack[[1]]) else base
+     if(flat) {
+        files <<- c(files, f)
+        names(files)[length(files)] <<- parent
+     } else {
+       files[[parent]] <<- c(files[[parent]], f)
+     }
    }
 
    list(update = update, files = function() files)
 }
 
 getInclusions =
-function(file, fun = genInclusionCollector(), ...)  
+function(file, fun = genInclusionCollector(flat, file), flat = FALSE, ...)  
 {
    if(is.character(file))
       file = createTU(file, ...)
@@ -206,3 +242,11 @@ function(tu)
 setMethod("getFileName", "CXTranslationUnit",
            function(x, ...)
              getTranslationUnitSpelling(x))
+
+
+
+getCursorTranslationUnit =
+function(cursor)
+{
+ .Call("R_clang_CXCursor_getCursorTranslationUnit", as(cursor, "CXCursor"))
+}

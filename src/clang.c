@@ -475,6 +475,17 @@ R_clang_getCursorDefinition(SEXP r_cursor)
 }
 
 
+SEXP
+R_clang_CXCursor_getCursorTranslationUnit(SEXP r_cursor)
+{
+    CXCursor *cur =  GET_REF(r_cursor, CXCursor);
+    CXTranslationUnit ans;
+    ans = clang_Cursor_getTranslationUnit(*cur);
+    Rclang_incrementTURefCount(ans, ans);
+    return(createRefWithFinalizer(ans, "CXTranslationUnit", R_freeTU));
+}
+
+
 /* Redundant now with programattically generated version */
 SEXP
 R_clang_CXCursor_getCursorReferenced(SEXP r_cursor)

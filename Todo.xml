@@ -1,4 +1,20 @@
 <items>
+
+<item>
+Clean up the Module_ functions, i.e. get rid of Module_ and connect to methods, e.g. getName.
+</item>
+
+<item>
+call-graph function
+</item>
+
+<item>
+Allow caller to provide mutiple files or multiple translation units
+and process them together.
+createTU can return them all using a single index.
+Don't seem to be able to get translation units from an index, i.e. query an index for how many and specific TUs.
+</item>
+
 <item status="check">
 S4 class for FunctionDecl. Extend NativeElement.
 Will  break the code in generateCode and CUDA/TU/nativeGen.R
