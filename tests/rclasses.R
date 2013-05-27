@@ -5,7 +5,7 @@ f = system.file("exampleCode", "enums.c", package = "RCIndex")
 e = getEnums(f)
 
 col = genEnumCollector()
-v = new("S4Visitor", update = col$update, result = col$enums)
+v = new("S4CursorVisitor", update = col$update, result = col$enums)
 
 e1 = visitTU(f, v)
 

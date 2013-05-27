@@ -5,7 +5,9 @@
 \alias{Comment_isWhitespace}
 \alias{getParsedComment}
 \title{Functions for querying comments}
-%\description{}
+\description{
+These are functions working with \code{CXComment} objects.
+}
 \usage{
 Comment_getChild(Comment, ChildIdx)
 Comment_getKind(Comment)

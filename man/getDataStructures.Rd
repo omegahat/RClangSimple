@@ -14,7 +14,7 @@ getStructDef(type, kids = children(tp))
   \item{src}{the already created CXTranslationUnit object, or the name
     of the source file}
    \item{collector}{a visitor function or visitor object of class
-     \code{\link{S4Visitor-class}} or \code{\link{RefVisitor-class}}.}
+     \code{\link{S4CursorVisitor-class}} or \code{\link{RefCursorVisitor-class}}.}
   \item{\dots}{any additional arguments passed to \code{\link{createTU}}
   if \code{src} is not already a \code{CXTranslationUnit}.}
    \item{type}{the \code{CXCursor}  defining a data type}
@@ -35,7 +35,6 @@ Duncan Temple Lang
   \code{\link{getEnums}},
   \code{\link{getInclusions}}        
 }
-\examples{
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface} 

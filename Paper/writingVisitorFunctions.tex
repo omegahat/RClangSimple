@@ -152,7 +152,7 @@ call the function \Rfunc{getLocations} to obtain the results.
 
 You can use any reference class you want and then pass the visitor or
 update method to \Rfunc{visitTU}.  However, it can be convenient to
-define your reference class to extend the \Rclass{RefVisitor} class in
+define your reference class to extend the \Rclass{RefCursorVisitor} class in
 the \Rpkg{RCIndex} package. This allows you to pass the entire
 reference object to \Rfunc{visitTU} and to get the results back
 directly. This is merely syntactic sugar to simplify the
@@ -161,14 +161,14 @@ call \Rfunc{visitCursor} and retrieve the results to the more succinct
 \begin{RCode}
 visitCursor(cur, RoutineLocationVisitor)
 \end{RCode}
-Essentially, extending the \Rclass{RefVisitor} class allows
+Essentially, extending the \Rclass{RefCursorVisitor} class allows
 \Rfunc{visitCursor} to identify the visitor and the result functions.
 The only change we need to make when defining our reference class
 is to add the \Rarg{contains} argument in the call to
 \Rfunc{setRefClass}, i.e.
 \begin{RCode}
 setRefClass("RoutineLocationVisitor",
-            contains = "RefVisitor",
+            contains = "RefCursorVisitor",
             fields = list(locations = "numeric"),
             methods = list(getLocations = function() locations,
                        .....))
@@ -177,15 +177,15 @@ setRefClass("RoutineLocationVisitor",
 
 
 Similar to the reference class, we can use an S4 class
-\Rclass{S4Visitor} to combine the visitor and result function
+\Rclass{S4CursorVisitor} to combine the visitor and result function
 and pass the two together to \Rfunc{visitCursor}.
 We typically create our two functions as before
 via a generator function, and then combine the two 
 functions into a formal object with, for example,
 \begin{RCode}
 col = genCollector()
-visitCursor( cur, new("S4Visitor",  update = col$update, result = col$vars))
+visitCursor( cur, new("S4CursorVisitor",  update = col$update, result = col$vars))
 \end{RCode}
-Again, the purpose of this \Rclass{S4Visitor} class is merely to 
+Again, the purpose of this \Rclass{S4CursorVisitor} class is merely to 
 allow \Rfunc{visitCursor} to identify the two functions.
 

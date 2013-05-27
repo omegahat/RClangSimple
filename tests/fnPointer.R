@@ -2,7 +2,7 @@ library(RCIndex)
 
 f = getFunctions(system.file("exampleCode", "funPointer.c", package = "RCIndex"))$foo
 
-h = f$params[[1]]
+h = f@params[[1]]
 
 getTypeKind(h) # Typedef
 ty = getCanonicalType(h)

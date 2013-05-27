@@ -40,7 +40,7 @@ combineCollectors(..., .funs = list())
    \item{.funs}{a list of the collectors to be combined.}
 }
 \value{
-The collectors typically return an \code{\link{S4Visitor-class}} object.
+The collectors typically return an \code{\link{S4CursorVisitor-class}} object.
 }
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}

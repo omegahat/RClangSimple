@@ -15,4 +15,5 @@ template.Rd
 Paper/.*\.o$
 Paper/.*.so$
 inst/exampleCode/.*\.o$
+\.prof$
 

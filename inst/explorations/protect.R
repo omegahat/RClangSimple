@@ -71,7 +71,7 @@ function()
 
 if(FALSE) {
 # source("explorations/protect.R")
- tu = createTU("inst/exampleCode/protectError.c", includes = sprintf("%s/include", R.home()))
+ tu = createTU("../exampleCode/protectError.c", includes = sprintf("%s/include", R.home()))
  r = getRoutines(tu)
 # a <- genProtectAnalyzer()
 # visitTU(as(r$R_bar$def, "CXCursor"), a$update)

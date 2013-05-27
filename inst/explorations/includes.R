@@ -1,6 +1,6 @@
 library(RCIndex)
 
-inc = getInclusions("inst/exampleCode/file1.c", FALSE)
+inc = getInclusions("../exampleCode/file1.c", FALSE)
 
 
 hinc = getInclusions("src/clang.c", args = "-DHAVE_CONFIG_H",

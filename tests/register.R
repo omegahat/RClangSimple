@@ -8,7 +8,7 @@ fns = f$funcs()
 
 names(fns)
 
-p = fns$foo$params
+p = fns$foo@params
 
 ty = getCanonicalType(p[[1]])
 getTypeKind(ty)

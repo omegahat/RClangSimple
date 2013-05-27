@@ -54,14 +54,14 @@ setAs("CXCursor", "CXType",
            from$type)
 
 visitTU = visitCursor = 
-function(tu, fun, clone = FALSE, ...)
+function(tu, fun, clone = TRUE, ...)
 {
    if(is.character(tu))
      tu = createTU(tu, ...)
 
 
    orig = fun
-   if(is(fun, "S4Visitor"))
+   if(is(fun, "S4CursorVisitor"))
      fun = fun@update
    else if(is(fun, "RefCursorVisitor"))
      fun = fun$update
@@ -81,7 +81,7 @@ function(tu, fun, clone = FALSE, ...)
 
    
    fun = orig
-   if(is(fun, "S4Visitor"))
+   if(is(fun, "S4CursorVisitor"))
      fun@result()
    else if(is(fun, "RefCursorVisitor"))
      fun$result()

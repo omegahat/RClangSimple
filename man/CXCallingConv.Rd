@@ -2,7 +2,10 @@
 \alias{CXCallingConv-class}
 \docType{data}
 \title{Enumeration type for calling convention}
-%\description{}
+\description{
+  This is an enumeration type with values
+  for describing the calling convention of a native routine.
+}
 %\usage{}
 \format{
   The format is:

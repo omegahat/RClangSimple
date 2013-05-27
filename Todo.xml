@@ -1,5 +1,18 @@
 <items>
 
+<item status="done">
+memory management for CXType's. See tests/refCountType.R
+It will segfault.
+Problem is getVariables() wasn't calling clone.
+Change clone to TRUE by default.
+</item>
+<item>
+Make our collectors clone their objects 
+and turn cloning off. Set the default for the
+high-level functions to be clone = !missing(collector) to
+ensure that cloning happens if the caller specifies a collector.
+</item>
+
 <item>
 Make the collectors return an S4Visitor object.
 Consider what happens when we have multiple TUs
@@ -8,9 +21,13 @@ Consider what happens when we have multiple TUs
 <item>
 Clean up the Module_ functions, i.e. get rid of Module_ and connect to methods, e.g. getName.
 </item>
-
 <item>
+Multiple TUs in an index and cross referencing.
+Need to run the indexer.
+</item>
+<item status="extend">
 call-graph function
+Extend to handle multiple TUs
 </item>
 
 <item>

@@ -1,7 +1,7 @@
 library(RCIndex)
 
 if(FALSE) {
-tu = createTU("inst/exampleCode/mutateArg.c")
+tu = createTU("../exampleCode/mutateArg.c")
 r = getRoutines(tu, getFileName(tu))
 
 v = genMutatesCollector(names(r$foo@params))
@@ -88,5 +88,5 @@ getParameters =
 function(r, visitor = genParamsCollector(namesOnly), namesOnly = FALSE)
 {
    visitTU(r, visitor$update, clone = !namesOnly)
-   visitor$params()
+   visitor@params()
 }

@@ -28,7 +28,7 @@ col = genCommentCollector()
 visitTU(tu, col$update, clone = TRUE)
 
 r = getRoutines(tu)
-sapply(r, function(x) getRawCommentText(x$def))
+sapply(r, function(x) getRawCommentText(x@def))
 
 vars = getVariables(tu)
 sapply(vars, getRawCommentText)

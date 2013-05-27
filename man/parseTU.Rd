@@ -28,6 +28,7 @@ parseTU(src, visitor = simpleVisitor, idx = createIndex(),
           tu = createTU(src, idx = idx, ...), ..., clone = FALSE)
 createTU(src, includes = character(), idx = createIndex(verbose = verbose), args = character(),
            verbose = getOption("ShowParserDiagnostics", TRUE), options = 0)
+visitCursor(tu, fun, clone = TRUE, ...)
 saveTranslationUnit(TU, FileName, options = 0)
 getFile(tu, file_name)
 defaultReparseOptions(TU)
@@ -37,7 +38,7 @@ isFileMultipleIncludeGuarded(tu, file)
 
 \arguments{
   \item{src,FileName}{the fully-qualified name of the source code file}
-  \item{visitor}{a function that is called when iterating over the parse
+  \item{visitor,fun}{a function that is called when iterating over the parse
   tree. This must return one of the CXChildVisit enumeration values}
   \item{idx}{a \code{CXIndex} object used to create the translation
     unit. This is rarely specified.}
@@ -58,7 +59,11 @@ isFileMultipleIncludeGuarded(tu, file)
   \item{\dots}{additional parameters passed to \code{createTU}.}
   \item{clone}{a logical value controlling whether to clone the
     \code{CXCursor} objects passed in each call to the \code{visitor}
-    function.}
+    function.  This is \code{TRUE} by default to be safe.
+    However, if the caller knows that the visitor function will not
+    store a cursor it is passed for later use, or that it will
+    clone that cursor itself, it is more efficient to use \code{clone = FALSE}.
+  }
   \item{options}{options for saving the translation unit. This is a
   collection of values fromthe CXSaveTranslationUnit_Flags object, but
   this is should always be 0 at present}

@@ -82,6 +82,9 @@ function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedN
     src = createTU(src, ...)
   ans = .Call("R_getRoutines", as(src, "CXCursor"), vector("list", expectedNum), character(expectedNum))
 
+  if(length(ans) == 0)
+    return(list())
+     
   if(is.logical(filenames) && filenames)
     filenames = getFileName(src)
   
