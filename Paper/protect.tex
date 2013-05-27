@@ -4,7 +4,7 @@ written to be called via \R's \Rfunc{.Call} interface and try to
 identify if there are possible errors related to ensuring \R{} objects
 are not garbage collected prematurely.  The \R{} API uses the macros
 \Cfunc{PROTECT} and \Cfunc{UNPROTECT} to mark an object as being in
-use and stop if from being garbage collected and to unmark a number of
+use and stop if from being garbage collected and then to unmark a number of
 protected objects.  For example, the \C{} code in
 figure~\ref{fig:ProtectCorrect} creates two new \R{} objects and
 protects them both, performs some computations that populate the
@@ -22,53 +22,58 @@ but fail to unprotect them, or at least some of them.
 %XXX Clean this up wrt. to macro expansions. Ignore them  but just
 %mention it is possible.
 We will develop an \R{} function that will attempt to check for common
-problems related to garbage collection.  Our function take the
-\libclang{} cursor for a routine and will then traverse the
-nodes/cursors throughout that tree. It will find calls to known
-routines that alloc \R{} objects (specifically \Cfunc{Rf_allocVector})
-and also calls to \Cfunc{Rf_protect} and \Cfunc{Rf_unprotect}.  At its
-very simplest, we can count the number of allocations, the number of
-calls to \Cfunc{Rf_protect} and attempt to determine the value passed
-to \Cfunc{Rf_unprotect}.  If these don't match, we can indicate a
-potential error.  This is a simple heuristic approach, but it may
-catch some cases.
+problems related to garbage collection.  Our function takes the
+\libclang{} cursor for a routine and will then traverse the cursors
+throughout that tree. It will find calls to known routines that
+allocate \R{} objects (e.g. \Cfunc{Rf_allocVector},
+\Cfunc{NEW_INTEGER}, \Cfunc{NEW_NUMERIC}) and also calls to
+\Cfunc{Rf_protect} and \Cfunc{PROTECT}, and \Cfunc{Rf_unprotect} and
+\Cfunc{UNPROTECT}.  A simple test for correct code is to count the
+number of allocations, the number of calls to
+\Cfunc{Rf_protect}/\Cfunc{PROTECT} and attempt to determine the value
+passed to calls to \Cfunc{Rf_unprotect}/\Cfunc{UNPROTECT}.  If these
+don't match, we can indicate a potential error.  This is a simple
+heuristic approach, but it identifies many common cases.
 
+\begin{comment}
 What about \Cfunc{NEW_NUMERIC}, \Cfunc{PROTECT} and \Cfunc{UNPROTECT}?
 In some cases, these are acutally pre-processor macros and in others
-they are actually routines. They expand to
+they are routines. They expand to
 \Cexpr{Rf_allocVector(REALSXP, n)} and calls to \Cfunc{Rf_protect} and
 \Cfunc{Rf_unprotect}.  We can find these expansions and substitutions
 in the translation unit. Alternatively, we can use our knowledge of
 how the \R{} API works.
+\end{comment}
 
-
-Since we will traverse over the sub-cursors, we need a visitor
-function. We'll use a closure, but again, we could use a reference
-class.  We need variables in which we can record the number of calls
-to each of \Cfunc{Rf_allocVector}, \Cfunc{R_protect} and
-\Cfunc{R_unprotect}.  We'll call these variables \Rvar{numAllocs},
+Since we will traverse over the sub-cursors of the routine, we need a
+visitor function. We'll use a closure, but again, we could use a
+reference class.  We need variables in which we can record the number
+of calls to each of categories of routines that allocate, protect and
+unprotect objects.  We'll call these variables \Rvar{numAllocs},
 \Rvar{numProtectCalls} and \Rvar{numUnprotectCalls}, respectively.
-For the first two routines, we just increment the current value
-in the corresponding \R{} variable.
-For \Cfunc{Rf_unprotect}, we'll collect the argument for each call to
+For the first two categories of routines, we just increment the
+current value in the corresponding \R{} variable.  For
+\Cfunc{Rf_unprotect}, we'll collect the argument for each call to
 \Cfunc{Rf_unprotect}. This might be a literal value, e.g. $2$ in our
-example, or a variable or a general expression.
+example, or a variable or a general expression which makes our taks
+more complex.
 
 We have now identified the basic strategy for our visitor function.
 Next, we need to specify the details for the different types of
-cursors we encounter. A call to any of our routines will be identified
-by a cursor with a kind \Rvar{CXCursor_CallExpr}.  We can get the name
-of the routine being called using \Rfunc{getName} applied to this
-cursor. (There are other ways also, but this is the simplest.)  Based
-on this name, we update the relevant counter or ignore the call.  If
-the call is to \Cfunc{Rf_unprotect}, we have to arrange to get its
-argument.  We can use either of two approaches for this.  We can set a
-flag in our closure to indicate we are processing the sub-cursors of a
+cursors we encounter. A call to any of our routines in our categories
+of interest will be identified by a cursor with a kind
+\Rvar{CXCursor_CallExpr}.  We can get the name of the routine being
+called using \Rfunc{getName} applied to this cursor. (There are other
+ways also, but this is the simplest.)  Based on this name, we update
+the relevant counter or ignore the call.  If the call is to
+\Cfunc{Rf_unprotect}, we have to arrange to get its argument.  We can
+use either of two approaches for this.  We can set a flag in our
+closure to indicate we are processing the sub-cursors of a
 \Cfunc{Rf_unprotect} call and then subsequent calls to our visitor
 function can check this and interpret the sub-cursors
 appropriately. Alternatively, we can explicitly traverse the children
-of the current call cursor to determine the argument.
-We'll use the former approach.
+of the current call cursor to determine the argument.  We'll use the
+former approach.
 
 We define our generator  function as
 \begin{RCode}

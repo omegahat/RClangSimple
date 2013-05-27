@@ -4,52 +4,46 @@
 Before we discuss the \R{} facilities for working with \libclang, it
 is useful to understand the basic concepts of the library.  These
 include translation units, abstract syntax trees and cursors, types
-and tokens.  \libclang{} exposes other concepts, but these are the
+and tokens.  \libclang{} exposes other concepts, but those are not  the
 important ones for our purposes.
 
 Source code is arranged in files. A project may be made up of more
 than one related files.  For example, we may define related routines
 for one task in one file and other routines in a separate file.
 Header files are used for declarations and pre-processor definitions
-that are shared by several files.  When we parse a file that reads the
-source and substitutes the content of any header files referenced by
-an \Ckeyword{\#include} directive.  The entity resulting from parsing
-the document is called a \textit{translation unit} (TU).
+that are shared by several files.  When we parse a file, the parser
+essentially reads the source and substitutes the content of any header
+files referenced by an \Ckeyword{\#include} directive directly into
+the source.  The entity resulting from parsing the document is called
+a \textit{translation unit} (TU).
 
-A translation unit contains all the information from the corresponding
-source file.  A single TU is often sufficient for our purpose of
-exploration and analysis. However, if the code in one translation unit
-refers to routines or variables in an other source file, we have to
-merge it with another translation unit to resolve those references.
-\libclang{} uses an \textit{index} as the container for several
-related translation units.  When we want to deal with the translation
-units together, we use the same index to parse them and this then
-allows \libclang{} and us to connect references to elements across
-translation units.
 
 \libclang{} is a parser and represents a translation unit as a parse
-tree.  It first breaks the text into tokens during the lexical
-analysis step.  This breaks code of the form \Cexpr{dnorm(n, 1, sd)}
-into the separate components \dquote{dnorm}, \dquote{(}, \dquote{n},
-\dquote{1}, \dquote{sd}, \dquote{)}.  The parsing stage then maps the
-tokens into language concepts.  In this example, it identifies a call
-expression. Within the call entity is the reference to the routine
-being called (\Cfunc{dnorm}) and then the three arguments to the call.
-The parenthesis and comma tokens disappear in the parsing stage as we
-move from the individual tokens to higher-level semantic meaning of
-the tokens.  However, a cursor still has access to its tokens and we
-can obtain these for a given cursor. This is important as \libclang{}
-doesn't differentiate between different types of binary operators, for
-example. Instead, we find the operation (=, +, -, etc.) from the
-tokens.
+tree where the nodes are called \textit{cursors}.  It first breaks the
+text into tokens during the lexical analysis step.  This breaks code
+of the form \Cexpr{dnorm(n, 1, sd)} into the separate tokens
+\dquote{dnorm}, \dquote{(}, \dquote{n}, \dquote{1}, \dquote{sd},
+\dquote{)}.  The parsing stage then maps the tokens into language
+concepts represented by different kinds of cursors.  In this example,
+the concept is a call expression. Within the call entity is the
+reference to the routine being called -- \Cfunc{dnorm} -- and then the
+three arguments to the call.  The parenthesis and comma tokens
+disappear in the parsing stage as we move from the individual tokens
+to higher-level semantic meaning of the tokens.  However, a cursor
+still has access to its original tokens and we can obtain these for a
+given cursor. This turns out to be important as \libclang{} doesn't
+differentiate between different types of binary operators, for
+example. Instead, we find the operation (=, +, -, etc.)  from the
+tokens and so the concepts of both cursor and token are important.
 
-\libclang{} represents the different parse elements via cursor (of
-class \Rclass{CXCursor} in \R.  A cursor has a kind that identifies
+\libclang{} represents the different parse elements via a cursor (of
+class \Rclass{CXCursor} in \R).  A cursor has a kind that identifies
 its nature or what concept it represents. There are many different
-kinds for a cursor (enumerated in \Rpkg{RCIndex} via the variable
-\Rvar{CXCursorKind}) and they include FunctionDecl, VarDecl, ParmDecl,
-CallExpr, IntegerLiteral, ClassDecl MacroDefinition, EnumDecl,
-StructDecl.  Hopefully the names indicate the purpose of the cursor.
+kinds for a cursor (enumerated in the variable \Rvar{CXCursorKind} in
+the \Rpkg{RCIndex} package) and they include FunctionDecl, VarDecl,
+ParmDecl, CallExpr, IntegerLiteral, ClassDecl, MacroDefinition,
+EnumDecl, StructDecl.  Hopefully the names indicate the purpose of the
+cursor.
 
 \begin{figure}
 \input{sinLogASFig.tex}  
@@ -66,11 +60,12 @@ The cursor kind \dquote{FirstExpr} essentially means unexposed or hidden.
 \centering
 \begin{CCode}
               double
-              fun(double x)
+              sinLog(double x)
               {
                  return(sin(x) + log(x + 1));
               }
 \end{CCode}  
+
 \caption{A simple routine that takes a single \Ctype{double} value
 and returns a new value. Figure~\ref{fig:sinLogTree} illustrates the
 parse tree for this routine.}\label{fig:sinLogRoutine}
@@ -83,14 +78,14 @@ a call, the fields and methods in a \Cpp{} class or the left and right
 hand side of an assignment expression. Each of these child cursors has
 a kind and also, possibly, its own sub-cursors. As a result, we have a
 tree, or hierarchical structure.  Figure~\ref{fig:sinLogTree}
-illustrates this hierachy for a simple routine, along with the kind of
-cursor and the expression associated with each cursor.  The
-translation unit is the container for the top-most or root cursor of
-the tree.  This root cursor has the abstract kind
-\ClangKind{TranslationUnit}.  Its children are the top-level elements
-of the source code file, e.g. global variables, routines, class
-definitions, pre-processor terms. Each of these has its own child
-cursors and so on.
+illustrates this hierachy for a simple routine shown in
+figure~\ref{fig:sinLogRoutine}, along with the kind of cursor and 
+its expression.  The translation unit is the
+container for the top-most or root cursor of the tree.  This root
+cursor has the abstract kind \ClangKind{TranslationUnit}.  Its
+children are the top-level elements of the source code file,
+e.g. global variables, routines, class definitions, pre-processor
+terms. Each of these has its own child cursors and so on.
 
 This concept of a cursor tree is important when we examine how to
 extract information using the lower-level facilities in
@@ -100,13 +95,13 @@ cursors and their children.
 
 In addition to cursors, \libclang{} manages type information.  In the
 \C{} and \Cpp{} languages, every expression has a type, be it a
-variable, call to a routine, binary operator and so on.  \libclang{}
+variable declaration, a call to a routine, a binary operator, and so on.  \libclang{}
 associates a type with each cursor.  Importantly, it ensures that
 there is a single type object describing each unique data type in the
 translation unit, and across related translation units.  This allows
-us to reason about and resolve types easily.
+us to reason about and resolve types quite easily.
 
-Like a cursor, a type has a kind such as \ClangTypeKind{Int},
+Like a cursor, a \libclang{} type has a kind such as \ClangTypeKind{Int},
 \ClangTypeKind{Float}, \ClangTypeKind{Double},
 \ClangTypeKind{Typedef}, \ClangTypeKind{Pointer},
 \ClangTypeKind{Record} (for a \Ckeyword{struct}),
@@ -114,10 +109,25 @@ Like a cursor, a type has a kind such as \ClangTypeKind{Int},
 characteristics we can query.
 
 
-\libclang{} provides other features such as diagnostics for parsing
+A translation unit contains all the information from the corresponding
+source file.  A single TU is often sufficient for our purpose of
+exploration and analysis. However, if the code in one translation unit
+refers to routines or variables in an other source file, we have to
+merge it with another translation unit to resolve those references.
+\libclang{} uses an \textit{index} as the container for several
+related translation units.  When we want to deal with the translation
+units together, we use the same index to parse them and this then
+allows \libclang{} and us to connect references to elements across
+translation units.
+
+
+\libclang{} provides other features such as diagnostics for both parsing
 and compiler errors, code completion used in editors, serializing
-translation units, precompiled header files, efficient indexing of
-translation units.  Some of these are exposed in the \Rpkg{RCIndex}
+translation units, precompiled header files and efficient indexing of
+one or more translation units.  Some of these are exposed in the \Rpkg{RCIndex}
 package. However, none are essential for understanding how to work
 with \libclang{} and extracting useful information from source code.
+
+
+
 

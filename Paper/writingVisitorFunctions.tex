@@ -7,13 +7,15 @@
 The primary way to extract information from a translation unit is to
 use the \Rfunc{visitTU} function.  This takes the name of a source
 file or an already parsed translation unit.  The second argument is a
-``visitor''.  This can take various forms but essentially it is an
-\R{} function (or the address of a native symbol).  \libclang{}
-iterates over some or all of the cursors in the translation unit and
-calls the \R{} function for each each of these cursors, passing it
-both the current cursor and its parent cursor, for context.  The
-function can perform any computations it desires and typically
-extracts any information it wants from each cursor. 
+``visitor'' function.  This can take various forms but
+essentially correspnds to an \R{} function (or the address of a native
+symbol).  \libclang{} iterates over some or all of the cursors in the
+translation unit and calls the \R{} function for each each of these
+cursors, passing it both the current cursor and its parent cursor, for
+context.  The function can perform any computations it desires and
+typically extracts any information it wants from each cursor, or the
+cursor itself.
+%XXXX
 % Move this to after the closures and explain that we can always
 % Recurse, but it can be a waste of time.
 It then returns a
@@ -30,13 +32,13 @@ with the name of interest.  When we encounter the start of an other routine, we 
 \Rvar{CXCursor_Break}.
 
 The visitor function typically stores information that persists across
-calls to it by \libclang.  We then access these objects when
+the calls to it made by \libclang.  We then access these objects when
 \libclang{} has completed traversing the tree.  While we may be
 inclined to use global variables, e.g. in \R{}'s global environment or
 interactive ``work space'', this is a bad idea.  Instead, we want to
-use variables that are local to this particular visitor.  We can do
-this in two basic ways -- reference classes or closures, also known as
-lexical scoping.  In fact, these two are very similar.
+use variables that are local to this particular visitor function.  We
+can do this in two basic ways -- reference classes or closures, also
+known as lexical scoping.  In fact, these two are very similar.
 
 We'll focus on a very simple example which merely
 iterates over the sub-cursors and finds the name and location of each
@@ -44,7 +46,7 @@ routine in the translation unit.  We are looking for cursors at the
 top-level of the translation unit which have a cursor kind
 \Rvar{CXCursors_FunctionDecl}.  We ignore any other cursors.
 
-We will store the name of the routine and also its line number.
+We will store the name of each routine and also its line number.
 We have to put these into a non-local variable within a call to our
 visitor  function and then be able to retrieve them. This is a closure.
 Creating a closure is quite simple but requires understanding how \R{}
@@ -74,15 +76,17 @@ traverse the tree. Instead, we call it to get a new pair of functions
 returned in a list.  We will pass the \Rel{visitor} element of that
 list to \Rfunc{visitCursor}.  Secondly, note the use of \verb+<<-+
 when we assign the line number to the element of our \Rvar{locations}
-vector.  Thirdly, note that the \Rvar{locations} vector is defined in
-the body of \Rvar{genRoutineLocations}, not within our visitor
-function. The visitor function merely modifies it.  Fourthly, our
-second function in the returned list (\Rel{locations}) is an anonymous
-function also defined during a call to \Rfunc{genRoutineLocations} and
-it returns the current value of the \Rvar{locations} variable.  This
-allows us to retrieve the results after they were added in the
+vector. This is a non-local assignment an the updated value will
+persist across calls to this function. Thirdly, note that the
+\Rvar{locations} vector is defined in the body of
+\Rvar{genRoutineLocations}, not within our visitor function. The
+visitor function merely modifies it.  Fourthly, our second function in
+the returned list (\Rel{locations}) is an anonymous function also
+defined during a call to \Rfunc{genRoutineLocations} and it returns
+the current value of the \Rvar{locations} variable when it is called.
+This allows us to retrieve the results after they were added in the
 different calls to our visitor function.  Lexical scoping and closures
-are described in various texts about \R and \cite{bib:LexicalScoping}
+are described in various texts about \R{} and \cite{bib:LexicalScoping}
 is the definitive reference.
 
 We can now use our generator function and obtain the line numbers of
@@ -94,10 +98,9 @@ visitCursor(f, col$visitor)
 col$locations()
 \end{RCode}
 Our call to \Rfunc{genRoutineLocations} returns the list of two
-functions.
-We pass the \Rel{visitor} element  to \Rfunc{visitCursor} (along with
-the name of the source code file).
-Then we retrieve the updated contents with the second function \Rel{locations}.
+functions.  We pass the \Rel{visitor} element to \Rfunc{visitCursor},
+along with the name of the source code file.  Then we retrieve the
+updated contents with the second function \Rel{locations}.
 
 
 As an aside, note that in this particular case, we don't need to
@@ -111,7 +114,7 @@ Closures are very powerful but confuse some \R{} programmers.
 Reference classes may be more familiar, especially to those familiar
 with classes in \Cpp, \Java{} or \Python.  The idea is that we define
 a class that has methods that share variables.  Our methods will be
-our \Rel{visitor} and \Rel{locations} functions in the generator
+our \Rel{visitor} and \Rel{locations} accessor functions in the generator
 function above, and the fields or variables will be the
 \Rvar{locations} numeric vector.  We can use the same code, but
 aggregate it in a different way to define a reference class as:
@@ -130,11 +133,12 @@ setRefClass("RoutineLocationVisitor",
                          CXChildVisit_Continue
                        }))
 \end{RCode}
-Here we explicitly identify the shared variable and the methods.  The
-only real difference is that we have call our function to retrieve the
-\Rvar{locations} value \Rfunc{getLocations} rather than
-\Rfunc{locations}.  This is merely to avoid have a field and a method
-with the same name.
+Here, we explicitly identify the shared variable and the methods via
+the \Rarg{fields} and \Rarg{methods} parameters.  The only real
+difference between this and our generator function is that we have
+to call our accessor function to retrieve the \Rvar{locations} value
+\Rfunc{getLocations} rather than \Rfunc{locations}.  This is merely to
+avoid have a field and a method with the same name.
 
 We can now use this reference class in almost exactly the same way we
 used our  generator function:
@@ -176,16 +180,17 @@ setRefClass("RoutineLocationVisitor",
 
 
 
-Similar to the reference class, we can use an S4 class
-\Rclass{S4CursorVisitor} to combine the visitor and result function
-and pass the two together to \Rfunc{visitCursor}.
-We typically create our two functions as before
-via a generator function, and then combine the two 
-functions into a formal object with, for example,
+Similar to the \Rclass{RefCursorVisitor} reference class, we can use
+an S4 class -- \Rclass{S4CursorVisitor} -- to combine the visitor and
+result function and pass the two together to \Rfunc{visitCursor}.  We
+typically create our two functions as before via a generator function,
+and then combine the two functions into a formal object with, for
+example,
 \begin{RCode}
 col = genCollector()
 visitCursor( cur, new("S4CursorVisitor",  update = col$update, result = col$vars))
 \end{RCode}
-Again, the purpose of this \Rclass{S4CursorVisitor} class is merely to 
-allow \Rfunc{visitCursor} to identify the two functions.
+Again, the purpose of this \Rclass{S4CursorVisitor} class is merely to
+allow \Rfunc{visitCursor} to identify the two functions -- the visitor
+function and the function to access the results.
 

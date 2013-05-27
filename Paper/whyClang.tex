@@ -1,5 +1,6 @@
 % This could come near the end.
-\section[Why libclang?]{Why \libclang?}\label{sec:Whylibclang}
+%\section[Why libclang?]{Why \libclang?}\label{sec:Whylibclang}
+\section{Other Research and Approaches}
 
 I have explored how we can get information about \C/\Cpp{} code in
 \R{} for many years and have used various different approaches.
@@ -23,10 +24,11 @@ many of the details of the source code in a reasonably low-level
 format. I developed the \Rpkg{RGCCTranslationUnit}~\cite{bib:RGCCTU}
 package to both parse the output from \gcc{} and also to collate the
 information into higher-level descriptions of routines, data
-structures, and so on.  Unfortunately, the format of \gcc's output is
-not well document, and the information it exports has changed over
-releases.  Generally, this a valuable source of information, but not
-as stable or as readily usable or developed as \libclang.
+structures, and generate binding code.  Unfortunately, the format of
+\gcc's output is not well document, and the information it exports has
+changed over releases.  Generally, this a valuable source of
+information, but not as stable or as readily usable or developed as
+\libclang.
 
 GCC-XML is an extension to \gcc{} that, like the
 \ShFlag{-fdump-translation-unit} option, can export information about
@@ -37,9 +39,9 @@ package.  We can convert the \XML{} content into descriptions of the
 routines and types.  Again, we have to implement this type registry.
 Also, GCC-XML does not give us access to the bodies of the routines
 and so we cannot address several of the applications we discussed in
-section~\ref{sec:Introduction}.
-While it is not very difficult, since GCC-XML does not come with
-\gcc{} itself, one has to install it separately.
+section~\ref{sec:Introduction}.  Since GCC-XML does not come with
+\gcc{} itself, one has to install it separately.  While this is not
+very difficult, it is another hurdle.
 
 
 I also explored SWIG (Simplified Wrapper and Interface
@@ -48,7 +50,7 @@ interfaces to native code. The idea was to leverage a widely used tool
 that could generate code for different languages.  SWIG is written in
 \perl{} and was somewhat complex. It is more desirable to write the
 code generation mechanism in \R{} itself rather than another language.
-This is because it is more natural and also because more users can
+This is because it is more familiar and also because more users can
 understand the code and contribute and extend the development.  Also,
 as the name suggests, the focus of SWIG is to generate bindings to
 existing native code.  It does not allow us to examine the body of the
@@ -56,13 +58,13 @@ routines.
 
 
 Many years ago, we adapted and embedded the little \C{} compiler
-(lcc)~\cite{bib:lcc} in \S.  This gave us many of the features we
-obtain with \libclang, allowing us to access information about
-routines, data structures, etc. in source code.  It does not support
-\Cpp. Unfortunately, it did not readily deal with extensions to the
-\C{} language used in the Linux header files. As a result, other than
-extending the code base, we couldn't continue to use it for our
-purposes.
+(lcc)~\cite{bib:lcc} in the \S{} language (both \R{} and \Splus).  This gave us many of the
+features we obtain with \libclang, allowing us to access information
+about routines, data structures, etc. in source code.  It does not
+support \Cpp. Unfortunately, it did not readily deal with extensions
+to the \C{} language used in the Linux header files. As a result,
+other than extending the code base, we couldn't continue to use it for
+our purposes.
  
 Microsoft Windows provides facilities for accessing the information
 about routines and data structures in native code via its type
@@ -83,7 +85,7 @@ All of the approaches are reasonable and have their
 advantages. However, \libclang{} is a significant improvement over all
 of these other approaches for various different reasons. It provides
 most of the infrastructure we need and removes the burden for
-consumers to create this.  It is flexible but not excessively complex.
+consumers to create this.  It is flexible, but not excessively complex.
 It is tied to serious, ongoing projects and so continues to evolve. It
 allows us to work in the language in which we want to program,
 i.e. \R.  It provides access to all aspects of the native code, not
