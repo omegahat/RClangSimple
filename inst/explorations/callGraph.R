@@ -24,9 +24,9 @@ g = graph.adjacency(mm, "directed")
 plot(g, vertex.size = 2, vertex.label.cex = .6, edge.arrow.size = .5)
 
 
-pdf("Paper/callgraph.pdf", 6, 9)
+pdf("Paper/callgraph.pdf", 10, 10)
 par(oma = c(0,0,0,0))
-plot(g, vertex.size = 2, vertex.label.cex = .6, edge.arrow.size = .5)
+plot(g, vertex.size = .9, vertex.label.cex = .8, edge.arrow.size = .5, vertex.color = "white")
 dev.off()
 
 

@@ -13,23 +13,12 @@ symbol).  \libclang{} iterates over some or all of the cursors in the
 translation unit and calls the \R{} function for each each of these
 cursors, passing it both the current cursor and its parent cursor, for
 context.  The function can perform any computations it desires and
-typically extracts any information it wants from each cursor, or the
+typically extracts and assigns any information it wants from each cursor, or the
 cursor itself.
 %XXXX
 % Move this to after the closures and explain that we can always
 % Recurse, but it can be a waste of time.
-It then returns a
-value to indicate to \libclang{} how it should continue to traverse
-the cursor tree.  We can instruct \libclang{} to stop, to traverse
-only the siblings of the current cursor, or to recursively process the
-child cursors.  We can specify a different return value for each call
-and so change how \libclang{} traverses the tree dynamically.  For
-example, we might want to process all of the nodes in a particular
-routine but no other routines. So we would return
-\Rvar{CXChildVisit_Recurse} when we first encounter the \Rvar{CXCursor_FuncDecl}%??? 
-with the name of interest.  When we encounter the start of an other routine, we return
-\Rvar{CXCursor_Continue} or we can simply terminate the traversal with
-\Rvar{CXCursor_Break}.
+
 
 The visitor function typically stores information that persists across
 the calls to it made by \libclang.  We then access these objects when
@@ -193,4 +182,82 @@ visitCursor( cur, new("S4CursorVisitor",  update = col$update, result = col$vars
 Again, the purpose of this \Rclass{S4CursorVisitor} class is merely to
 allow \Rfunc{visitCursor} to identify the two functions -- the visitor
 function and the function to access the results.
+
+
+\paragraph{Copying cursors}
+The \Rfunc{visitCursor} function, by default, makes a copy of each of
+the \C-level cursor objects in each call to our visitor function.
+This, combined with the garbage collection mechanism in the package,
+ensures that if the visitor function assigns a cursor to a non-local
+variable so it persists after that specific call, it will remain
+valid.  If the visitor function does not need the cursors after each
+call, it can avoid this unnecessary copying.  We do this by passing
+\Rfalse{} for the value of the \Rarg{clone} parameter of the
+\Rfunc{visitCursor} function.  If the visitor function wants to store
+a cursor, it can explicitly copy the cursor itself by calling the
+\Rfunc{clone} function and assigning the new cursor to a non-local
+variable.  Generally, it is safest to use the defaults and incur the
+slight overhead of cloning.
+
+
+\paragraph{Controlling how \libclang{} traverses the tree}
+By default, \Rfunc{visitCursor} will arrange for the visitor function
+to be called for each cursor in the cursor hierarchy.  Sometimes we
+don't need to see very cursor, but perhaps just the top-level cursors
+of the translation unit or the parameters in a routine, but not its
+body.  A visitor function can indicate to \libclang{} whether to
+recursively process the sub-curors of the current cursor being
+visited, or to skip the entire sub-hierarchy and move to the next
+sibling of the current cursor.  Alternatively, a visitor function may
+determine that it has seen enough and doesn't need to process any more
+cursors, i.e. gracefully terminate the traversal of the tree.  To do
+this, the visitor function returns any of \Rvar{CXChildVisit_Recurse},
+\Rvar{CXChildVisit_Continue} or \Rvar{CXChildVisit_Break}.  The
+visitor function can return a different value on each invocation and
+so dynamically determine where to visit next.  
+
+As an example of controlling the traversal, consider that we want to
+process all of the nodes in a particular routine named \Cfunc{bar} but
+no other routines or elements of the translation unit. 
+We could define our visitor function something like
+\begin{RCode}
+genVisitor = 
+function()
+{  
+    inBar = FALSE
+    
+    update =
+      function(cur, parent) {
+        if(cur$kind == CXCursor_FunctionDecl) {
+          if(inBar) {
+            cat("quitting having reached the routine", getName(cur), "\n") 
+            return(CXChildVisit_Break)
+          }
+          
+          if(getName(cur) == "bar") {
+            inBar <<- TRUE
+            return(CXChildVisit_Recurse)
+          } else
+            return(CXChildVisit_Continue)
+        } else {
+             # processing the cursors within the bar routine.
+          print(cur$kind)
+          return(CXChildVisit_Recurse)
+        }
+      }
+}
+%$
+\end{RCode}
+We can then invoke it with
+\begin{RCode}
+f = system.file("exampleCode", "mutateArg.c", package = "RCIndex")
+visitTU(f, genVisitor())  
+\end{RCode}
+We keep a non-local variable state variable to see if we have
+already encountered the routine \Cfunc{bar}.
+If we have and we see another routine, we terminate the traversal.
+If we see a routine that isn't bar, we skip to the next routine
+with \Rvar{CXChildVisit_Continue}.
+If the routine is named \Cfunc{bar}, we tell \libclang{}
+to process the sub-cursors.
 

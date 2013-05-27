@@ -91,3 +91,10 @@ allows us to work in the language in which we want to program,
 i.e. \R.  It provides access to all aspects of the native code, not
 just the declarations. It processes both \C{} and \Cpp.
 
+The approach we described in this paper does not work when we don't
+have the source code available, but only compiled binary libraries. We
+will have header files available that provide the declarations of the
+routines and the data types of interest in the library.  We can use
+these for many of the purposes. We cannot of course examine the bodies
+of the routines.
+

@@ -1,21 +1,27 @@
 \subsection{Determining unmodified inputs to a routine}\label{sec:MutabilityEg}
 
-We mentioned in section~\ref{sec:Introduction} that it is can be
-useful to determine if a routine modifies the memory pointed to by its
+We mentioned in section~\ref{sec:Introduction} that it can be useful
+to determine if a routine modifies the memory pointed to by its
 arguments.  Ideally, programmers would qualify parameters with a
 \Ckeyword{const} declaration to indicate that it is not
 modified. However, when this is not provided we do not know if it was
-omitted or if the routine does actually change a parameter.
-If we knew that it did not, we could avoid making a copy
-of the inputs before calling it. 
-In this example, we will build a simple-minded mechanism to try to
-determine which parameters are modified within a routine.
+omitted or if the routine does actually change a parameter.  If we
+knew that it did not, we could avoid making a copy of the inputs
+before calling it.  Similarly, we can differentiate between a routine
+that takes a pointer to a scalar \Ctype{int} and returns a value in
+that memory, and a routine that takes a pointer to a collection of
+integers but does not modify them.  In this example, we will build a
+simple-minded mechanism to try to determine which parameters are
+modified within a routine. We will identify the common idioms used to
+change values. We could also extend this to determine the associated length
+variable of an array of values passed as a pointer.
 
 %Similarly, if we could determine
 %whether the routine allocated memory or expected to be allocated
 %by the caller, we 
 
 \input{mutabilityFigure}
+
 In this example, we show an alternative approach to traversing nodes
 in the tree. We use a visitor but within the visitor explicitly
 subset the children and their children with a single function call.
@@ -26,12 +32,12 @@ pointer to a collection of \Ckeyword{int} values.  The first changes
 each element of the array. The second merely reads the elements of the
 array. From the declaration, we cannot tell the difference.  We will
 write a visitor function that traverses the code of the routine and
-identifies expressions which modify one of the (pointer) parameters.
-For simplicity, we will identify the names of the parameters of
+identifies expressions which modify any of the pointer parameters.
+For simplicity, we will pass the names of the parameters of
 interest, however, our function could compute the parameters as it
 traverses the entire tree for the routine.  We'll start with a simple
 visitor function, defined in a generator function to create the
-closure. We can define this as 
+closure:
 \begin{RCode}
 update =
 function(cur, parent)  {
@@ -51,8 +57,11 @@ get the answer. We check the kind of the cursor is
 \Rvar{CXCursor_BinaryOperator} and then use \Rfunc{getCursorTokens} to
 find the actual operator as a token.  If it is a \dquote{=}, we have
 indentified our condition.  Using cursor tokens is a little less
-precise than querying a specific cursor. The tokens may include
-additional text before and after our cursor that may be misleading.
+precise than querying a specific cursor. The tokens may include an
+additional element before and/or after our cursor that may be
+misleading.  Indeed, we might be wise to find the binary operator by
+examining the tokens of the left-hand side of the binary operator and
+extracting the final element of its tokens.
 
 Once we have a binary operator, we are interested in its left-hand
 side, i.e. the first child.  Rather than setting a state variable and
@@ -64,10 +73,11 @@ we access the first child of the current cursor with \Rexpr{cur[[1]]}
 and  then call the function that will determine what is being modified.
 
 Our next task is to define the \Rfunc{processLHS} function.  We could
-define another visitor function, but instead we will manually traverse
-the cursor tree.  We have various different situations to consider.
-This left-hand side can be arbitrary \C{} code. Examples of the entire
-expression include
+define another visitor function to process these sub-cursor, but
+instead we will manually traverse this cursor tree for the left-hand
+side of our binary operator expression.  We have various different
+situations to consider.  This left-hand side can be arbitrary \C{}
+code. Examples of the entire expression include
 \begin{CCode}
 x[i] = 2*x[i];
 total = 2*x[i];
@@ -84,7 +94,7 @@ The last two of these call other routines and we would have
 to analyze their code to determine what is being modified.
 
 We'll focus on the first four examples above.  We define a function
-that can handle each of these different casesm.  \Rfunc{processLHS}
+that can handle each of these different cases.  \Rfunc{processLHS}
 will be called with the cursor corresponding to the left-hand side of
 the assignment.  We check to see if this is an array subscript
 (\verb+[+), a variable reference (\verb+total+), a unary operator
@@ -118,19 +128,31 @@ function(cur) {
       modifiedVars <<- c(modifiedVars, id)
 } 
 \end{RCode}
-This function does ``visit'' the child cursors. Instead, it actively
-extracts and processes them without returning control to the
-\libclang{} iterator. This makes the logic a little easier to
-understand.
+The logic is very complex. We deal with each of the kinds of cursors
+we mentioned above. In several cases, we recursively call the
+\Rfunc{processLHSD} function to process sub-cursors.
+Each of the bodies in our \Rfunc{if}-\Rkeyword{else} expression
+either returns the name of a variable from the cursors it processes
+or simply returns. This allows us to conclude the function
+by comparing the variable name to those in which we are interested.
+If it is, the function updates \Rvar{modifiedVars}
 
 Note that this function is defined within our generator function so
 that it has access to the \Rvar{modifiedVars} variable and also so
 that the \Rfunc{update} function can refer to it.
 
-This visitor function identifies the basic assignments to 
-parameters.  It identifies cases it cannot understand due to calls to
-other routines to identify what is being assigned. 
-It does not handle simple cases of aliasing such as
+This function does ``visit'' the child cursors, but not in \libclang{}
+sense. Instead, it actively extracts and processes them without
+returning control to the \libclang{} iterator. This makes the logic a
+little easier to understand.
+
+This visitor function identifies the basic assignments to parameters
+and records the variables they modify.  It also identifies cases it
+cannot understand due to calls to other routines within the left-hand
+side expression.  It adds these to the \Rvar{calls} variable and if
+the has any elements, we know we are in situation that is not known.
+
+The function does not handle simple cases of aliasing such as
 \begin{CCode}
 void fun(int *x)
 {
@@ -139,7 +161,7 @@ void fun(int *x)
 }
 \end{CCode}
 Here, we have a local variable that corresponds to \Cvar{x} and then
-we modify its contents.  We can extend our function to identify these
-cases.
+we modify its contents.  We might extend our function to identify each
+of these cases.
 
 

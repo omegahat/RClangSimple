@@ -94,8 +94,10 @@ that can help end-users and developers.
 \def\Rslot#1{\textbf{#1}}
 \def\Rarg#1{\textbf{#1}}
 \def\Roption#1{\dquote{\textsl{#1}}}
+\def\Rkeyword#1{\textbf{\textsl{#1}}}
 \def\Cppkeyword#1{\textbf{#1}}
 \def\Ckeyword#1{\textbf{#1}}
+\def\Carg#1{\textbf{\textsl{#1}}}
 \def\Cexpr#1{\textsl{#1}}
 \def\Rexpr#1{\textit{#1}}
 
@@ -110,6 +112,8 @@ that can help end-users and developers.
 \def\dquote#1{``#1''}
 
 \def\ShFlag#1{\textit{#1}}
+
+\def\libclangFlag#1{-\nolinebreak\texttt{#1}}
 
 \def\ClangKind#1{\textit{#1}}
 \def\ClangTypeKind#1{\textsl{#1}}
@@ -387,7 +391,7 @@ file and which are called by other routines in the file.  This might
 identify isolated routines that don't necessarily belong in this
 particular file. It might also help us to understand how the the
 routines interact and cluster.  We can use the \Rpkg{igraph}~\cite{bib:igraph} and/or
-\Rpkg{graph}~\cite{bib:graph} packages to perform computations on the network and also
+\Rpkg{graph}~\cite{bib:graphPkg} packages to perform computations on the network and also
 to visualize it.
 
 We'll show how to do this on a file \file{memory.c} in the \R{}
@@ -540,8 +544,10 @@ to directories in which to find \Ckeyword{\#include}'d header files. We
 can pass arguments to control the parser via the \Rvar{args}
 parameter. These can be pre-processor flags and definitions such as
 \verb+-DHAVE_CONFIG_H+, or any of the options the \libclang{} parser
-understands such as \verb+-ferror-limit=1000+ and
-\verb+-fparse-all-comments+.  The entire set of options is documented in
+understands such as \texttt{-ferror-limit=1000} % \libclangFlag{-ferror-limit=1000} 
+and
+\mbox{\texttt{-fparse-all-comments}}. % \libclangFlag{-fparse-all-comments}.
+The entire set of options is documented in
 the \clang{} user manual
 (\url{http://clang.llvm.org/docs/UsersManual.html})\footnote{The code
   generation options are not relevant as we are not generating code,
@@ -737,7 +743,7 @@ common \C{} data types from \libclang{} used in \R,
 i.e. \Ctype{CXCursor} and \Ctype{CXTranslationUnit}.  This is
 complicated as there is a dependency between these types as a
 \Ctype{CXTranslationUnit} object cannot be released when it is no
-longer directy referenced in \R. This is because there may be
+longer directly referenced in \R. This is because there may be
 \Ctype{CXCursor} objects it contains still referenced by \R.  We hope
 to extend this mechanism to \Ctype{CXType} and \Ctype{CXIndex}.
 
@@ -766,7 +772,7 @@ While not exclusively related to \Rpkg{RCIndex}, we are experimenting
 with ways to compile aspects of the \R{} language and \R{} code to
 native machine code.  We can then compile \R{} visitor functions to make
 them significantly faster.  Not coincidentally, the compilation uses
-\llvm{} as the code generator and \llvm{} is the backend for \clang{},
+\llvm{} as the code generator and \llvm{} is the back-end for \clang{},
 the \C/\Cpp{} compiler from which \libclang{} came.
 
 \bibliography{rclang}

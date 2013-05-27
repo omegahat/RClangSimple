@@ -12,7 +12,8 @@ foo(int *x, int len)
 }
 
 \end{CCode}
-\caption{}
+\caption{This routine modifies the memory pointed to by its
+\Carg{x} argument.}
 \label{fig:Mutability1}
 \end{minipage}
 \hspace{0.5cm}
@@ -28,7 +29,9 @@ bar(int *x, int len)
     return(total);
 }
 \end{CCode}
-\caption{}
+\caption{Like \Cfunc{foo} on the left, this routine also 
+expects a pointer to a \Ctype{int}, but it does not modify 
+the contents of the memory pointed to by the argument.}
 \label{fig:Mutability2}
 \end{minipage}
 \end{figure}
