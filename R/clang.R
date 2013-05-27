@@ -193,34 +193,50 @@ function(x)
 
 
 genInclusionCollector =
-function(flat, base = "<base>")
+function(flat)
 {
-   files = if(flat)
-              character()
-           else
-              list()
-   
-   if(!is.character(base))
-     base = getFileName(base)
-
-   
+   files = character()
    update = function(file, stack, ...) {
-browser()     
      f = getFileName(file)
-     parent = if(length(stack) > 1) getFileName(stack[[1]]) else base
-     if(flat) {
-        files <<- c(files, f)
-        names(files)[length(files)] <<- parent
-     } else {
-       files[[parent]] <<- c(files[[parent]], f)
-     }
+     parent = if(length(stack) > 0) getFileName(stack[[1]]) else ""
+     files <<- c(files, f)
+     names(files)[length(files)] <<- parent
    }
+   
+   list(update = update, files = function() files)   
+}
+
+genHierarchicalInclusionCollector =
+  #
+  #  Do this better, i.e. more hierarchically
+  #  so that we determine what includes what, when
+  #
+function()
+{
+   files = list()
+   base = ""
+
+   update = function(file, stack, ...) {
+     f = getFileName(file)
+     if(length(stack) == 0) {
+       base <<- f
+       files[[base]] <<- character()
+     } else {
+       parent = getFileName(stack[[1]])
+       ex = if(parent %in% names(files))
+               files[[parent]]
+            else
+               character()
+       files[[parent]] <<- c(ex, f)
+     }
+}   
 
    list(update = update, files = function() files)
 }
 
 getInclusions =
-function(file, fun = genInclusionCollector(flat, file), flat = FALSE, ...)  
+function(file, flat = FALSE,
+           fun = if(flat) genInclusionCollector() else genHierarchicalInclusionCollector(), ...)  
 {
    if(is.character(file))
       file = createTU(file, ...)
