@@ -175,8 +175,12 @@ R_visitor(CXCursor cursor, CXCursor parent, CXClientData userData)
     if(TYPEOF(ans) == LGLSXP)
       return(LOGICAL(ans)[0] ? CXChildVisit_Recurse: CXChildVisit_Break);
 
-    if(TYPEOF(ans) == REALSXP || TYPEOF(ans) == INTSXP) 
-	return(asInteger(ans));
+    if(TYPEOF(ans) == REALSXP || TYPEOF(ans) == INTSXP)  {
+	int tmp = asInteger(ans);
+	if(tmp < CXChildVisit_Break || tmp > CXChildVisit_Recurse)
+	    tmp = CXChildVisit_Recurse;
+	return(tmp);
+    }
 
     return(CXChildVisit_Recurse);
 }
@@ -1831,6 +1835,50 @@ R_getRoutines(SEXP r_tu, SEXP r_ans, SEXP r_names)
     data.names = r_names;
 
     clang_visitChildren(tu, R_routinesVisitor, &data);
+    SET_NAMES(data.ans, data.names);
+    SET_LENGTH(data.ans, data.counter);
+    UNPROTECT(data.protects);
+    
+    return(data.ans);
+}
+
+enum CXChildVisitResult 
+R_cppClassVisitor(CXCursor cur, CXCursor parent, void *data)
+{
+    RCallCounter *d = (RCallCounter *) data;
+
+    if(cur.kind == CXCursor_Namespace)
+	return(CXChildVisit_Recurse);
+
+    if(cur.kind == CXCursor_ClassDecl || cur.kind == CXCursor_ClassTemplate) {
+	CXString str = clang_getCursorSpelling(cur);
+	const char * const tmp = clang_getCString(str);
+	int n = Rf_length(d->ans);
+	if(d->counter >= n) {
+	    PROTECT(SET_LENGTH(d->ans, 2*n));
+	    PROTECT(SET_LENGTH(d->names, 2*n));
+	    d->protects += 2;
+	}
+	SET_VECTOR_ELT(d->ans, d->counter, R_makeCXCursor(cur));
+	SET_STRING_ELT(d->names, d->counter, mkChar(tmp));
+	d->counter++;
+	clang_disposeString(str);
+    }
+
+    return(CXChildVisit_Continue);
+}
+
+/* This could be merged with the R_getRoutines() as the only difference is the visitor routine. */
+SEXP
+R_getCppClasses(SEXP r_tu, SEXP r_ans, SEXP r_names)
+{
+    CXCursor tu = * (CXCursor *) getRReference(r_tu);
+    RCallCounter data;
+    data.counter = data.protects = 0;
+    data.ans = r_ans;
+    data.names = r_names;
+
+    clang_visitChildren(tu, R_cppClassVisitor, &data);
     SET_NAMES(data.ans, data.names);
     SET_LENGTH(data.ans, data.counter);
     UNPROTECT(data.protects);

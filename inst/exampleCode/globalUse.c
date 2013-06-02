@@ -34,3 +34,11 @@ bar()
 {
     x++;
 }
+
+int
+xyz(int x, int counter)
+{
+    d = x;
+    bar();
+    return(foo(x));
+}

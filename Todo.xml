@@ -1,5 +1,17 @@
 <items>
 
+<item>
+export and test findGlobals
+Don't find constants, e.g. enum types. See FALSE in R source code. 
+See inst/explorations/rglobals/ and r$tryDispatch.
+Separate out the routines, like codetools.
+</item>
+
+<item>
+S4 class for structure description. And change code in inst/generateCode.
+Make  things consistent.
+</item>
+
 <item status="done">
 memory management for CXType's. See tests/refCountType.R
 It will segfault.
@@ -44,9 +56,6 @@ Will  break the code in generateCode and CUDA/TU/nativeGen.R
 Code in generateCode/ and RCUDA/TU/ is now changed and seems to work.
 </item>
 
-<item>
-S4 class for structure description. And change code in inst/generateCode.
-</item>
 
 
 <item>

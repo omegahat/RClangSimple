@@ -134,7 +134,16 @@ function() {
              val = toks[-1]["Identifier"]
              val = curDef[val]
           } else if( any(names(toks[-1]) == "Literal")) {
-             val = as.integer(toks[-1]["Literal"])
+                  #XXX Need to handle 1L << 0 or whatever
+                  # remove the L at the end of a literal.
+             val = as.integer(gsub("L$", "", toks[-1]["Literal"]))
+          } else if( "Keyword" %in% names(toks)) {
+             tmp = toks["Keyword"]
+             i = match(tmp, c("false", "true"))
+             if(!is.na(i))
+               val = i - 1L
+             else
+               stop("don't understand this enum setting yet")
           } else
              stop("don't understand this enum yet")
        }
@@ -373,45 +382,74 @@ function(file, visitor = genVariablesCollector(), ...)
 }
 
 genRoutineVariableRefsCollector =
-function()
+function(merge = TRUE, ignoreConst = TRUE)
 {
    params = list()
    localVars = list()
    varRefs = list()
+   routineRefs = list()
 
-   update = function(cur, kind) {
+   #XXXX Add detecting static variables
+   
+   update = function(cur, parent) {
+
       k = cur$kind
       if(k == CXCursor_VarDecl) {
         n = length(localVars) + 1
         localVars[[ n ]] <<- cur
         names(localVars)[n] <<- getName(cur)        
-      } else if(k == CXCursor_DeclRefExpr) {
-        n = length(varRefs) + 1
-        varRefs[[ n ]] <<- cur
-        names(varRefs)[n] <<- getName(cur)        
       } else if(k == CXCursor_ParmDecl) {
         n = length(params) + 1
         params[[ n ]] <<- cur
         names(params)[n] <<- getName(cur)
+      } else if(k == CXCursor_DeclRefExpr) {
+
+        ref = getCursorReferenced(cur)
+         # don't bother with enums or references to functions.
+         # Could make this more specific - i.e. functions that are in a call.
+
+        if(ref$kind == CXCursor_FunctionDecl && parent$kind %in% c(CXCursor_CallExpr, CXCursor_FirstExpr)) {
+          n = length(routineRefs) + 1        
+          routineRefs[[n]] <<- cur
+          names(routineRefs)[n] <<- getName(cur)          
+        } else if(!(ref$kind == c(CXCursor_EnumConstantDecl, CXCursor_CallExpr, CXCursor_ParmDecl)) &&
+                    !(ignoreConst && isConstQualifiedType(getCanonicalType(getType(ref))))) {
+          n = length(varRefs) + 1
+          varRefs[[ n ]] <<- cur
+          names(varRefs)[n] <<- getName(cur)
+        }
       }
 
       CXChildVisit_Recurse
    }
 
-   list(update = update, info = function() list(params = params, localVars = localVars, varRefs = varRefs))
+   result = function() {
+     locals = unlist(lapply(list(params, localVars), names))
+     ans = lapply(list(vars = varRefs, routines = routineRefs),
+                     function(x) setdiff(names(x), locals))
+     if(merge)
+         structure(unlist(ans), names = NULL)
+     else
+       ans
+     
+#       ids = lapply(info, function(x) sapply(x, getName))
+#       setdiff(ids$varRefs,  c(ids$params, ids$localVars))
+   }
+
+   list(update = update,
+        info = function()
+                 list(params = params, localVars = localVars, varRefs = varRefs, routineRefs = routineRefs),
+        result = result)
 }
 
 findGlobals =
-function(tu, visitor = genRoutineVariableRefsCollector(), ...)
+function(tu, merge = TRUE, ignoreConst = TRUE, visitor = genRoutineVariableRefsCollector(merge, ignoreConst), ...)
 {
   if(is.character(tu))
     tu = createTU(tu, ...)
   
   visitTU(tu, visitor$update, clone = TRUE)
-  info = visitor$info()
-
-  ids = lapply(info, function(x) sapply(x, getName))
-  setdiff(ids$varRefs,  c(ids$params, ids$localVars))
+  visitor$result()
 }
 
 
@@ -425,6 +463,7 @@ function(tu, visitor = genGlobalVariablesCollector(), ...)
 genGlobalVariablesCollector =
   # collect the global variables.
   # This doesn't find static variables within a routine.
+  # Or does it now?
 function(withinRoutines = TRUE)
 {
    vars = list()

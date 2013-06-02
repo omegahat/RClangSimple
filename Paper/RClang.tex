@@ -12,6 +12,11 @@
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%XXX To add
+% simpleVisitor to see the sequence of cursor kinds
+% Clean up the macros in the protect.tex example.  (Done?)
+
+
 %% almost as usual
 \author{Duncan Temple Lang\\University of California at Davis}
 \title{RCIndex: Querying C/C++ Code in R with libclang}
@@ -40,8 +45,8 @@ that can help end-users and developers.
 
 } 
 \Keywords{\R, \Rpkg{RCIndex} package, compiled code, meta-data,
-  bindings, software metrics}
-\Plainkeywords{R, RCIndex} %% without formatting
+  bindings}  %, software metrics}
+\Plainkeywords{R, RCIndex package, compiled code, meta-data, bindings} %% without formatting
 %% at least one keyword must be supplied
 
 %% publication information
@@ -377,6 +382,13 @@ variables for various reasons.  We can use either of the
 current value of a global variable.  We also want to remove global
 variables when making code thread-safe or just for improving the logic
 of the code, i.e. avoiding side-effects.
+
+The function \Rfunc{findGlobals} finds global variables that are used
+within a routine or entire translation unit.  The function is
+intentionally analogous to the \Rfunc{findGlobals} function in
+\Rpkg{codetools}~\cite{bib:codetools}. It returns the variables, and
+optionally, the routines that are called, within a routine/translation
+unit which are not locally defined as parameters or local variables.
 
 
 \paragraph{Find calls to routines}
@@ -774,6 +786,12 @@ native machine code.  We can then compile \R{} visitor functions to make
 them significantly faster.  Not coincidentally, the compilation uses
 \llvm{} as the code generator and \llvm{} is the back-end for \clang{},
 the \C/\Cpp{} compiler from which \libclang{} came.
+
+
+While these are tasks that I think might be useful and I may work on,
+I welcome others to develop any of them separately, contribute and/or
+collaborate with me, or fork the package.
+The code is hosted at \url{https://github.com/omegahat/RClangSimple}.
 
 \bibliography{rclang}
 

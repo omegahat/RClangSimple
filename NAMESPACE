@@ -455,3 +455,6 @@ exportClasses(S4CursorVisitor, RefCursorVisitor)
 
 
 export(getCursorTranslationUnit)
+
+export(findGlobals)
+

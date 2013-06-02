@@ -27,12 +27,15 @@ function(cursor, name = getName(cursor), rclassName = NA)
    update = function(cur, parent) {
      k = cur$kind
      if(k == CXCursor_CXXAccessSpecifier) {
+           # private, protected, public
        accessLevel <<- getCursorTokens(cur)[1]
      } else if(k == CXCursor_FieldDecl) {
+           # a field for the class
         id = getName(cur)
         fields[[id]] <<-  list(name = id, def = clone(cur), type = getType(cur), access = accessLevel)
 
      } else if(k == CXCursor_CXXMethod || k == CXCursor_Constructor) {
+           # method or constructor in the class definition.
         id = getName(cur)
         if(!is.null(curMethod))
           methods[[curMethod$name]] <<- curMethod
@@ -65,18 +68,37 @@ function(cursor, name = getName(cursor), rclassName = NA)
 }
 
 
+# Old
 getCppClasses =
 function(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...)
 {
    if(is.character(tu))
      tu = createTU(tu, ...)
 
-   visitTU(tu, visitor$update)
+   visitTU(tu, visitor$update, clone = !missing(visitor))
    ans = visitor$nodes()
    if(nodesOnly)
      ans
    else
      lapply(ans, readCppClass)
+}
+
+getCppClasses =
+function(tu, nodesOnly = FALSE, numClasses = 100, fileFilter = character(), visitor = genCppClassCursorCollector(), ...)
+{
+   if(is.character(tu))
+     tu = createTU(tu, ...)
+  
+  ans = .Call("R_getCppClasses", as(tu, "CXCursor"), vector("list", numClasses), character(numClasses))
+  if(length(fileFilter))
+    ans = ans[ grepl(fileFilter, sapply(ans, getFileName)) ]
+
+  ans = ans[ sapply(ans, function(x) length(children(x))) > 0 ]
+   
+  if(nodesOnly)
+     ans
+  else
+     lapply(ans, readCppClass)  
 }
 
 genCppClassCursorCollector =
@@ -89,9 +111,11 @@ function()
         n = length(nodes) + 1L
         nodes[[ n ]] <<- clone(cur)
         names(nodes)[n] <<- getName(cur)
-     }
+     } else if(k == CXCursor_Namespace)
+        return(CXChildVisit_Recurse)
 
-     CXChildVisit_Recurse
+     CXChildVisit_Recurse       
+     
    }
 
    list(update = update, nodes = function() nodes)
