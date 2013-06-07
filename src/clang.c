@@ -1824,9 +1824,8 @@ R_routinesVisitor(CXCursor cur, CXCursor parent, void *data)
     return(CXChildVisit_Recurse);
 }
 
-
 SEXP
-R_getRoutines(SEXP r_tu, SEXP r_ans, SEXP r_names)
+R_collectCursorNodes(SEXP r_tu, SEXP r_ans, SEXP r_names, CXCursorVisitor visitor)
 {
     CXCursor tu = * (CXCursor *) getRReference(r_tu);
     RCallCounter data;
@@ -1834,13 +1833,16 @@ R_getRoutines(SEXP r_tu, SEXP r_ans, SEXP r_names)
     data.ans = r_ans;
     data.names = r_names;
 
-    clang_visitChildren(tu, R_routinesVisitor, &data);
+    clang_visitChildren(tu, visitor, &data);
     SET_NAMES(data.ans, data.names);
     SET_LENGTH(data.ans, data.counter);
     UNPROTECT(data.protects);
     
     return(data.ans);
+
 }
+
+
 
 enum CXChildVisitResult 
 R_cppClassVisitor(CXCursor cur, CXCursor parent, void *data)
@@ -1868,23 +1870,19 @@ R_cppClassVisitor(CXCursor cur, CXCursor parent, void *data)
     return(CXChildVisit_Continue);
 }
 
-/* This could be merged with the R_getRoutines() as the only difference is the visitor routine. */
+
+SEXP
+R_getRoutines(SEXP r_tu, SEXP r_ans, SEXP r_names)
+{
+    return( R_collectCursorNodes(r_tu, r_ans, r_names, R_routinesVisitor) );
+}
+
 SEXP
 R_getCppClasses(SEXP r_tu, SEXP r_ans, SEXP r_names)
 {
-    CXCursor tu = * (CXCursor *) getRReference(r_tu);
-    RCallCounter data;
-    data.counter = data.protects = 0;
-    data.ans = r_ans;
-    data.names = r_names;
-
-    clang_visitChildren(tu, R_cppClassVisitor, &data);
-    SET_NAMES(data.ans, data.names);
-    SET_LENGTH(data.ans, data.counter);
-    UNPROTECT(data.protects);
-    
-    return(data.ans);
+    return( R_collectCursorNodes(r_tu, r_ans, r_names, R_cppClassVisitor) );
 }
+
 
 
 
