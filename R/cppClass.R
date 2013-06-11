@@ -32,7 +32,7 @@ function(cursor, name = getName(cursor), rclassName = NA)
      } else if(k == CXCursor_FieldDecl) {
            # a field for the class
         id = getName(cur)
-        fields[[id]] <<-  list(name = id, def = clone(cur), type = getType(cur), access = accessLevel)
+        fields[[id]] <<-  list(name = id, def = cur, type = getType(cur), access = accessLevel)
 
      } else if(k == CXCursor_CXXMethod || k == CXCursor_Constructor) {
            # method or constructor in the class definition.
@@ -40,10 +40,10 @@ function(cursor, name = getName(cursor), rclassName = NA)
         if(!is.null(curMethod))
           methods[[curMethod$name]] <<- curMethod
         
-        curMethod <<- list(def = clone(cur), access = accessLevel, name = id, params = list())       
+        curMethod <<- list(def = cur, access = accessLevel, name = id, params = list())       
      } else if(k == CXCursor_ParmDecl) {
          id = getName(cur)
-         curMethod$params[[id ]] <<- clone(cur)
+         curMethod$params[[ id ]] <<- cur
          methods[[curMethod$name]] <<- curMethod
      } else if(k == CXCursor_CXXBaseSpecifier) {
         name = gsub("class ", "", getName(cur))
@@ -68,7 +68,7 @@ function(cursor, name = getName(cursor), rclassName = NA)
 }
 
 
-# Old
+# Old. This is the R version.
 getCppClasses =
 function(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...)
 {

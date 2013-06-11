@@ -1,9 +1,13 @@
 \name{getGlobalVariables}
 \alias{getGlobalVariables}
+\alias{findGlobals}
 \title{Get global variables in a source file}
 \description{
-  This function finds the global variables in a source file
+  \code{getGlobalVariables} finds the global variables in a source file
   or translation unit.
+
+  \code{findGlobals} finds the use of non-local variables in a
+  translation unit, routine  or expression.
 }
 \usage{
 getGlobalVariables(tu, visitor = genGlobalVariablesCollector(), ...)

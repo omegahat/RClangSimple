@@ -7,7 +7,9 @@
   file or translation unit.
 }
 \usage{
-getCppClasses(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...)
+getCppClasses(tu, nodesOnly = FALSE, numClasses = 100, fileFilter =
+                 character(), visitor = genCppClassCursorCollector(),
+                 ...)
 }
 \arguments{
   \item{tu}{either the name of a source file or an already parsed
@@ -17,7 +19,11 @@ getCppClasses(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...
     descriptions of the classes.}
   \item{visitor}{a function or S4/reference class object used as the
     visitor function passed to \code{\link{visitCursor}} to collect the
-    enumeration definitions.}  
+    enumeration definitions.}
+  \item{numClasses}{a guess as to the number of classes that are in the
+    translation unit. This is only used to pre-allocate space to store
+    them and is available only for efficiency. }
+  \item{fileFilter}{names of files used to filter out some classes.}
   \item{\dots}{arguments passed \code{\link{createTU}} if \code{src} is
     the name of source file.}
 }

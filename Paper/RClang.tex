@@ -36,7 +36,7 @@ develop \R{} functionality to obtain and use information about native
 code.  We describe the \Rpkg{RCIndex} package which provides
 high-level functionality to access and utilize this information and
 also lower-level approaches to query and manipulate other aspects of
-native code.  We describe how to use the package and scenarios in
+native source code.  We describe how to use the package and scenarios in
 which it is useful.  This functionality is infrastructural and some of
 the functionality of the package is the native code analogy to the
 \Rpkg{codetools} package for \R{} code.  It is not necessarily of
@@ -149,9 +149,9 @@ we can embed in \R{} (and many other languages).
 There are several applications of being able to programmatically
 understand \C/\Cpp{} code in a high-level language such as \R.
 
-\textbf{Registering \R-callable routines}: When we write \C/\Cpp{} code
-to use in an \R{} package, it is useful to explicitly register the
-routines that we can call via any of the
+\textbf{Registering \R-callable routines}: When we write \C/\Cpp{}
+code to use in an \R{} package, it is useful to explicitly register
+the routines that we can call via any of the
 \Rfunc{.C}/\Rfunc{.Call}/\Rfunc{.External} interfaces.  When the
 routines are registered, \R{} can help to identify potential errors in
 calling them.  \R{} can detect an incorrect number of arguments for a
@@ -161,9 +161,9 @@ the symbols just once rather than each time we call a routine, and it
 also allows us to use different symbols to refer to the routines.  It
 is convenient to be able to run \R{} code to identify the \R-callable
 routines and to generate the registration information
-programmatically.  As we change these routines, we can update the
-registration information with little effort and ensure the information
-is synchronized.
+programmatically.  As we change these routines, we can programatically
+update the registration information with little effort and ensure the
+information is synchronized.
 
 
 \textbf{Generating bindings to native libraries}: Numerous \R{}
