@@ -1,7 +1,7 @@
 
 makeStructCode =
   # handle different inputs, i.e. not the StructDescription, but CXType, CXCursor
-function(desc, name = desc$name[1], isOpaque = FALSE)
+function(desc, name = desc$name[1], isOpaque = FALSE, typeMap = NULL)
 {
    # generate  a class for both the Struct represented in R
    # and a C pointer to an instance.
@@ -25,26 +25,31 @@ function(desc, name = desc$name[1], isOpaque = FALSE)
    # 
    #     
 
-   list(r = makeRStructCode(desc, name, isOpaque),
-        native = makeCStructCode(desc, name, isOpaque))
+   list(r = makeRStructCode(desc, name, isOpaque, typeMap),
+        native = makeCStructCode(desc, name, isOpaque, typeMap))
 
 }
 
 
 makeRStructCode = 
-function(desc, name = desc$name[1], isOpaque = FALSE)
+function(desc, name = desc$name[1], isOpaque = FALSE, typeMap = NULL)
 {
-   fieldDefs = lapply(desc$fields, getRTypeName)
+   fieldDefs = lapply(desc$fields, getRTypeName, typeMap = typeMap)
    classDef = sprintf("setClass('%s', representation(%s))",
                         name, paste(names(fieldDefs), sQuote(fieldDefs), sep = " = ", collapse = ", "))
 
+
+   ptrClassDef = sprintf("setClass('%sPtr', contains = 'RC++StructReference')", name)
+   
    list(classDef= classDef,
-        getMethod =  makeStructGetMethod(desc, name),
-        setMethod =  makeStructSetMethod(desc, name),        
-        constructor = makeRConstructor(desc, name))
+        ptrClassDef = ptrClassDef,
+        getMethod =  makeRStructMethod(desc$fields, name),
+        setMethod =  makeRStructMethod(desc$fields, name, FALSE),        
+        constructor = makeRConstructor(desc, name),
+        namesMethod = makeNamesMethod(desc, desc$fields, name))
 }
 
-makeFieldAccesorRoutineName =
+makeFieldAccessorRoutineName =
 function(name, op = "get")
    sprintf("R_%s_%s", name, op)  
 
@@ -52,10 +57,10 @@ makeFieldMethod =
 function(desc, name, op = "get")
 {
   code = c(sprintf(".fieldNames = c(%s)", paste(sQuote(names(desc)), collapse = ", ")),
-           "if(!(name %in% .fieldNames))",
+           "if(is.na( i <- pmatch(name, .fieldNames)))",
            sprintf("    stop(name, ' is not a field name for', '%s')", name),
-           sprintf(".Call(sprintf('%s_%%s', name), x %s)",
-                        makeFieldAccesorRoutineName(name, op),
+           sprintf(".Call(sprintf('%s_%%s', .fieldNames[i]), x %s)",
+                        makeFieldAccessorRoutineName(name, op),
                         if(op == "get") "" else ", value")
         )
 }
@@ -95,10 +100,40 @@ function(desc, name = desc$name[1])
 
 
 makeCStructCode =
-function(desc, name, isOpaque)
+function(desc, name, isOpaque, typeMap = NULL)
 {
      # $ method
+  list(getAccessors = mapply(makeCStructFieldAccessor, names(desc$fields), desc$fields, name),
+       setAccessors = mapply(makeCStructFieldAccessor, names(desc$fields), desc$fields, name, FALSE))       
+       
 
+}
+
+makeCStructFieldAccessor =
+function(fieldName, type, structName, get = TRUE, typeMap = NULL)
+{
+  fnName = sprintf("%s_%s", makeFieldAccessorRoutineName(structName, if(get) "get" else "set"), fieldName)
+  if(get) {
+    ans = convertValueToR(type, sprintf("obj->%s", fieldName), typeMap = typeMap)
+    if(!( is(ans, "AsIs") || length(ans)  > 1))
+       ans = sprintf("r_ans = %s;", ans)
+  }
+  
+  code = c("SEXP",
+    sprintf("%s(SEXP r_obj%s)", fnName, if(get) "" else ", SEXP r_value"),
+    "{",
+    "SEXP r_ans = R_NilValue;",
+    sprintf("%s * obj = (%s *) getRReference(r_obj);", structName, structName),
+    if(get) {
+      ans
+    } else {
+      c(makeLocalVar(, "r_value", "value", type),
+        sprintf("obj->%s = value;", fieldName))
+    },
+    "return(r_ans);",
+    "}"
+   )
+   CRoutineDefinition(fnName, code)
 }
 
 
@@ -140,14 +175,13 @@ function(desc, funName = sprintf("R_copyStruct_%s", gsub("struct ", "", getName(
 }
 
 
-makeStructSetMethod =
-function(desc, className)
+
+makeNamesMethod =
+function(desc, fields = desc$fields, name = desc$name[1])
 {
 
-}
-
-makeStructGetMethod =
-function(desc, className)
-{
-
+   code = c("setMethod('names', '%s',\nfunction(x)\n c(%s))" ,
+                 name,
+                 paste(sQuote(names(fields)), collapse = ", "))
+ 
 }

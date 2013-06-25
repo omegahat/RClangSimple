@@ -93,7 +93,7 @@ function(type, var, name = getName(type), typeMap = NULL, rvar = "r_ans")
              sprintf('%s%sR_createRef(_tmp, "%s");', rvar, if(nchar(rvar)) " = " else "", gsub("struct ", "", name))))
    } else
      #    browser()
-   warning("possible  problem in valuToR for ", name)
+   warning("possible  problem in convertValueToR for ", name)
 }
 
 
@@ -108,7 +108,7 @@ function(params, rNames, argNames = names(params), ...)
 
 makeLocalVar =
 function(param, inputName,  localName = getName(param), type = getType(param),
-            decl = getName(type), GetRefAddsStar = TRUE)
+            decl = getName(type), GetRefAddsStar = TRUE, typeMap = NULL)
 {
    kind = getTypeKind(type)
 
@@ -166,7 +166,7 @@ function(param, inputName,  localName = getName(param), type = getType(param),
 
    if(length(ans) == 0 || ans == "") {
       warning("possible problem ", decl)
-      browser()
+#      browser()
     }
 
    paste(decl, ans)
@@ -192,4 +192,17 @@ function(decl, localName, inputName)
         "char" =
              sprintf("%s = (%s) INTEGER(%s)[0];", localName, decl, inputName),
        character())
+}
+
+getNativeDeclaration =
+function(varName, type, addSemiColon = TRUE)
+{
+  makeLocalVar(, varName, varName, type = type)
+}
+
+
+convertRValue =
+function(localName, rName, type, typeMap = NULL)
+{
+  makeLocalVar(, rName, localName, type = type, typeMap = typeMap)
 }
