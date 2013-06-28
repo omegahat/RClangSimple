@@ -1,15 +1,19 @@
 <items>
+<item>
+<r:func>getDataStructures</r:func> returns enums, etc. 
+and all as  StructDefinition.
+</item>
+
+<item>
+S4 class for structure description. And change code in inst/generateCode.
+Make  things consistent.
+</item>
 
 <item>
 export and test findGlobals
 Don't find constants, e.g. enum types. See FALSE in R source code. 
 See inst/explorations/rglobals/ and r$tryDispatch.
 Separate out the routines, like codetools.
-</item>
-
-<item>
-S4 class for structure description. And change code in inst/generateCode.
-Make  things consistent.
 </item>
 
 <item status="done">

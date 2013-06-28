@@ -103,8 +103,8 @@ makeCStructCode =
 function(desc, name, isOpaque, typeMap = NULL)
 {
      # $ method
-  list(getAccessors = mapply(makeCStructFieldAccessor, names(desc$fields), desc$fields, name),
-       setAccessors = mapply(makeCStructFieldAccessor, names(desc$fields), desc$fields, name, FALSE))       
+  list(getAccessors = mapply(makeCStructFieldAccessor, names(desc$fields), desc$fields, name, MoreArgs = list(typeMap = typeMap)),
+       setAccessors = mapply(makeCStructFieldAccessor, names(desc$fields), desc$fields, name, MoreArgs = list(get = FALSE, typeMap = typeMap)))       
        
 
 }
@@ -123,12 +123,19 @@ function(fieldName, type, structName, get = TRUE, typeMap = NULL)
     sprintf("%s(SEXP r_obj%s)", fnName, if(get) "" else ", SEXP r_value"),
     "{",
     "SEXP r_ans = R_NilValue;",
-    sprintf("%s * obj = (%s *) getRReference(r_obj);", structName, structName),
+    sprintf("%s * obj = GET_REF(r_obj, %s);", structName, structName),
     if(get) {
       ans
     } else {
-      c(makeLocalVar(, "r_value", "value", type),
-        sprintf("obj->%s = value;", fieldName))
+      if(type$kind == CXType_ConstantArray) {
+         len = getNumElements(type)
+         elType = getElementType(type);
+         
+         sprintf("copyRVectorTo%sArray(%s, obj->%s, %d);", capitalize(getName(elType)), "r_value", fieldName, len);
+        
+      } else
+         c(makeLocalVar(, "r_value", "value", type, addDecl = TRUE, typeMap = typeMap),
+           sprintf("obj->%s = value;", fieldName))
     },
     "return(r_ans);",
     "}"

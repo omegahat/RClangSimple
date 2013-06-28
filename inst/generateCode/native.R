@@ -49,11 +49,11 @@ function(type, var, name = getName(type), typeMap = NULL, rvar = "r_ans")
 {
 
    k = getTypeKind(type)
-
+#if(name == "Rboolean") browser()   
    if(length(m <- lookupTypeMap(typeMap, name, "convertValueToR", type, var, rvar)))
        return(m)
   
-
+   
    primitive = names(k) %in% c(BasicTypeKindNames, gsub("CXType_", "", BasicTypeKindNames))
    if(primitive)
      return(switch(names(k),
@@ -83,19 +83,36 @@ function(type, var, name = getName(type), typeMap = NULL, rvar = "r_ans")
    } else if(k == CXType_Enum || (k == CXType_Unexposed && grepl("^enum ", name))) {
       sprintf("Renum_convert_%s(%s)", gsub("^enum ", "", name), var)
    } else if(k == CXType_Pointer) {
-#cat("convertValueToR\n");browser()
-      if(grepl("*", name, fixed = TRUE))
-         name = gsub(" ?\\*", "Ptr", name)
-      sprintf('R_createRef(%s, "%s")', var, name)
+      if(isStringType(type)) {
+        sprintf("mkString(%s)", var) 
+      } else {
+        if(grepl("*", name, fixed = TRUE))
+          name = gsub(" ?\\*", "Ptr", name)
+        sprintf('R_createRef(%s, "%s")', var, gsub("const ", "", name))
+      }
    } else if(k == CXType_Unexposed) {
       I(c(sprintf("%s * _tmp = (%s *) malloc( sizeof( %s ));", name, name, name),
              sprintf("*_tmp = %s;", var), 
              sprintf('%s%sR_createRef(_tmp, "%s");', rvar, if(nchar(rvar)) " = " else "", gsub("struct ", "", name))))
-   } else
-     #    browser()
-   warning("possible  problem in convertValueToR for ", name)
+   } else if(k == CXType_ConstantArray) {
+
+      el = getElementType(type)
+      len = getNumElements(type)
+      elTypeName = capitalize(getName(el))
+      sprintf("convert%sArrayToR(%s, %d, 0, %d)", elTypeName, var, len, len - 1L)
+
+   } else {
+      browser()
+     warning("possible problem in convertValueToR for ", name)
+     ""
+   }
 }
 
+capitalize =
+function(x)
+{  
+  paste(toupper(substring(x, 1, 1)), substring(x, 2), sep = "")
+}
 
 makeLocalVars =
   # Define and initialize
@@ -108,14 +125,36 @@ function(params, rNames, argNames = names(params), ...)
 
 makeLocalVar =
 function(param, inputName,  localName = getName(param), type = getType(param),
-            decl = getName(type), GetRefAddsStar = TRUE, typeMap = NULL)
+            decl = getName(type), GetRefAddsStar = TRUE, typeMap = NULL, addDecl = FALSE)
 {
    kind = getTypeKind(type)
 
+   if(length(m <- lookupTypeMap(typeMap, decl, "convertRValue", type, localName, inputName))) {
+     if(addDecl)
+       m = paste(decl, m)
+     return(m)
+   }
+
    ans = derefRarg(decl, localName, inputName)
 
-   if(length(ans) == 0) {
+   if(length(ans) == 0) 
+     ans = getConvertRValue(type, localName, inputName, decl, kind, GetRefAddsStar = GetRefAddsStar)
 
+
+   if(length(ans) == 0 || ans == "") {
+      warning("possible problem ", decl)
+    }
+
+   if(addDecl)
+     paste(decl, ans)
+   else
+     ans
+}
+
+
+getConvertRValue =
+function(type, localName, inputName, decl = getName(type), kind = type$kind, GetRefAddsStar = TRUE)
+{
      typeName = getName(type)
      if(kind == CXType_Enum || (kind == CXType_Unexposed && grepl("^enum ", typeName))) 
           ans = sprintf("%s = (%s) INTEGER(%s)[0];", localName, decl, inputName)
@@ -162,15 +201,10 @@ function(param, inputName,  localName = getName(param), type = getType(param),
        ans = derefRarg(names(kind), localName, inputName)
       # ans = paste(localName, ";")
     }
-   }
 
-   if(length(ans) == 0 || ans == "") {
-      warning("possible problem ", decl)
-#      browser()
-    }
-
-   paste(decl, ans)
+    ans
 }
+
 
 derefRarg =
 function(decl, localName, inputName)
@@ -197,12 +231,16 @@ function(decl, localName, inputName)
 getNativeDeclaration =
 function(varName, type, addSemiColon = TRUE)
 {
-  makeLocalVar(, varName, varName, type = type)
+#  makeLocalVar(, varName, varName, type = type)
+  sprintf("%s %s%s",
+             getName(type),
+             varName,
+            if(addSemiColon) ";" else "")
 }
 
 
 convertRValue =
 function(localName, rName, type, typeMap = NULL)
 {
-  makeLocalVar(, rName, localName, type = type, typeMap = typeMap)
+  makeLocalVar(, rName, localName, type = type, typeMap = typeMap, addDecl = FALSE)
 }

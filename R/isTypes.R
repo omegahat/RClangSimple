@@ -11,7 +11,8 @@ function(type)
 isStringType =
 function(type)   # do we want to insist it is mutable
 {
-   isPointerType(type) && grepl("char *$", getName(type) )
+   # This should check the type of the element rather than using the name.
+   isPointerType(type) && grepl("char \\*$", getName(type) )
 }
 
 isIntType = isIntegerType =

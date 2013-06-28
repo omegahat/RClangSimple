@@ -21,6 +21,7 @@ R_MAKE(CXSourceRange)
 
 SEXP createRefWithFinalizer(void *val, const char * type, R_CFinalizer_t free);
 
+#if 0
 SEXP
 R_createReference(void *ptr, const char * const className, const char * tag)
 {
@@ -33,6 +34,7 @@ R_createReference(void *ptr, const char * const className, const char * tag)
     UNPROTECT(2);
     return(ans);
 }
+#endif
 
 void *
 getRReference(SEXP val)
@@ -1704,6 +1706,20 @@ SEXP R_clang_getFunctionTypeCallingConv(SEXP r_T)
     
     return(r_ans);
 } 
+
+
+SEXP R_clang_getNumArgTypes(SEXP r_T)
+{
+    CXType T = * GET_REF(r_T, CXType);
+    return(ScalarInteger(clang_getNumArgTypes(T)));
+}
+
+SEXP R_clang_getArgType(SEXP r_T, SEXP r_i)
+{
+    CXType T = * GET_REF(r_T, CXType);
+    CXType t = clang_getArgType(T, INTEGER(r_i)[0]);
+    return(R_makeCXType(t));
+}
 
 
 SEXP R_clang_getLocation(SEXP r_tu, SEXP r_file, SEXP r_line, SEXP r_column)

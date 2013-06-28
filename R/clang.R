@@ -1,6 +1,6 @@
 getCursorTokens =
 function(cur)
- .Call("R_getCursorTokens", cur)
+ .Call("R_getCursorTokens", as(cur, "CXCursor"))
 
 createIndex =
   # verbose means show diagnostics.
@@ -265,4 +265,19 @@ getCursorTranslationUnit =
 function(cursor)
 {
  .Call("R_clang_CXCursor_getCursorTranslationUnit", as(cursor, "CXCursor"))
+}
+
+
+getNumArgTypes =
+function(ty)
+  .Call("R_clang_getNumArgTypes", as(ty, "CXType"))
+
+getArgType =
+function(ty, i)
+  .Call("R_clang_getArgType", as(ty, "CXType"), as.integer(i - 1L))
+
+getArgsType =
+function(ty)
+{
+  lapply(seq(1, length = getNumArgTypes(ty)), function(i) getArgType(ty, i))
 }

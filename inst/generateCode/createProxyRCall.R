@@ -1,4 +1,8 @@
 # Taken from RGCCTranslationUnit and adapted.
+#
+# initialize  return value to something sensible.
+# R_createRef() call should not have the struct
+#
 createProxyRCall =
   #
   # func = FunctionPointer
@@ -39,7 +43,7 @@ function(func, name, functionVar = paste("R", name, "function_var", sep = "_"),
                             paste("SETCAR(p,", convertValueToR(params[[id]], id, typeMap = typeMap), "); p = CDR(p);")
                       )
 
-  declAns = if(!isVoid) getNativeDeclaration("ans", func$returnType)
+  declAns = if(!isVoid) gsub(";", " = 0;", getNativeDeclaration("ans", func$returnType))
             else character()
 
   convertAns = if(!isVoid)

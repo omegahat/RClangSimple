@@ -458,3 +458,8 @@ export(getCursorTranslationUnit)
 
 export(findGlobals)
 
+export(getNumArgTypes, getArgType, getArgsType)
+
+export(isFnPointer, getFnPointerInfo)
+
+
