@@ -19,8 +19,8 @@ function(fun, name = getName(fun), argNames = names(fun@params),
    
 #   sig = makeSignature(argNames, fun@params, defaultValues, guessDefaults)
 
-   rt = fun$returnType
-   if(length(fun$actualReturnType))
+   rt = fun@returnType
+   if(FALSE && length(fun$actualReturnType))
      rt = fun$actualReturnType
 
    map = lookupTypeMap(typeMap, getName(rt), "RcoerceResult", rt, name = "ans")   

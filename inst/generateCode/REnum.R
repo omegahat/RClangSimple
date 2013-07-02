@@ -34,7 +34,7 @@ function(def, name = def@name, bitwise = FALSE, superClass = if(bitwise) "Bitwis
     if(bitwise)
        makeBitwiseEnumValues(def, name)
     else
-       sprintf("%s = %dL", names(def@values), as.integer(def@values)),
+       sprintf("`%s` = GenericEnumValue('%s', %dL, '%s')", names(def@values), names(def@values), as.integer(def@values), rep(name, length(def@values))),
 
     "",
 

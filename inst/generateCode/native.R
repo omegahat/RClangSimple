@@ -20,7 +20,7 @@ function(fun, name = sprintf("R_%s", getName(fun)), typeMap = NULL, GetRefAddsSt
                         if(length(rargNames)) paste("SEXP", rargNames, collapse = ", ") else ""),
             "{",
              "SEXP r_ans = R_NilValue;",
-             makeLocalVars(fun@params, rargNames, argNames, GetRefAddsStar = GetRefAddsStar),
+             makeLocalVars(fun@params, rargNames, argNames, GetRefAddsStar = GetRefAddsStar, addDecl = TRUE),
              "",
              if(getTypeKind(fun@returnType) != CXType_Void)
                 c(paste(getName(fun@returnType), "ans;"), paste("ans =", call))
@@ -173,7 +173,8 @@ function(type, localName, inputName, decl = getName(type), kind = type$kind, Get
            return(makeLocalVar( , inputName, localName, type = canon, decl = decl))
        }
      } else if(kind == CXType_Record) {
-       ans = sprintf('%s = * GET_REF(%s, %s);', localName, inputName, decl)
+        ans = sprintf('%s = * (%s) getRReference(%s);', localName, decl, inputName)       
+#        ans = sprintf('%s = * GET_REF(%s, %s);', localName, inputName, decl)
      } else if(kind == CXType_Pointer) {
        info = getPointerInfo(type)
 
@@ -194,6 +195,7 @@ function(type, localName, inputName, decl = getName(type), kind = type$kind, Get
        
     } else if(kind == CXType_Unexposed) {
          # So an opaque data type ?
+#      ans = sprintf('%s = * (%s) getRReference(%s);', localName, decl, inputName)      
       ans = sprintf('%s = * GET_REF(%s, %s);', localName, inputName, sprintf("%s *", decl))
       #  ans = sprintf('%s = GET_REF(%s, %s);', localName, inputName, getName(type))
     } else {
