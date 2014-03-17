@@ -5,17 +5,18 @@
 I have explored how we can get information about \C/\Cpp{} code in
 \R{} for many years and have used various different approaches.
 \libclang{} appears to be the most robust, stable and flexible so far.
-\clang{} and \libclang{} are very active projects and important pieces
-of software. This means they will continue to improve, evolve and be
-maintained.  The API (Application Programming Interface) is
-intentionally stable.  As we will see later, \libclang{} does the hard
-work in resolving types uniquely and simplifying the complexities of
-native code.  \libclang{} allows us to readily associate concepts in
-the parse tree with precise locations in the text of the source
-code. \libclang{} doesn't allow us to modify the parse tree and
-rewrite native code. However, there is a quite different and more
-advanced API related to \libclang{} that does and some of the concepts
-will carry over to that, should we need those facilities in \R.
+\clang{} and \libclang{} are very active projects and important
+elements of the modern tool chain on different platforms. This means
+they will continue to improve, evolve and be maintained.  The API
+(Application Programming Interface) is intentionally stable.  As we
+will see later, \libclang{} does the hard work in resolving types
+uniquely and simplifying the complexities of native code.  \libclang{}
+allows us to readily associate concepts in the parse tree with precise
+locations in the text of the source code. \libclang{} doesn't allow us
+to modify the parse tree and rewrite native code. However, there is a
+quite different and more advanced API related to \libclang{} that does
+and some of the concepts will carry over to that, should we need those
+facilities in \R.
 
 In the past, I have used the GNU compiler (\gcc)~\cite{bib:GCC} to
 export information about the source code using its

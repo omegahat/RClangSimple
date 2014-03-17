@@ -8,7 +8,8 @@ and tokens.  \libclang{} exposes other concepts, but those are not  the
 important ones for our purposes.
 
 Source code is arranged in files. A project may be made up of more
-than one related files.  For example, we may define related routines
+than one related files. %XXX grammar
+For example, we may define related routines
 for one task in one file and other routines in a separate file.
 Header files are used for declarations and pre-processor definitions
 that are shared by several files.  When we parse a file, the parser
@@ -35,8 +36,12 @@ given cursor. This turns out to be important as \libclang{} doesn't
 differentiate between different types of binary operators, for
 example. Instead, we find the operation (=, +, -, etc.)  from the
 tokens and so the concepts of both cursor and token are important.
+%XXX the last few sentences could be written better.  Too specific
+% so make the point more gracefully.
 
-\libclang{} represents the different parse elements via a cursor (of
+\libclang{} represents the different parse elements 
+%XXX elements of the parsed content
+via a cursor (of
 class \Rclass{CXCursor} in \R).  A cursor has a kind that identifies
 its nature or what concept it represents. There are many different
 kinds for a cursor (enumerated in the variable \Rvar{CXCursorKind} in
@@ -105,8 +110,8 @@ Like a cursor, a \libclang{} type has a kind such as \ClangTypeKind{Int},
 \ClangTypeKind{Float}, \ClangTypeKind{Double},
 \ClangTypeKind{Typedef}, \ClangTypeKind{Pointer},
 \ClangTypeKind{Record} (for a \Ckeyword{struct}),
-\ClangTypeKind{Enum}.  A type also has a name, a size and other
-characteristics we can query.
+\ClangTypeKind{Enum}.  A type also has a name, a size (number of
+bytes) and other characteristics we can query.
 
 
 A translation unit contains all the information from the corresponding

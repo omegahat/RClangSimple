@@ -137,13 +137,15 @@ that can help end-users and developers.
 We typically think of \C{} and \Cpp{} code as something we write,
 compile and call. It is rarely the input to anything but the compiler.
 However, such code is a source of potentially useful information that
-we can exploit in statistical and scientific computing.  In order to
+we can exploit in statistical and scientific computing.  
+%XXX Give  some vague hints as to what these are.
+In order to
 leverage this information, we need to be able to access it in a
 structured manner and in a form that we can compute on and in the
 programming environment in which we want to use it.
-\libclang{}~\cite{bib:libclang}, \cite{bib:libclangSlides} has
+\libclang{}~\citep{bib:libclang,bib:libclangSlides} has
 emerged as a powerful, industrial-strength library that provides
-valuable functionality for working with \C/\Cpp{} source code and that
+valuable functionality for working with \C/\Cpp{} source code and which
 we can embed in \R{} (and many other languages).
 
 There are several applications of being able to programmatically
@@ -158,7 +160,7 @@ calling them.  \R{} can detect an incorrect number of arguments for a
 routine, or that the types are incorrect, e.g. an integer vector when
 a numeric vector is expected. Registration also allows us to resolve
 the symbols just once rather than each time we call a routine, and it
-also allows us to use different symbols to refer to the routines.  It
+also allows us to use different symbols/names to refer to the routines.  It
 is convenient to be able to run \R{} code to identify the \R-callable
 routines and to generate the registration information
 programmatically.  As we change these routines, we can programatically
@@ -182,7 +184,7 @@ We want to minimize human intervention.  If we could generate these
 creating higher-level functionality using these primitives.
 
 \textbf{Dynamic calls to native routines}: The
-\Rpkg{rdyncall}~\cite{bib:rdyncall} and \Rpkg{Rffi}~\cite{bib:Rffi}
+\Rpkg{rdyncall}~\citep{bib:rdyncall} and \Rpkg{Rffi}~\citep{bib:Rffi}
 \R{} packages avoid having to explicitly create the wrapper routines
 and \R{} functions to interface to existing \C{} routines. Instead,
 they both provide a dynamic mechanism to call arbitrary native
@@ -221,8 +223,10 @@ type -- of these native, external routines.  Again, if we can find
 this information programmatically, we greatly simplify and improve the
 entire process of generating the code.
 
+
+%XXX Tighten this up. First sentence is not quite connected to second.
 \textbf{Determining memory management and mutability of inputs and
-  outputs}: When we call existing native routines, we often want need
+  outputs}: When we call existing native routines, we often need
 to know whether we are in charge of the memory for the inputs or
 whether the called routine is responsible.  Often, programmers omit
 important information about whether a parameter is modified within a
@@ -250,21 +254,21 @@ version control history to better understand software projects.
 mechanism provides a powerful set of tests and checks for potential
 errors in \R{} code.  These are very useful and can identify errors
 such as misspelled variable or function names before the code is run.
-It would be valuable to perform similar tests on \C{} code in \R{}
+It would be valuable to perform analogous tests on \C{} code in \R{}
 packages.  We might identify common issues such as not protecting
 allocated \R{} objects from garbage collection.  We could do this by
 analyzing uses of \Cfunc{PROTECT} and \Cfunc{UNPROTECT} calls and
 ensuring there is an appropriate correspondence.  These are
 \R-specific checks and will not be done by other code-analyzing
-software.
+software, e.g. the compiler.
 
 
 We can also find ``dead'' routines that are never called by other
 routines and so help to reduce the code.
 
 We hope these applications motivate the utility of being able to
-navigate native code in \R and indicate that there are many more.  In
-this paper, we describe how to use the \R{} interface to \libclang to
+navigate native code in \R{} and indicate that there are many more.  In
+this paper, we describe how to use the \R{} interface to \libclang{} to
 find this kind of information needed in these types applications.  We
 start next by describing the fundamental concepts of \libclang{} in
 section~\ref{sec:libclangConcepts}.  We follow this in
@@ -272,7 +276,10 @@ section~\ref{sec:RCIndex} by introducing the high-level functionality
 provided by the \Rpkg{RCIndex} package, e.g. getting the routines,
 data structures, \Cpp{} classes in a source file.  We then discuss the
 lower-level functionality in the package on which these higher-level
-functions are based in section~\ref{sec:BuildingBlocks}.  We explore
+functions are based in section~\ref{sec:BuildingBlocks}. 
+%XXX say why for the previous sentence, i.e. so people can adapt and
+%extend the high functionality.
+ We explore
 three reasonably comprehensive examples or case-studies in
 section~\ref{sec:Examples} and then compare this approach with others
 that I and others have pursued in the past.  Finally, we outline some
@@ -294,6 +301,7 @@ as generating registration information or getting all the routines or
 higher-level task, but these are high-level relative to the primitive
 functions in the \Rpkg{RCIndex} package with which we implemented
 these functions.
+%XXX iron out these sentences.
 
 \subsection{High-level Functionality}
 
@@ -345,7 +353,7 @@ an existing type and enumerated constant definitions.
 For \Cpp{} code, we can use \Rfunc{getCppClasses} to traverse a
 translation unit, either pre-parsed or a source file, and construct a
 description for each of the \Cpp{} classes it contains. Each class
-description is an instance of the class \Rclass{C++Class}, with
+description is an instance of the class \Rclass{C++Class} in \R, with
 template classes using the derived class \Rclass{TemplateC++Class}.  A
 class description contains the name of the class, a list of its fields
 and another for its methods, and references to the base/super class
@@ -369,7 +377,7 @@ stored in the \Rslot{values} slot as a named integer vector.  The
 names are the symbolic names we should use, while the values are the
 literal values to which these names correspond.  These values allow us
 to cross the interface between \R{} and native code where there is no
-existing association between the symbolic names.
+existing association between the symbolic names and the literal values.
 
 \paragraph{Global Variables}
 The \Rfunc{getGlobalVariables} function returns information about all
@@ -386,7 +394,7 @@ of the code, i.e. avoiding side-effects.
 The function \Rfunc{findGlobals} finds global variables that are used
 within a routine or entire translation unit.  The function is
 intentionally analogous to the \Rfunc{findGlobals} function in
-\Rpkg{codetools}~\cite{bib:codetools}. It returns the variables, and
+\Rpkg{codetools}~\citep{bib:codetools}. It returns the variables, and
 optionally, the routines that are called, within a routine/translation
 unit which are not locally defined as parameters or local variables.
 
@@ -402,10 +410,12 @@ within a single file and see which of these call other routines in the
 file and which are called by other routines in the file.  This might
 identify isolated routines that don't necessarily belong in this
 particular file. It might also help us to understand how the the
-routines interact and cluster.  We can use the \Rpkg{igraph}~\cite{bib:igraph} and/or
-\Rpkg{graph}~\cite{bib:graphPkg} packages to perform computations on the network and also
+routines interact and cluster.  We can use the \Rpkg{igraph}~\citep{bib:igraph} and/or
+\Rpkg{graph}~\citep{bib:graphPkg} packages to perform computations on the network and also
 to visualize it.
 
+%XXX so this is the first place we have an example.
+% Should we have examples earlier on, i.e. for the previous examples.
 We'll show how to do this on a file \file{memory.c} in the \R{}
 interpreter's source.
 We start by obtaining the routines from the file:
@@ -456,7 +466,7 @@ and it is displayed in figure~\ref{fig:callgraph}.
   \label{fig:callgraph}
 \end{figure}
 
-I often use the \Rpkg{findCalls} function when creating bindings to
+I have used the \Rpkg{findCalls} function when creating bindings to
 third-party libraries to determine which routines currently have no
 wrapper routine.
 
@@ -479,9 +489,9 @@ void attribute_visible R_init_FastCSVSample(DllInfo *dll)
    R_useDynamicSymbols(dll, TRUE);
 }  
 \end{CCode}
-This example comes is generated from the \Rpkg{FastCSVSample} package
+This example comes from the \Rpkg{FastCSVSample} package
 (\url{http://github.com/duncantl/FastCSVSample}). In this case, there
-is only one \C{} routine we invoke via the \Rfunc{.Call}.  In the
+is only one \C{} routine we invoke via the \Rfunc{.Call} function.  In the
 \Rpkg{stats} package, there are $83$ \Rfunc{.Call} and $10$ \Rfunc{.C}
 routines, with registration information for all. 
 
@@ -491,7 +501,7 @@ Instead, we can use the \Rfunc{createRegistrationCode} function to
 generate it for us.  This is often as simple as something like
 \begin{RCode}
 rg = createRegistrationCode("~/GitWorkingArea/FastCSVSample/src")  
-cat("#include <R_ext/Rdynload.h>",  rg, sep = "\n", file = "init.c")
+cat("#include <R_ext/Rdynload.h>", rg, sep = "\n", file = "init.c")
 \end{RCode}
 For an \R{} package, we specify the \dir{src} directory of that
 package.  We can also provide arguments for the parser such as
@@ -500,7 +510,7 @@ using \Rfunc{createRegistrationCode}'s \Rarg{\dots} parameter.  The function pro
 file in the directory and determines which routines can be called via
 the \Rfunc{.C} interface and which can be called by \Rfunc{.Call}.  It
 does this by examining the signatures and determining which are
-consistent with the different call mechanism.  It then creates the
+consistent with the two different call mechanisms.  It then creates the
 registration information and also generates the \Cfunc{R_init_...}
 routine, using the name of the package as suffix.
 
@@ -518,8 +528,12 @@ checks or coercion to the appropriate types in call to the routine.
 The function \Rfunc{getInclusions} allows us to obtain a list of all
 the files included in our translation unit, both directly and
 indirectly.  This allows us to find what files include other files,
-what are included by multiple files, what files are not included in a
+which files are included by multiple files, what files are not included in a
 directory and so on. We can also visualize the implicit network.
+%XXX not well written - tidy up.
+
+
+%XXX Some examples????
 
 
 \subsection{Low-level building blocks}\label{sec:BuildingBlocks}
