@@ -677,3 +677,57 @@ switch(val) {
 }
 return(R_makeEnumValue(val, elName, "CXCommentKind"));
 }
+
+
+
+
+    SEXP Renum_convert_CXLinkageKind ( enum CXLinkageKind  val)
+    {
+    const char *elName = NULL;
+    SEXP klass, ans;
+    switch(val) {
+       case CXLinkage_Invalid:
+           elName = "CXLinkage_Invalid";
+       break;
+       case CXLinkage_NoLinkage:
+           elName = "CXLinkage_NoLinkage";
+       break;
+       case CXLinkage_Internal:
+           elName = "CXLinkage_Internal";
+       break;
+       case CXLinkage_UniqueExternal:
+           elName = "CXLinkage_UniqueExternal";
+       break;
+       case CXLinkage_External:
+           elName = "CXLinkage_External";
+       break;
+        default:
+    	elName = "?";
+    	}
+
+
+    #if defined(USE_S4_ENUMS)
+    
+    SEXP tmp;
+    PROTECT(klass = MAKE_CLASS("CXLinkageKind"));
+    PROTECT(ans = NEW(klass));
+    PROTECT(tmp = ScalarInteger(val));
+    SET_NAMES(tmp, mkString(elName));
+    ans = SET_SLOT(ans, Rf_install(".Data"), tmp);
+    UNPROTECT(3);
+    
+    #else
+    
+    PROTECT(ans = ScalarInteger(val));
+    SET_NAMES(ans, mkString(elName));
+    PROTECT(klass = NEW_CHARACTER(2));
+    SET_STRING_ELT(klass, 0, mkChar("CXLinkageKind"));
+    SET_STRING_ELT(klass, 1, mkChar("EnumValue"));
+    SET_CLASS(ans, klass);
+    UNPROTECT(2);
+    
+    #endif
+    
+    return(ans);
+    
+}

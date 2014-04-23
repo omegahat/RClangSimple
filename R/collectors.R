@@ -412,7 +412,7 @@ function(merge = TRUE, ignoreConst = TRUE)
           n = length(routineRefs) + 1        
           routineRefs[[n]] <<- cur
           names(routineRefs)[n] <<- getName(cur)          
-        } else if(!(ref$kind == c(CXCursor_EnumConstantDecl, CXCursor_CallExpr, CXCursor_ParmDecl)) &&
+        } else if(!( any(ref$kind == c(CXCursor_EnumConstantDecl, CXCursor_CallExpr, CXCursor_ParmDecl))) &&
                     !(ignoreConst && isConstQualifiedType(getCanonicalType(getType(ref))))) {
           n = length(varRefs) + 1
           varRefs[[ n ]] <<- cur

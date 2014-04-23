@@ -6,3 +6,5 @@ foo()
     ctr++;
     return(ctr);
 }
+
+int static fileLocal = 0;

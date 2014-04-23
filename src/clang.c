@@ -321,14 +321,14 @@ SEXP
 R_clang_CXCursor_getCursorLinkage(SEXP r_cursor)
 {
     CXCursor *cur =  GET_REF(r_cursor, CXCursor);
-    return(ScalarInteger(clang_getCursorLinkage(*cur)));
+    return(Renum_convert_CXLinkageKind(clang_getCursorLinkage(*cur)));
 }
 
 SEXP
 R_clang_CXCursor_getCursorLanguage(SEXP r_cursor)
 {
     CXCursor *cur =  GET_REF(r_cursor, CXCursor);
-    return(ScalarInteger(clang_getCursorLanguage(*cur)));
+    return(Renum_convert_CXLanguageKind(clang_getCursorLanguage(*cur)));
 }
 
 SEXP
