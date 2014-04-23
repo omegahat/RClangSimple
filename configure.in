@@ -1,5 +1,18 @@
 AC_INIT(src/clang.c)
 
+if ! test "x$CLANG_DIR" = "x" ; then
+  if test -z "$CLANG_LIB" ; then
+     if test -d ${CLANG_DIR}/lib ; then
+        CLANG_LIB=$CLANG_DIR/lib
+     elif test -d ${CLANG_DIR}/build/Debug+Asserts/lib ; then
+        CLANG_LIB=$CLANG_DIR/build/Debug+Asserts/lib
+     fi
+  fi
+  if test -z "$CLANG_INC" && test -d ${CLANG_DIR}/tools/clang/include/clang-c ; then
+     CLANG_INC=$CLANG_DIR/tools/clang/include
+  fi
+fi
+
 if test -z "$CLANG_LIB" || test -z "$CLANG_INC" ; then
 
   if test -r $HOME/llvm-devel/tools/clang/include/clang-c ; then
