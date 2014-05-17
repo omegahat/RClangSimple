@@ -8,8 +8,9 @@
   
 }
 \usage{
-getCallableRoutines(dir, src = list.files(dir, pattern = "\\\\.(c|cpp|cxx|C)$", full.names = TRUE),
-                     args = sprintf("-I\%s/include", R.home()), ..., verbose = TRUE)
+getCallableRoutines(dir, src = list.files(dir, pattern = "\\\\.(c|cpp|cxx|C)$",
+                                          full.names = TRUE),
+                    args = sprintf("-I\%s/include", R.home()), ..., verbose = TRUE)
 }
 \arguments{
   \item{dir}{the directory in which to find C and C++ source files.

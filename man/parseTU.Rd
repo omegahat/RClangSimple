@@ -26,8 +26,9 @@
 \usage{
 parseTU(src, visitor = simpleVisitor, idx = createIndex(),
           tu = createTU(src, idx = idx, ...), ..., clone = FALSE)
-createTU(src, includes = character(), idx = createIndex(verbose = verbose), args = character(),
-           verbose = getOption("ShowParserDiagnostics", TRUE), options = 0)
+createTU(src, includes = character(), idx = createIndex(verbose = verbose),
+         args = character(), verbose = getOption("ShowParserDiagnostics", TRUE),
+         options = 0)
 visitCursor(tu, fun, clone = TRUE, ...)
 saveTranslationUnit(TU, FileName, options = 0)
 getFile(tu, file_name)

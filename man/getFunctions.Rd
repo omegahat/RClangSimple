@@ -10,7 +10,8 @@
   translation unit.
 }
 \usage{
-getFunctions(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedNum = 500, ...)
+getFunctions(src, filenames = TRUE, col = genFunctionCollector(filenames),
+             expectedNum = 500, ...)
 }
 \arguments{
   \item{src}{the already created CXTranslationUnit object, or the name
