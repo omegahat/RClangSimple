@@ -1,5 +1,5 @@
 library(RCIndex)
-tu = createTU("~/GitWorkingArea/RClangSimple/inst/exampleCode/funPointer.c")
+tu = createTU(system.file("exampleCode", "funPointer.c", package = "RCIndex"))
 
 rr = getRoutines(tu)
 f = rr$foo@params[[1]]

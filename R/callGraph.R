@@ -1,13 +1,13 @@
 
 makeCallGraph =
   #
-  # g = makeCallGraph("inst/exampleCode/fib.c")
-  # f = sprintf("%s/../src/main/memory.c", R.home())
-  # g = makeCallGraph(f, args = "-DHAVE_CONFIG_H", includes = c(sprintf("%s/../src/include", R.home()), sprintf("%s/include", R.home())))
+  # g = makeCallGraph("inst/exampleCode/fib.c")w
+  # f = sprintf("%s/src/main/memory.c", R.home())
+  # g = makeCallGraph(f, args = "-DHAVE_CONFIG_H", includes = c(sprintf("%s/src/include", R.home()), sprintf("%s/include", R.home())))
   #
   # g = makeCallGraph("src/clang.c", includes = c("~/llvm-devel/tools/clang/include", c(sprintf("%s/../src/include", R.home()), sprintf("%s/include", R.home()))))
   #
-function(tu, withinFile = TRUE, ...)
+function(tu, withinFile = TRUE, .plot = TRUE, ...)
 {
   if(is.character(tu))
    tu = createTU(tu, ...)
@@ -27,8 +27,8 @@ function(tu, withinFile = TRUE, ...)
   
   i = rowSums(m) == 0 & colSums(m) == 0
   mm = m[!i, !i]
-  if(require(igraph))
-    graph.adjacency(mm, "directed")
+  if(.plot && require(igraph))
+     graph.adjacency(mm, "directed")
   else
-    mm
+     mm
 }

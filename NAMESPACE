@@ -1,4 +1,5 @@
 import(RAutoGenRunTime)
+import(methods)
 
 useDynLib(RCIndex)
 
@@ -462,4 +463,7 @@ export(getNumArgTypes, getArgType, getArgsType)
 
 export(isFnPointer, getFnPointerInfo)
 
+
+export(makeTikzGraph)
+export(makeCallGraph)
 

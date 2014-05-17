@@ -9,3 +9,6 @@ RClang.pdf: RClang.tex rclang.bib  protect.tex rffi.tex protectCodeFigure.tex mu
 
 clean:
 	-rm  rclang.{aux,log,out,blg}
+
+%.db: %.tex
+	pandoc -f latex -t docbook -o $@ $<

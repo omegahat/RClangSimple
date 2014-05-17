@@ -1,5 +1,16 @@
 <faq>
 <q>
+<p>How do I install libclang?</p>
+<a>
+<p>
+You can use a package manager.
+See <ulink url="http://stackoverflow.com/questions/17657261/how-to-install-clang-pre-built-binaries-ubuntu-12-04"/>.
+You can install from source by following the instructions at
+<ulink url="http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html"/>.
+</p>
+</a>
+</q>
+<q>
 <p>What does my visitor function have to return?</p>
 <a>It  should return a value of class CXChildVisit.
 This is an enumeration. 

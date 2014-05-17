@@ -5,7 +5,10 @@
 \title{Types of function parameter/arguments}
 \description{
   These functions allow us to get the types associated
-  with parameters/arguments of routines/functions in C/C++ code.
+  with parameters/arguments of routine/function types in C/C++ code.
+  These are typically used when we have a function/routine pointer type
+  and so have an explicit type. This is different from when we have a
+  routine and we can access the parameters differently.
 }
 \usage{
 getArgType(ty, i)

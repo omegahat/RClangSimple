@@ -16,4 +16,18 @@ Paper/.*\.o$
 Paper/.*.so$
 inst/exampleCode/.*\.o$
 \.prof$
+[^/]+\.rda$
+.*.aux
+.*.log
+[^/]+\.tex$
+[^/]+\.pdf$
+Next
+GenerationNodes
+MissingMethods
+Notes
+Updates
+
+
+
+
 
