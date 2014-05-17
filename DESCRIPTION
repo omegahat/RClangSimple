@@ -2,7 +2,7 @@ Package: RCIndex
 Version: 0.2-0
 Title: R Interface to the clang parser's C API
 Author: Duncan Temple Lang
-SystemRequirements: clang 
+SystemRequirements: libclang  (the library, not the compiler executable)
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
 Description: This package is currently an interface to some of the
     functionality in the clang parsing facilities.
