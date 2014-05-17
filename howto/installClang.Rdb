@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<articleinfo>
+
+<title>Installing libclang for use with RCIndex</title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+
+<para>
+This document deals with installing the source code for both LLVM and for libclang. 
+We use these in the <omg:pkg>Rllvm</omg:pkg> and <omg:pkg>RCIndex</omg:pkg> packages.
+Fortunately, we can install both of these 3rd party libraries simultaneously in one step
+</para>
+
+
+<para>
+The <omg:pkg>RCIndex</omg:pkg> package builds on libclang to provide a
+useful and powerful way to work with C/C++ code as data.  One
+potential difficulty is installing libclang.  On many systems, you can
+use package managers to install pre-built/binary versions of libclang
+and any of its dependencies.  For example, there are several
+instructions at <ulink
+url="http://stackoverflow.com/questions/17657261/how-to-install-clang-pre-built-binaries-ubuntu-12-04"/>
+and there is a debian repository provided by LLVM at <ulink
+url="http://llvm.org/apt/"/> from which we can fetch recent builds.
+</para>
+<para>
+In this document, we will focus on building the libclang library from source.
+We followed the steps at
+<ulink url="http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html"/>
+with some slight modifications.
+Basically, we download the source for LLVM and clang
+<sh:code>
+wget http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz
+wget http://llvm.org/releases/3.4/clang-3.4.src.tar.gz
+</sh:code>
+You can fetch other components of the LLVM project
+such as the run-time compiler facilities (compiler-rt),
+additional clang tools (clang-tools-extra).
+However, these are not necessary for our purposes, so we will focus on 
+just building libclang.
+</para>
+<para>
+Now we have the two tar.gz files.
+We extract their contents with 
+<sh:code>
+tar zxf llvm-3.4.src.tar.gz
+cd llvm-3.4
+tar zxf ../clang-3.4.src.tar.gz -C tools
+mv tools/clang-3.4 tools/clang
+</sh:code>
+This renames the <dir>clang-3.4</dir> directory as <dir>clang</dir>.
+We are now ready to build the source code.
+</para>
+
+<aside>
+<title>Installing Dependencies</title>
+<para>
+If you have all of the required software, you are good to go
+and you skip to the configuration and compilation.
+However, in my case, I did not have all of the necessary software
+installed. I had version 4.4.6 of gcc. However, to compile LLVM
+we need a more recent version.
+</para>
+
+<para>
+For me, I was installing the development version of LLVM.
+I had an old version of gcc/g++ (4.4.6) and the LLVM configuration
+script said that this was too old. It needed GCC 4.7 or higher.
+So I installed a new version of GCC into my home directory:
+<sh:exec>
+./configure --prefix=/home/duncan/local --with-gmp=/home/duncan/local --with-mpfr=/home/duncan/local --with-mpc=/home/duncan/local
+</sh:exec>
+You can see that I also had to install the GMP, MPFR and MPC libraries on which GCC depends.
+</para>
+<para>
+Once GCC is built and installed, we need to ensure that 
+<dir>$HOME/local/bin</dir> is in our <sh:env>PATH</sh:env> environment variable
+and we also need  to add  <dir>$HOME/local/lib64</dir> and 
+<dir>$HOME/local/lib</dir> to our <sh:env>LD_LIBRARY_PATH</sh:env>
+variable (or <sh:env>DYLD_LIBRARY_PATH</sh:env> on OSX).
+</para>
+</aside>
+
+
+<para>
+It is advisable to compile the code outside of the source directory tree.
+So we create a directory named <dir>build</dir> with the top-level <dir>llvm</dir> directory
+and then call <sh:exec>configure</sh:exec> from within that directory:
+<sh:code>
+mkdir build
+cd build
+../configure --prefix=/home/duncan/local --disable-assertions --enable-shared
+make
+</sh:code>
+Compilling the code will take a long time, maybe 30 minutes depending
+on the speed of your machine.
+Once the compilation is complete, you can install it with
+<sh:code>
+make install
+</sh:code>
+This will put the executables, libraries, header files, etc. into the directory
+we specified for the <sh:flag>--prefix</sh:flag> flag.
+</para>
+
+
+<para>
+In order to be able to find those libraries, 
+we need to update our <sh:env>PATH</sh:env> and <sh:env>LD_LIBRARY_PATH</sh:env>
+(or <sh:env>DYLD_LIBRARY_PATH</sh:env>)
+<sh:code>
+export PATH=$HOME/local/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/local/lib64:$HOME/local/lib:$LD_LIBRARY_PATH
+</sh:code>
+</para>
+
+
+
+<ignore>
+<para>
+I put the LLVM and clang source code in <dir>$HOME/LLVM/llvm-naked</dir>.
+Accordingly, I set <sh:env>CLANG_INC</sh:env> and <sh:env>CLANG_LIB</sh:env>
+to the following paths
+<sh:code>
+export CLANG_INC=$HOME/LLVM/llvm-naked/tools/clang/include
+export CLANG_LIB=$HOME/LLVM/llvm-naked/Release/lib
+export LD_LIBRARY_PATH=$HOME/LLVM/llvm-naked/Release/lib:$LD_LIBRARY_PATH
+</sh:code>
+</para>
+</ignore>
+<para>
+We can then install the <omg:pkg>RCIndex</omg:pkg> package with, e.g.,
+<sh:code>
+R CMD INSTALL RCIndex
+</sh:code>
+The <omg:pkg>RCIndex</omg:pkg>
+</para>
+
+
+<para>
+Instead of using the include and library files where we built them,
+we can install them into the directory we specified via the 
+<sh:flag>--prefix</sh:flag> option  in our call to <sh:exec>configure</sh:exec>.
+We do this with
+<sh:exec>
+
+</sh:exec>
+</para>
+
+
+
+</section>
+<section>
+
+<para>
+When we want to install <omg:pkg>Rllvm</omg:pkg>,
+we need to be able to find <sh:exec>llvm-config</sh:exec>.
+We add the <dir>bin</dir> directory in the LLVM 
+installation (either the place we built it or the path into which we installed it)
+to our <shLenv>PATH</shLenv> environment variable:
+<sh:code>
+export PATH=$HOME/LLVM/llvm-naked/Release/bin:$PATH
+</sh:code>
+When we install the package, e.g. with <sh:exec>R CMD INSTALL Rllvm</sh:exec>,
+that will call <sh:exec>llvm-config</sh:exec> and find the include and
+library directories.
+</para>
+
+
+</section>
+</article>
