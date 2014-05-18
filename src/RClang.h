@@ -20,6 +20,10 @@ SEXP CXStringToSEXP(CXString str);
 void * getRReference(SEXP val);
 SEXP R_createReference(void *ptr, const char * const className, const char * tag);
 
+#ifdef GET_REF
+#undef GET_REF
+#endif
+
 #define GET_REF(val, type) \
     (type *) getRReference(val)
 
