@@ -1,8 +1,35 @@
+#define FOO(n, id)  id = n
+
+enum Defs {
+    FOO(3, ABC),
+    FOO(7, XYZ)
+};
+
 enum Color {
     RED,
     GREEN,
-    BLUE = 3
+    BLUE = 3,
+    ORANGE = 8,
+    YELLOW
 };
+
+enum Foo {
+    abc = 1 << 2,
+    xyz = 1 << 3
+};
+
+enum Self {
+    A = 2,
+    B,
+    C = A,
+    D = A + B    
+};
+
+enum Plus {
+    P = +2,
+    M = -1,
+    PM = -P
+} ;
 
 enum Color getNextColor();
 
@@ -39,10 +66,10 @@ const int MyOtherInt = 3;
 
 double pi = 3.1415;
 
-struct ABC abc = {
+struct ABC abc_ = {
     -1, 2.5, &pi, 1, -10, -10000, 100000, "a string"
   };
 
-struct ABC *abc_p = &abc;
+struct ABC *abc_p = &abc_;
 
 

@@ -17,3 +17,5 @@ typedef struct LL {
     char *data;
     struct LL *next, *prev;
 } LinkedList;
+
+
