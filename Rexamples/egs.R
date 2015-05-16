@@ -1,5 +1,9 @@
 library(RCIndex)
 
+# Specify the directory that contains the clang-llvm installation, i.e. the bin/, lib/ directories containing
+# libclang, include/clang-c
+clangInstalledDir = path.expand("~/LLVM3.5/clang+llvm-3.5.0-macosx-apple-darwin")
+
 parseTU("inst/exampleCode/fib.c", function(cur, parent)  if( cur$kind == CXCursor_CallExpr) print(getName(cur)))
 
 
@@ -18,7 +22,7 @@ callCollector =
     }
 
 h = callCollector()
-parseTU("src/clang.c", h, args = c("-I/Users/duncan/Projects/R-3.0-dev/build/include", "-I/Users/duncan/llvm-devel/tools/clang/include"))
+parseTU("src/clang.c", h, args = c("-I/Users/duncan/Projects/R-3.0-dev/build/include", sprintf("-I%s/include", clangInstalledDir)))
 k = environment(h)$calls
 grep("^clang_", k, value = TRUE)
 
@@ -26,8 +30,9 @@ grep("^clang_", k, value = TRUE)
 
 
 col = genEnumCollector()
-parseTU("~/llvm-devel/tools/clang/include/clang-c/Index.h", col$update,
-          args = '-I/Users/duncan/llvm-devel/tools/clang/include/')
+parseTU(sprintf("%s/include/clang-c/Index.h", clangInstalledDir), col$update,
+          args = sprintf("-I%s/include", clangInstalledDir))
 enums = col$enums()
 
 enums = enums[ names(enums) != "" ]
+names(enums)

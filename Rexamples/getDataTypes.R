@@ -1,13 +1,18 @@
 library(RCIndex)
 h = genDataStructCollector()
 
-parseTU("/Users/duncan/llvm-devel/tools/clang/include/clang-c/Index.h", h@update,
-          args = c("-I/Users/duncan/llvm-devel/tools/clang/include"))
+# Specify the directory that contains the clang-llvm installation, i.e. the bin/, lib/ directories containing
+# libclang, include/clang-c
+clangInstalledDir = path.expand("~/LLVM3.5/clang+llvm-3.5.0-macosx-apple-darwin")
+
+parseTU(sprintf("%s/include/clang-c/Index.h", clangInstalledDir), h@update,
+          args = sprintf("-I%s/include", clangInstalledDir))
 ds = h@results()
 cx = ds[ grep("^CX", names(ds), value = TRUE) ]
 
 
-d = getStructDef(ds[["CXSourceRange"]])
+#d = getStructDef(ds[["CXSourceRange"]])
+d = ds[["CXSourceRange"]]
 d$name
 names(d$fields)
 sapply(d$fields, getName)

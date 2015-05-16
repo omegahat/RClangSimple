@@ -56,7 +56,8 @@ cursor.
 \C{} routine \Cfunc{sinLog} shown in figure~\ref{fig:sinLogRoutine}.
 Each node in the tree shows the kind of the cursor
 and the text of the expression with which it is associated.
-The cursor kind \dquote{FirstExpr} essentially means unexposed or hidden.
+The cursor kind \dquote{FirstExpr} essentially means the cursor is considered
+opaque or hidden.
 }
 \label{fig:sinLogTree}  
 \end{figure}
@@ -89,7 +90,7 @@ its expression.  The translation unit is the
 container for the top-most or root cursor of the tree.  This root
 cursor has the abstract kind \ClangKind{TranslationUnit}.  Its
 children are the top-level elements of the source code file,
-e.g. global variables, routines, class definitions, pre-processor
+e.g., global variables, routines, class definitions, pre-processor
 terms. Each of these has its own child cursors and so on.
 
 This concept of a cursor tree is important when we examine how to

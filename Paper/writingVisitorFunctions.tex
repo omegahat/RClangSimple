@@ -23,7 +23,7 @@ cursor itself.
 The visitor function typically stores information that persists across
 the calls to it made by \libclang.  We then access these objects when
 \libclang{} has completed traversing the tree.  While we may be
-inclined to use global variables, e.g. in \R{}'s global environment or
+inclined to use global variables, e.g., in \R{}'s global environment or
 interactive ``work space'', this is a bad idea.  Instead, we want to
 use variables that are local to this particular visitor function.  We
 can do this in two basic ways -- reference classes or closures, also
@@ -158,7 +158,7 @@ Essentially, extending the \Rclass{RefCursorVisitor} class allows
 \Rfunc{visitCursor} to identify the visitor and the result functions.
 The only change we need to make when defining our reference class
 is to add the \Rarg{contains} argument in the call to
-\Rfunc{setRefClass}, i.e.
+\Rfunc{setRefClass}, i.e.,
 \begin{RCode}
 setRefClass("RoutineLocationVisitor",
             contains = "RefCursorVisitor",
@@ -210,7 +210,7 @@ recursively process the sub-curors of the current cursor being
 visited, or to skip the entire sub-hierarchy and move to the next
 sibling of the current cursor.  Alternatively, a visitor function may
 determine that it has seen enough and doesn't need to process any more
-cursors, i.e. gracefully terminate the traversal of the tree.  To do
+cursors, i.e., gracefully terminate the traversal of the tree.  To do
 this, the visitor function returns any of \Rvar{CXChildVisit_Recurse},
 \Rvar{CXChildVisit_Continue} or \Rvar{CXChildVisit_Break}.  The
 visitor function can return a different value on each invocation and

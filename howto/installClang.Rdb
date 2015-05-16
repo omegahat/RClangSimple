@@ -26,6 +26,30 @@ Fortunately, we can install both of these 3rd party libraries simultaneously in 
 </para>
 
 
+<formalpara>
+<title>Binary Installation</title>
+<para>
+The simplest way to install libclang is to get a binary for your operating system,
+e.g., from <ulink url="http://llvm.org/releases"/>.
+You can then extract the files from the archive in any directory.
+Then add the full path to the resulting bin/ directory to your <sh:var>PATH</sh:var> variable,
+and the lib/ directory to your <sh:var>LD_LIBRARY_PATH</sh:var> on UNIX/Linux, or 
+<sh:var>DYLD_LIBRARY_PATH</sh:var> on OSX.
+For example, suppose we downloaded 
+<ulink url="http://llvm.org/releases/3.5.0/clang+llvm-3.5.0-macosx-apple-darwin.tar.xz"/> for OSX.
+We can install it in, say, <dir>LLVM_3.5</dir> with
+<sh:code>
+mkdir LLVM_3.5
+tar Jxf ~/Downloads/clang+llvm-3.5.0-macosx-apple-darwin.tar.xz
+cd clang+llvm-3.5.0-macosx-apple-darwin
+export PATH=`pwd`/bin:$PATH
+export DYLD_LIBRARY_PATH=`pwd`/lib:$DYLD_LIBRARY_PATH
+</sh:code>
+</para>
+</formalpara>
+
+
+
 <para>
 The <omg:pkg>RCIndex</omg:pkg> package builds on libclang to provide a
 useful and powerful way to work with C/C++ code as data.  One

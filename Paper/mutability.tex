@@ -64,7 +64,7 @@ examining the tokens of the left-hand side of the binary operator and
 extracting the final element of its tokens.
 
 Once we have a binary operator, we are interested in its left-hand
-side, i.e. the first child.  Rather than setting a state variable and
+side, i.e., the first child.  Rather than setting a state variable and
 continuing to traverse the sub-cursors, we will explicitly process
 this first child. We may have to traverse its children, but we will do
 that with a separate visitor function -- \Rfunc{processLHS}.  This may

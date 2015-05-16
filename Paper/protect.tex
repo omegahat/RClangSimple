@@ -25,7 +25,7 @@ We will develop an \R{} function that will attempt to check for common
 problems related to garbage collection.  Our function takes the
 \libclang{} cursor for a routine and will then traverse the cursors
 throughout that tree. It will find calls to known routines that
-allocate \R{} objects (e.g. \Cfunc{Rf_allocVector},
+allocate \R{} objects (e.g., \Cfunc{Rf_allocVector},
 \Cfunc{NEW_INTEGER}, \Cfunc{NEW_NUMERIC}) and also calls to
 \Cfunc{Rf_protect} and \Cfunc{PROTECT}, and \Cfunc{Rf_unprotect} and
 \Cfunc{UNPROTECT}.  A simple test for correct code is to count the
@@ -54,7 +54,7 @@ unprotect objects.  We'll call these variables \Rvar{numAllocs},
 For the first two categories of routines, we just increment the
 current value in the corresponding \R{} variable.  For
 \Cfunc{Rf_unprotect}, we'll collect the argument for each call to
-\Cfunc{Rf_unprotect}. This might be a literal value, e.g. $2$ in our
+\Cfunc{Rf_unprotect}. This might be a literal value, e.g., $2$ in our
 example, or a variable or a general expression which makes our taks
 more complex.
 
@@ -258,7 +258,7 @@ v$info()
 As a final remark about this example, we could make this more general
 and sophisticated.  A reasonably common idiom is to use a variable to
 count the number of calls to \Cfunc{PROTECT} we make, incrementing it
-each time. Then we pass this to \Cfunc{UNPROTECT}, e.g.
+each time. Then we pass this to \Cfunc{UNPROTECT}, e.g.,
 \begin{CCode}
  int n = 0;
  PROTECT(a = Rf_allocVector(...)); n++;
