@@ -206,7 +206,9 @@ export(getStructDef)
 
 export(visitCursor)
 
-exportMethods(show)
+exportMethods(show, "[", "[[")
+export(lapply)
+exportMethods(lapply)
 export(getType)
 
 S3method(print, FunctionDecl)
