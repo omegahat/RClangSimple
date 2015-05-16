@@ -551,6 +551,18 @@ CXStringToSEXP(CXString str)
 }
 
 
+
+#if 0
+SEXP
+R_clang_getMangling(SEXP r_cursor)
+{
+    CXCursor *cur =  GET_REF(r_cursor, CXCursor);
+    CXString str = clang_Cursor_getMangling(*cur);
+    return(CXStringToSEXP(str));
+}
+#endif
+
+
 void 
 R_freeType(SEXP r_obj)
 {
