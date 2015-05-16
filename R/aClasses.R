@@ -78,10 +78,36 @@ setMethod("[[", c("CXCursor", "numeric"),
             children(x)[[i]]
           })
 
+setMethod("[", c("CXCursor", "missing"),
+          function(x, i, j, ...)  {
+            children(x)
+          })
+
+setMethod("[", c("CXCursor", "numeric"),
+          function(x, i, j, ...)  {
+            children(x)[i]
+          })
+setMethod("[", c("CXCursor", "logical"),
+          function(x, i, j, ...)  {
+            children(x)[i]
+          })
+
+setMethod("lapply", c("CXCursor"),
+          function(X, FUN, ...)  {
+            lapply(children(x), FUN, ...)
+          })
+
+
+
 # length of CXCursor is the number of children
 setMethod("length", "CXCursor",
           function(x) {
             length(children(x))
+          })
+
+setMethod("names", "CXCursor",
+          function(x) {
+            sapply(children(x), getName)
           })
 
 

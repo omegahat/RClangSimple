@@ -127,13 +127,18 @@ function() {
           # allow for repeats, e.g.  A, B = A,
           # also pick up from the last value.
           # Also allow for explicit numbering
+
        val = if(length(curDef)) curDef[length(curDef)] + 1L else 0L
        toks = getCursorTokens(cur)
+#if(curName == "LLVMAttribute") browser()
+       if(length(toks) && toks[length(toks)] %in%  c(",", "}"))
+           toks = toks[ - length(toks)]
+       
        if(length(toks) > 2) {
-          if( any(names(toks[-1]) == "Identifier")) {
+          if( any(names(toks[-1]) == "Identifier") && length(toks) == 3) {
              val = toks[-1]["Identifier"]
              val = curDef[val]
-          } else if( any(names(toks[-1]) == "Literal")) {
+          } else if( any(names(toks[-1]) == "Literal") && length(toks) == 3) {  
                   #XXX Need to handle 1L << 0 or whatever
                   # remove the L at the end of a literal.
              val = as.integer(gsub("L$", "", toks[-1]["Literal"]))
@@ -142,14 +147,35 @@ function() {
              i = match(tmp, c("false", "true"))
              if(!is.na(i))
                val = i - 1L
-             else
-               stop("don't understand this enum setting yet")
-          } else
-             stop("don't understand this enum yet")
-       }
-       curDef[getName( cur ) ] <<- val
-     } else if(doStop) {
+             else {
+               warning(paste("don't understand this enum setting yet:", paste(toks, collapse = " ")))
+               val = NA
+             }
+          } else {
+              if(any ( i <- toks == "=")) 
+                 toks = toks[-(1:which(i)[1])]
 
+                    # now hopefully we just have the tokens in an expression
+               if(length(toks) == 3) {
+                   val = enumExpr(toks, curDef, enums)
+               } else if(length(toks) == 2) {
+                   val = getEnumValue(toks[2], curDef)
+                   if(toks[1] == "-")
+                       val = - val
+               } else {
+                  warning(paste("don't understand this enum yet:", paste(toks, collapse  = " ")))
+                  val = NA
+               }
+         }
+       } else if(length(toks) == 1 && names(toks) == "Identifier" && length(cur) == 1) {
+              # This arises in LLVM with macros of the form
+              #   FOO(value, name)  expanding to name = value
+              # but clang representing this as name with value as a child.
+          val <- as.integer(getCursorTokens(cur[[1]])["Literal"])
+       }
+       curDef[ getName( cur ) ] <<- val
+     } else if(doStop) {
+         stop("enum value not processed by current code")
 #cat(names(cur$kind), getName(cur), "\n")
 #if(cur$kind == CXCursor_FirstExpr) print(getTypeKind(cur$type))
 #  doStop <<- FALSE
@@ -163,6 +189,45 @@ function() {
 }
 
 
+getEnumValue =
+function(a, values)
+{
+  if(a %in% names(values))
+     values[a]
+  else
+     as.integer(a)
+}
+
+enumExpr =
+function(toks, curDef, tuEnums)
+{
+  if(length(toks) > 3)
+     stop("not there yet")
+
+  vals = sapply(toks[c(1, 3)], getEnumValue, curDef)
+  
+  if(toks[2] == "<<") {
+    bitShift(vals[1], vals[2])
+  } else if(toks[2] == "::") {
+        # want to look this up in the entire collection of enums.
+      def = tuEnums[[ toks[1] ]]
+      def[toks[3]]
+  } else {
+    get(toks[2], mode = "function")(vals[1], vals[2])
+  }
+}
+
+bitShift =
+function(x, y)
+{
+   if(x == 1)
+       as.integer(2L^y)
+   else {
+       library(bitops)
+       as.integer(bitShiftL(x, y))
+#       stop("not implemented yet")
+   }
+}
 
 genTypeCollector =
   # reconcile with data structure collector

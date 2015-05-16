@@ -43,13 +43,32 @@ function(cursor, name = getName(cursor), rclassName = NA)
         curMethod <<- list(def = cur, access = accessLevel, name = id, params = list())       
      } else if(k == CXCursor_ParmDecl) {
          id = getName(cur)
-         curMethod$params[[ id ]] <<- cur
-         methods[[curMethod$name]] <<- curMethod
+         if(length(curMethod)) {
+         #         curMethod$params[[ id ]] <<- cur
+             n = length(curMethod$params) + 1
+             curMethod$params[[ n ]] <<- cur
+             names(curMethod$params)[n] = id
+             methods[[curMethod$name]] <<- curMethod
+         } else {
+             warning("ParmDecl without a current method. Part of a typedef for a function pointer type? " , names(parent$kind))
+         }
      } else if(k == CXCursor_CXXBaseSpecifier) {
         name = gsub("class ", "", getName(cur))
         superClasses[[name]] <<- cur
      } else if(k == CXCursor_TemplateTypeParameter)
        templateParams[[ getName(cur) ]] <<- templateParams
+     else if(k == CXCursor_TypedefDecl) {
+      #XXX implement this.
+     } else if(k == CXCursor_ClassDecl) {
+ warning("Skipping (nested) ClassDecl for ", getName(cur), " in ", getName(parent))
+     } else if(k == CXCursor_DeclStmt) {
+#cat("DeclStmt", names(k), names(parent$kind), "\n")
+     }   else if(k %in% c(CXCursor_MemberRef, CXCursor_VarDecl)) {
+       #  browser()
+     } else {
+      # pos = getLocation(parent)         
+      # cat("unhandled cursor kind", names(k), " @ ", pos$file, pos$location["line"], "\n")
+     }
      
      CXChildVisit_Recurse
    }
