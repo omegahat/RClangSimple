@@ -1,9 +1,13 @@
 #!/bin/sh
 
 
+echo "Architecture: $R_ARCH"
+
 # The directory that LLVM is installed by default.
 if test -z "$CLANG_LIB" ; then
- CLANG_LIB="C:/PROGRA~1/LLVM"
+# CLANG_LIB="C:/PROGRA~1/LLVM"
+ CLANG_LIB="C:/Program Files (x86)/LLVM"
+#CLANG_LIB="C:/PROGRA~2"
 # CLANG_LIB=`where libclang.dll | dirname`
 fi
 
@@ -17,7 +21,7 @@ echo "Using clang includes and library in $CLANG_LIB"
 
 # Copy libclang.dll to the src/ directory and we'll create
 # the libclang.a if necessary.
-cp $CLANG_LIB/bin/libclang.dll src/
+cp "$CLANG_LIB/bin/libclang.dll" src/
 
 
 # If the caller has set RCIndex_KEEP_LOCAL_CLANG_DLL, then obey that.
@@ -42,16 +46,19 @@ if test -f "$CLANG_LIB/bin/libclang.a" ; then
    cp "$CLANG_LIB/bin/libclang.a" src
 else
    echo "Creating libclang.a locally"
-   cd src
-   pexports.exe libclang.dll > libclang.def
-   dlltool -U -d libclang.def -l libclang.a
+   (cd src ;
+      pexports.exe libclang.dll > libclang.def ;
+      dlltool -U -d libclang.def -l libclang.a)
 fi
 
 
 if ! test "$RCIndex_KEEP_LOCAL_CLANG_DLL" = "true" ; then
   echo "removing local copy of libclang.dll"
-  rm libclang.dll
+  rm src/libclang.dll
+else
+  echo "Keeping liblcang.dll locally in package"
 fi
 
+(cd src ; sed -Ee "s!CLANG_DIR=!CLANG_DIR=$CLANG_LIB!" Makevars.win.in > Makevars.win)
 
 # pexports.exe -
