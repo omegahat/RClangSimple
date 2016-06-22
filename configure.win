@@ -2,19 +2,31 @@
 
 
 echo "Architecture: $R_ARCH"
+echo "Installing into $R_PACKAGE_DIR"
 
 # The directory that LLVM is installed by default.
 if test -z "$CLANG_LIB" ; then
-if test "$R_ARCH"  = "/i386" ; then
-  CLANG_LIB="C:/Program Files/LLVM"
-else
-  CLANG_LIB="C:/Program Files (x86)/LLVM"
+
+# See if we can find libclang.dll directory from the PATH
+# using window's own where command. Then strip away two levels of directories,
+# i.e.
+#     CLANG_LIB=`where libclang.dll | dirname | dirname`
+ XCLANG_LIB=`where libclang.dll`
+ if test -n "$XCLANG_LIB" ; then
+   CLANG_LIB=`echo "$XCLANG_LIB" | sed -e 's|\\\\|/|g' | sed -Ee 's|/[^/]+/libclang.dll||'`
+   echo "Found libclang.dll in $CLANG_LIB"
+ else
+   if test "$R_ARCH"  = "/i386" ; then
+      CLANG_LIB="C:/Program Files/LLVM"
+   else
+      CLANG_LIB="C:/Program Files (x86)/LLVM"
+   fi
+ fi
+# PROGRA~1 = C:/Program Files/
+# PROGRA~2 = C:/Program Files (x86)/
+
 fi
 
-# CLANG_LIB="C:/PROGRA~1/LLVM"
-#CLANG_LIB="C:/PROGRA~2"
-# CLANG_LIB=`where libclang.dll | dirname`
-fi
 
 if ! test -d "$CLANG_LIB" || ! test -r "$CLANG_LIB/bin/libclang.dll"; then
   echo "Don't kow where to find the LLVM/Clang library installation"

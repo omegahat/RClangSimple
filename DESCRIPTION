@@ -30,4 +30,5 @@ Depends: R (>= 2.7.0), RAutoGenRunTime
 URL: http://www.omegahat.org/RCIndex
 Imports: methods
 Suggests: igraph, bitops
+Biarch: TRUE
 
