@@ -1,6 +1,6 @@
 #CLANG_INC=C:/Program\ Files/LLVM/include
 
-CLANG_DIR=C:/Program Files (x86)/LLVM
+CLANG_DIR=C:/Program Files/LLVM
 
 CLANG_INC="${CLANG_DIR}/include"
 CLANG_LIB="${CLANG_DIR}/bin"

@@ -5,13 +5,18 @@ echo "Architecture: $R_ARCH"
 
 # The directory that LLVM is installed by default.
 if test -z "$CLANG_LIB" ; then
+if test "$R_ARCH"  = "/i386" ; then
+  CLANG_LIB="C:/Program Files/LLVM"
+else
+  CLANG_LIB="C:/Program Files (x86)/LLVM"
+fi
+
 # CLANG_LIB="C:/PROGRA~1/LLVM"
- CLANG_LIB="C:/Program Files (x86)/LLVM"
 #CLANG_LIB="C:/PROGRA~2"
 # CLANG_LIB=`where libclang.dll | dirname`
 fi
 
-if ! test -d "$CLANG_LIB" ; then
+if ! test -d "$CLANG_LIB" || ! test -r "$CLANG_LIB/bin/libclang.dll"; then
   echo "Don't kow where to find the LLVM/Clang library installation"
   echo "Please specify the location by setting the environment variable CLANG_LIB"
   exit 1
