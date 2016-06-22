@@ -11,11 +11,23 @@ if test -z "$CLANG_LIB" ; then
 # using window's own where command. Then strip away two levels of directories,
 # i.e.
 #     CLANG_LIB=`where libclang.dll | dirname | dirname`
+  
  XCLANG_LIB=`where libclang.dll`
+    # now check if the architecture is correct, i.e. libclang.dll
+    # is 32 or 64 bit that matches $R_ARCH.
  if test -n "$XCLANG_LIB" ; then
-   CLANG_LIB=`echo "$XCLANG_LIB" | sed -e 's|\\\\|/|g' | sed -Ee 's|/[^/]+/libclang.dll||'`
-   echo "Found libclang.dll in $CLANG_LIB"
- else
+   TMP6=`file "$XCLANG_LIB" | grep 'x86-64'`
+   TMP3=`file "$XCLANG_LIB" | grep '80386'`
+   echo "TMP6 = $TMP6,  TMP3=$TMP3"
+   if test "$R_ARCH" = "/x64" && test -n "$TMP6" ; then OK=1 ; fi 
+   if test "$R_ARCH" = "/i386" && test -n "$TMP3"; then OK=1; fi
+   if test "$OK" = 1 ; then
+      CLANG_LIB=`echo "$XCLANG_LIB" | sed -e 's|\\\\|/|g' | sed -Ee 's|/[^/]+/libclang.dll||'`
+      echo "Found compatible libclang.dll on the executable PATH in $CLANG_LIB"
+   fi
+ fi
+
+ if test -z "$CLANG_LIB" ; then 
    if test "$R_ARCH"  = "/i386" ; then
       CLANG_LIB="C:/Program Files/LLVM"
    else
@@ -24,7 +36,6 @@ if test -z "$CLANG_LIB" ; then
  fi
 # PROGRA~1 = C:/Program Files/
 # PROGRA~2 = C:/Program Files (x86)/
-
 fi
 
 
