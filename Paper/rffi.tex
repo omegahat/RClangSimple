@@ -105,7 +105,7 @@ Once we have the \Rclass{CXType}, we can query the kind of type it is
 with \Rfunc{getTypeKind}.
 Given the kind, we first check to see if it corresponds to one of the
 primitive \C{} types. We make a list of these by combining
-the different enumeration values for \Rclass{CXType}, e.g. 
+the different enumeration values for \Rclass{CXType}, e.g.,
 \Rvar{CXType_Double}, \Rvar{CXType_Int} and so on.
 We can do this with
 \begin{RCode}
@@ -169,7 +169,7 @@ the \Rpkg{rdyncall} string \dquote{Z}.
 
 If the pointee type is not a \Rvar{CXType_Char_S}, then we check to
 see if it is a basic type again. If so, we will combine the type
-string for this basic type with a $\ast$ prefix, e.g. \dquote{*i}.  If
+string for this basic type with a $\ast$ prefix, e.g., \dquote{*i}.  If
 the type is not a basic type, then it is a pointer to a generic \C{}
 type and we return \dquote{p}, as \Rpkg{rdyncall} requires.
 
