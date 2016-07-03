@@ -92,9 +92,9 @@ setMethod("[", c("CXCursor", "logical"),
             children(x)[i]
           })
 
-setMethod("lapply", c("CXCursor"),
+setMethod("lapply", "CXCursor",
           function(X, FUN, ...)  {
-            lapply(children(x), FUN, ...)
+            lapply(children(X), FUN, ...)
           })
 
 

@@ -18,11 +18,11 @@ function(src, visitor = simpleVisitor,  idx = createIndex(),
 }
 
 visitChildren =
-function(cursor, fun, clone = FALSE) {
+function(cursor, fun, clone = FALSE, data = NULL) {
   if(!is.function(fun))
     stop("visitChildren needs an R function to apply to each cursor/element")
   
-  .Call("R_clang_visitChildren", cursor, fun, as.logical(clone))
+  .Call("R_clang_visitChildren", cursor, fun, as.logical(clone), data)
 }
 
 setGeneric("clone",

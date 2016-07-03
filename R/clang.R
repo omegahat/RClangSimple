@@ -54,11 +54,10 @@ setAs("CXCursor", "CXType",
            from$type)
 
 visitTU = visitCursor = 
-function(tu, fun, clone = TRUE, ...)
+function(tu, fun, clone = TRUE, data = NULL, ...)
 {
    if(is.character(tu))
      tu = createTU(tu, ...)
-
 
    orig = fun
    if(is(fun, "S4CursorVisitor"))
@@ -69,10 +68,10 @@ function(tu, fun, clone = TRUE, ...)
    if(!is.function(fun) && !is(fun, "NativeSymbol"))
      stop("must supply an R function to visitTU")
 
-      do = function(tu) {
-        tu = as(tu, "CXCursor")            
-        .Call("R_clang_visitChildren", tu, fun, as.logical(clone))
-      }
+   do = function(tu) {
+          tu = as(tu, "CXCursor")            
+          .Call("R_clang_visitChildren", tu, fun, as.logical(clone), data)
+        }
    
    ans = if(is(tu, "CXTranslationUnitList"))
             lapply(tu, do)
@@ -236,7 +235,10 @@ function()
 
 getInclusions =
 function(file, flat = FALSE,
-           fun = if(flat) genInclusionCollector() else genHierarchicalInclusionCollector(), ...)  
+           fun = if(flat)
+                    genInclusionCollector()
+                 else
+                    genHierarchicalInclusionCollector(), ...)  
 {
    if(is.character(file))
       file = createTU(file, ...)

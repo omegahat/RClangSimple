@@ -469,3 +469,5 @@ export(isFnPointer, getFnPointerInfo)
 export(makeTikzGraph)
 export(makeCallGraph)
 
+
+export(getQualifiers)

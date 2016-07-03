@@ -189,7 +189,7 @@ R_visitor(CXCursor cursor, CXCursor parent, CXClientData userData)
 
 
 SEXP
-R_clang_visitChildren(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
+R_clang_visitChildren(SEXP r_tu, SEXP r_visitor, SEXP r_clone, SEXP r_data)
 {
     unsigned ans;
 
@@ -197,14 +197,22 @@ R_clang_visitChildren(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
     CXCursorVisitor fun = R_visitor;
     RVisitorData data;
     data.clone = INTEGER(r_clone)[0];
+    void *ptr = &data;
 
     if(TYPEOF(r_visitor) == CLOSXP) {
 	PROTECT(data.expr = allocVector(LANGSXP, 3));
         SETCAR(data.expr, r_visitor);
-    } else 
+    } else {
 	fun = (CXCursorVisitor) R_ExternalPtrAddr(r_visitor);
+	if(TYPEOF(r_data) == EXTPTRSXP)
+	    ptr = R_ExternalPtrAddr(r_data);
+	else if(r_data != R_NilValue)
+	    ptr = r_data;
+	else
+	    ptr = NULL;
+    }
 
-    ans = clang_visitChildren(*cursor, fun, &data);   
+    ans = clang_visitChildren(*cursor, fun, ptr);   
 
     if(TYPEOF(r_visitor) == CLOSXP)
 	UNPROTECT(1);
@@ -248,6 +256,7 @@ R_clang_getInclusions(SEXP r_tu, SEXP r_visitor)
     CXInclusionVisitor fun = R_inclusion_visitor;
     RVisitorData data;
 //    data.clone = LOGICAL(r_clone)[0];
+    data.clone = 0;
 
     if(TYPEOF(r_visitor) == CLOSXP) {
 	PROTECT(data.expr = allocVector(LANGSXP, 3));
@@ -1921,4 +1930,16 @@ R_getPointerAddress(SEXP r_ref)
     char buf[100];
     sprintf(buf, "%p", p);
     return(mkString(buf));
+}
+
+
+
+
+enum CXChildVisitResult 
+R_TestVisitor(CXCursor cur, CXCursor parent, void *data)
+{
+    CXString str = clang_getCursorDisplayName(cur);
+    CXString pstr = clang_getCursorDisplayName(parent);
+    Rprintf("%d %s (%d %s)\n", cur.kind, clang_getCString(str), parent.kind, clang_getCString(pstr));
+    return(CXChildVisit_Recurse);
 }

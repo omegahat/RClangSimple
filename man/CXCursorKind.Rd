@@ -165,6 +165,17 @@
 \alias{CXCursor_FirstExtraDecl}
 \alias{CXCursor_LastExtraDecl}
 \alias{CXCursorKind-class}
+
+\alias{CXCursor_PackedAttr}
+\alias{CXCursor_PureAttr}
+\alias{CXCursor_ConstAttr}
+\alias{CXCursor_NoDuplicateAttr}
+
+\alias{CXCursor_ObjCSelfExpr}
+
+\alias{CXCursor_OMPParallelDirective}
+\alias{CXCursor_OMPSimdDirective}
+
  
 \docType{data}
 \title{Enumerations for different types of cursors/nodes in C parser tree}

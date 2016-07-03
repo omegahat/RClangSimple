@@ -27,8 +27,8 @@ function(tu, withinFile = TRUE, .plot = TRUE, ...)
   
   i = rowSums(m) == 0 & colSums(m) == 0
   mm = m[!i, !i]
-  if(.plot && require(igraph))
-     graph.adjacency(mm, "directed")
+  if(.plot && requireNamespace("igraph", quietly = TRUE))
+     igraph::graph.adjacency(mm, "directed")
   else
      mm
 }

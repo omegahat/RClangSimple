@@ -17,8 +17,8 @@ Paper/.*.so$
 inst/exampleCode/.*\.o$
 \.prof$
 [^/]+\.rda$
-.*.aux
-.*.log
+.*.aux$
+.*.log$
 [^/]+\.tex$
 [^/]+\.pdf$
 Next

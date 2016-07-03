@@ -223,9 +223,10 @@ function(x, y)
    if(x == 1)
        as.integer(2L^y)
    else {
-       library(bitops)
-       as.integer(bitShiftL(x, y))
-#       stop("not implemented yet")
+       if(requireNamespace("bitops", quietly = TRUE)) {
+          as.integer(bitops::bitShiftL(x, y))
+       } else
+         stop("the bitops package is not installed")
    }
 }
 
@@ -564,6 +565,7 @@ function(cur, clone = FALSE)
 
 getQualifiers =
   # determine if an entity is const, static.
+  # ??? Should be looking at CXCursor_ConstAttr 
 function(cur)
 {
   toks = getCursorTokens(cur)

@@ -5,7 +5,14 @@
 \alias{length,CXCursor-method}
 \alias{$,CXCursor-method}
 \alias{[[,CXCursor,numeric,ANY-method}
+\alias{[,CXCursor,logical,ANY-method}
+\alias{[,CXCursor,numeric,ANY-method}
+\alias{[,CXCursor,missing,ANY-method}
 \alias{show,CXCursor-method}
+\alias{lapply,CXCursor-method}
+\alias{names,CXCursor-method}
+
+
 \title{The \code{CXCursor} class}
 \description{
   The \code{CXCursor} is one of the two primary
