@@ -1,0 +1,41 @@
+RAutoGenRunTime
+  Warning: class "CXGlobalOptFlags" is inheriting an inconsistent superclass structure from class "BitwiseValue", inconsistent with "SymbolicConstant"
+  Warning: class "CXTranslationUnit_Flags" is inheriting an inconsistent superclass structure from class "BitwiseValue", inconsistent with "SymbolicConstant"
+
+  RAutoGenRunTime itself:
+    Warning in makeExtends(class1, class2, coerce, test, replace, by, classDef1 = classDef,  :
+     there is no automatic definition for 'as(object, "ANY") <- value' when object has class “VariableReference” and no 'replace' argument was supplied; replacement will be an error
+
+On CRAN or copy code into RCIndex?
+
+Compilation/linking on OSX
+
+Need for clang installation itself.
+
+
+"int" at the end of the text display
+getQualifiers.Rd example:
+top[c(1, 3)]
+[[1]]
+CXCursor_FunctionDecl int foo ( const char * x ) { return ( 3 ) ; } int 
+
+########
+
+
+print(load("RClangSimple/LeftToDo.rda"))
+sum(sapply(rgrp, length))
+
+#########################
+
+WORKING
+library(RCIndex)
+f = system.file("exampleCode", "const.c", package = "RCIndex")
+tu = createTU(f)
+top = as(tu, "CXCursor")
+getQualifiers(top[[1]][[1]])
+
+getCursorTokens(top[[1]][[1]])
+isConstQualifiedType(getType(top[[1]][[1]]))
+
+
+
