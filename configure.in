@@ -84,8 +84,21 @@ if ! test -r $CLANG_INC/clang-c/Index.h; then
   echo "Is CLANG_INC correct"
 fi
 
+# https://www.gnu.org/software/autoconf-archive/ax_compare_version.html
+if test `uname` = "Darwin" ; then
+    dnl https://coderwall.com/p/4yz8dq/determine-os-x-version-from-the-command-line
+  OSX_VERSION=[`defaults read loginwindow SystemVersionStampAsString | sed -Ee 's/.[0-9]+$//'`]   # the [] are necessary due to the [] in the sed expression.
+echo "Testing OSX version"
+  echo "$OSX_VERSION >= 10.11" | bc
+  if test $? ; then 
+    CLANG_RPATH="-Wl,-rpath,$CLANG_LIB"
+    echo "Setting CLANG_RPATH to $CLANG_RPATH"
+  fi
+  dnl  AX_COMPARE_VERSION($OSX_VERSION, [ge], [10.11.0], [CLANG_RPATH="-W,-rpath$CLANG_LIB"], [CLANG_RPATH=""])
+fi
 
 AC_SUBST(CLANG_INC)
 AC_SUBST(CLANG_LIB)
+AC_SUBST(CLANG_RPATH)
 
 AC_OUTPUT(src/Makevars)

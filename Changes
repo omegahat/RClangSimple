@@ -4,6 +4,8 @@
 
   *  getQualifiers() function.
 
+  *  Configuration and linking support for OSX >= 10.11.0
+
 0.2-0
 
   *  Added lapply() and [] methods for a CXCursor to facilitate treating a cursor as a list.
