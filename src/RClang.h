@@ -5,6 +5,7 @@
 #include <Index.h>
 #else
 #include <clang-c/Index.h>
+#include <clang-c/Documentation.h>
 #endif
 
 
