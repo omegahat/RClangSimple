@@ -12,7 +12,7 @@ getQualifiers(cur)
   \item{cur}{the \code{CXCursor} instance}
 }
 \value{
-
+A named logical vector, currently with elements nameds \code{static} and \code{const}.
 }
 \references{
    libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
@@ -25,6 +25,12 @@ Duncan Temple Lang
 \code{\link{parseTU}}
 }
 \examples{
+ f = system.file("exampleCode", "const.c", package = "RCIndex")
+ tu = createTU(f)
+ top = as(tu, "CXCursor")
+ getQualifiers(top[[1]][[1]]) # const char * x
+ getQualifiers(top[[1]][[1]]) # const char * x
+ getQualifiers(top[[2]][[1]]) # const char * const x
 }
 \keyword{programming}
 \concept{meta-programming}
