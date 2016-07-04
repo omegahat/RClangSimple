@@ -73,6 +73,28 @@ setAs("CXTranslationUnit", "character",
       function(from)
          getFileName(from))
 
+
+setMethod("[[", c("CXCursor", "character"),
+          function(x, i, j, ...)  {
+            ids = sapply(x, getName)
+            idx = match(i, ids)
+            if(is.na(idx))
+               NULL
+            else
+               children(x)[[idx]]
+          })
+
+setMethod("[", c("CXCursor", "character"),
+          function(x, i, j, ...)  {
+            ids = sapply(x, getName)
+            idx = match(i, ids)
+            if(all(is.na(idx)))
+               NULL
+            else
+               children(x)[idx]
+          })
+
+
 setMethod("[[", c("CXCursor", "numeric"),
           function(x, i, j, ...)  {
             children(x)[[i]]
@@ -95,6 +117,11 @@ setMethod("[", c("CXCursor", "logical"),
 setMethod("lapply", "CXCursor",
           function(X, FUN, ...)  {
             lapply(children(X), FUN, ...)
+          })
+
+setMethod("sapply", "CXCursor",
+          function(X, FUN, ...)  {
+            sapply(children(X), FUN, ...)
           })
 
 
