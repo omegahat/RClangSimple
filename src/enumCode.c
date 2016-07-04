@@ -158,9 +158,11 @@ switch(val) {
    case CXCallingConv_AAPCS_VFP:
 	elName = "CXCallingConv_AAPCS_VFP";
 	break;
+#if 0
    case CXCallingConv_PnaclCall:
 	elName = "CXCallingConv_PnaclCall";
 	break;
+#endif
    case CXCallingConv_IntelOclBicc:
 	elName = "CXCallingConv_IntelOclBicc";
 	break;
