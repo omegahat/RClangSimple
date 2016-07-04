@@ -1,2 +1,4 @@
 PKG_CPPFLAGS=-I@CLANG_INC@ -DR_REF_NO_CLASS_MATCH_ERROR=1
-PKG_LIBS=-L@CLANG_LIB@  -lclang
+PKG_LIBS=-L@CLANG_LIB@  @CLANG_RPATH@ -lclang
+
+# For the -Wl,-rpath$(HOME)/LLVM3.5/clang+llvm-3.5.0-macosx-apple-darwin/lib/
