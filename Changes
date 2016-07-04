@@ -1,3 +1,11 @@
+0.3-0
+
+  *  Child accessors of a cursor by name
+
+  *  getQualifiers() function.
+
+0.2-0
+
   *  Added lapply() and [] methods for a CXCursor to facilitate treating a cursor as a list.
 
   *  Simple efforts to map the cursor tree to igraph tree and a tikz figure in LaTeX.

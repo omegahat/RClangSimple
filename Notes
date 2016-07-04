@@ -1,5 +1,5 @@
 To find the names of the binary operators, we can use
-an approximatin with .Call("R_getCursorTokens", ...)
+an approximation with .Call("R_getCursorTokens", ...)
 
 Indexing allows us to have multiple TU together and
 have them be related, i.e. entities in one referenced in another.
