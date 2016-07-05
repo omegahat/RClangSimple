@@ -1,9 +1,7 @@
-CLANG_INC=C:/Program\ Files/LLVM/include
+#CLANG_INC=C:/Program\ Files/LLVM/include
+
 CLANG_INC=C:/PROGRA~1/LLVM/include
-#CLANG_LIB="C:/Program\ Files/LLVM/bin"
-#CLANG_LIB="C:/PROGRA~1/LLVM/lib"
-CLANG_LIB="C:/PROGRA~1/LLVM/bin"
+CLANG_LIB=C:/PROGRA~1/LLVM/bin
+
 PKG_CPPFLAGS=-I${CLANG_INC}  -DR_REF_NO_CLASS_MATCH_ERROR=1
 PKG_LIBS=-L${CLANG_LIB} -lclang
-#PKG_LIBS=${CLANG_LIB}/libclang.lib
-#PKG_LIBS=-L${CLANG_LIB} -llibclang
