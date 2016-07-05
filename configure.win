@@ -1,0 +1,21 @@
+#!/bin/sh
+if ! test -d "C:/PROGRA~1/LLVM" ; then
+  echo ""
+  exit 1
+fi
+
+echo "Using code in C:/Program Files/LLVM"
+
+cp C:/PROGRA~1/LLVM/bin/libclang.dll  src/
+
+if test -f "C:PROGRA~1/LLVM/bin/libclang.a" ; then
+   echo "Using existing libclang.a"
+   cp "C:/PROGRA~1/LLVM/bin/libclang.a" src
+else
+   echo "Creating libclang.a locally"
+   cd src
+   pexports.exe libclang.dll > libclang.def
+   dlltool -U -d libclang.def -l libclang.a
+fi
+
+# pexports.exe -
