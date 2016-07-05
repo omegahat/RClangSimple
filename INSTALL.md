@@ -49,7 +49,7 @@ So one means to install this is
  export CLANG_LIB=${HOME}/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23/lib
 
   R CMD INSTALL RCIndex_0.3-0.tar.gz
-``
+```
 
 
 An installation of clang+llvm on a machine from the prebuilt binaries may not work if the supporting libraries are not present.
@@ -58,7 +58,6 @@ For example, the following is output from R CMD INSTALL
  unable to load shared object '/home/duncan/Rpackages/RCIndex/libs/RCIndex.so':
   /lib64/libc.so.6: version `GLIBC_2.15' not found (required by /home/duncan/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23/lib/libclang.so.3.8)
 ```
-
 The issue is the version of libc and this requires updating or overriding other software on the machine.
 
 
