@@ -1,0 +1,16 @@
+Download 
+ Clang for Windows (64-bit) (http://llvm.org/releases/3.8.0/LLVM-3.8.0-win64.exe)
+from http://llvm.org/releases/download.html
+and run the executable.
+This will create a directory LLVM in C:/Program\ Files/
+and it will contain the include/, bin/ and lib/ directories, amongst others.
+
+
+Download pexports.exe and copy it to C:/Rtools/bin/
+
+ cd LLVM/bin
+ pexports.exe libclang.dll > libclang.def
+ dlltool -U -d libclang.def -l libclang.a
+
+ cp libclang.dll
+
