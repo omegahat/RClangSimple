@@ -1,5 +1,6 @@
+#H1 UNIX
 To install on Linux, install llvm + clang.
-You can install these from
+You can download pre-built binaries from
     http://llvm.org/releases/download.html
 
 Install the relevant one for your Linux distribution.
@@ -8,16 +9,22 @@ Use Fedora for Scientific Linux Release.
 
 You can extract the archive to a local directory, say
 ```
- /home/duncan/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23
+mkdir ~/ClangLLVM
+tar Jxf clang+llvm-3.8.0-x86_64-fedora23.tar.xz -C ~/ClangLLVM
+```
+to create
+```
+/home/duncan/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23
 ```
 
 Then we can install the package with 
-R CMD INSTALL --configure-args='--with-clang=/home/duncan/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23' RCIndex_0.2-0.tar.gz
+```
+ R CMD INSTALL --configure-args='--with-clang=/home/duncan/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23' RCIndex_0.2-0.tar.gz
+```
 or 
 ```r
  install.packages("RCIndex", configure.args = c("--with-clang", "/home/duncan/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23"))
 ```
-
 The --with-clang configuration parameter specifies the directory that contains the lib/ and include/ directories.
 
 In some situations, the include/ and lib/ directories are not under the same directory. We can specify the include/ and lib/
@@ -60,10 +67,10 @@ For example, the following is output from R CMD INSTALL
 ```
 The issue is the version of libc and this requires updating or overriding other software on the machine.
 
+#H2 Ubuntu
 
 On Ubuntu, you can install the necessary headers and libraries via the libclang-dev module:
 ```
 sudo apt install libclang-dev
 ```
-
 It is probably sensible to install clang and llvm.
