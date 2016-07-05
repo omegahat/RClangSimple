@@ -442,7 +442,7 @@ fprintf(stderr, "decrementing TU %p (%d) for %p\n", id, (int) ptr->count, For);
 #if DEBUG_RCLANG_REF_COUNT
 		fprintf(stderr, "!!!  releasing the translation unit\n");
 #endif
-		clang_disposeTranslationUnit(ptr->id);		
+		clang_disposeTranslationUnit((CXTranslationUnit) ptr->id);		
 		removeTuTable(ptr);
 	    }
 	    return(1);
@@ -1779,7 +1779,7 @@ R_clang_visitChildren_LLVM_test(SEXP r_tu, SEXP r_visitor, SEXP r_clone)
     CXCursor *cursor = GET_REF(r_tu, CXCursor);
     LLVMVisitor *fun = (LLVMVisitor*) R_ExternalPtrAddr(r_visitor);
 
-    ans = clang_visitChildren(*cursor, R_visitor_with_pointers, fun);   
+    ans = clang_visitChildren(*cursor, (CXCursorVisitor) R_visitor_with_pointers, fun);   
     return(ScalarInteger(ans));
 }
 

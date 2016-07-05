@@ -1,21 +1,57 @@
 #!/bin/sh
-if ! test -d "C:/PROGRA~1/LLVM" ; then
-  echo ""
+
+
+# The directory that LLVM is installed by default.
+if test -z "$CLANG_LIB" ; then
+ CLANG_LIB="C:/PROGRA~1/LLVM"
+# CLANG_LIB=`where libclang.dll | dirname`
+fi
+
+if ! test -d "$CLANG_LIB" ; then
+  echo "Don't kow where to find the LLVM/Clang library installation"
+  echo "Please specify the location by setting the environment variable CLANG_LIB"
   exit 1
 fi
 
-echo "Using code in C:/Program Files/LLVM"
+echo "Using clang includes and library in $CLANG_LIB"
 
-cp C:/PROGRA~1/LLVM/bin/libclang.dll  src/
+# Copy libclang.dll to the src/ directory and we'll create
+# the libclang.a if necessary.
+cp $CLANG_LIB/bin/libclang.dll src/
 
-if test -f "C:PROGRA~1/LLVM/bin/libclang.a" ; then
+
+# If the caller has set RCIndex_KEEP_LOCAL_CLANG_DLL, then obey that.
+# Otherwise, see if libclang.dll is in the PATH and if it is
+# then we'll use that, and not have one in the package.
+# This is tricky as if the creator of a binary has the LLVM/bin directory
+# in their path to be able to call clang.exe, etc., then we won't copy 
+# libclang.dll into the src/ directory and installed package
+# But then they can set 
+#   RCIndex_KEEP_LOCAL_CLANG_DLL="true"
+# so that we do keep it.
+ 
+if test -z "$RCIndex_KEEP_LOCAL_CLANG_DLL" ; then
+ TMP=`where libclang.dll`
+ if test -z "$TMP" ; then
+  RCIndex_KEEP_LOCAL_CLANG_DLL="true"
+ fi
+fi
+
+if test -f "$CLANG_LIB/bin/libclang.a" ; then
    echo "Using existing libclang.a"
-   cp "C:/PROGRA~1/LLVM/bin/libclang.a" src
+   cp "$CLANG_LIB/bin/libclang.a" src
 else
    echo "Creating libclang.a locally"
    cd src
    pexports.exe libclang.dll > libclang.def
    dlltool -U -d libclang.def -l libclang.a
 fi
+
+
+if ! test "$RCIndex_KEEP_LOCAL_CLANG_DLL" = "true" ; then
+  echo "removing local copy of libclang.dll"
+  rm libclang.dll
+fi
+
 
 # pexports.exe -
