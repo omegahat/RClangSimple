@@ -1,4 +1,4 @@
-#H1 UNIX
+# UNIX
 To install on Linux, install llvm + clang.
 You can download pre-built binaries from
     http://llvm.org/releases/download.html
@@ -67,10 +67,36 @@ For example, the following is output from R CMD INSTALL
 ```
 The issue is the version of libc and this requires updating or overriding other software on the machine.
 
-#H2 Ubuntu
+## Ubuntu
 
 On Ubuntu, you can install the necessary headers and libraries via the libclang-dev module:
 ```
 sudo apt install libclang-dev
 ```
 It is probably sensible to install clang and llvm.
+
+
+# Windows
+
+You can download a self-installing executable for LLVM and Clang at 
+ http://llvm.org/releases/download.html
+Choose the 64 or 32  bit version corresponding to the characteristics of the R you currently have installed.
+Download the file and launch it. It will install the necessary files in 
+```
+C:/Program Files/LLVM
+```
+This directory will contain the include/, bin/ and lib/ directories, amongst others.
+
+We have a bin/libclang.dll and lib/libclang.lib. However, we need to create a libclang.a
+in order to create the RCIndex shared library (RCIndex.dll).
+To create this, we use the commands
+```
+pexports.exe libclang.dll > libclang.def
+dlltool -U -d libclang.def -l libclang.a
+```
+This requires installing pexports which can be [downloaded
+from here](https://sourceforge.net/projects/mingw/files/MinGW/Extension/pexports/).
+Place the pexports.exe executable in your path, e.g. in `C:/Rtools/bin`.
+
+If libclang.a is not in LLVM/bin/, the configure.win script will create it.
+
