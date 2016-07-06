@@ -1,4 +1,4 @@
-# UNIX
+# UNIX - installing binaries from LLVM.org
 To install on Linux, install llvm + clang.
 You can download pre-built binaries from
     http://llvm.org/releases/download.html
@@ -39,33 +39,34 @@ R CMD INSTALL
 Instead of using the command line arguments via --configure-args and --with-clang, --with-clang-include, --with-clang-lib, 
 we can use corresponding environment variables
 ```
+  CLANG_DIR
   CLANG_LIB
   CLANG_INC
-  CLANG_DIR
 ```
-to the parent director, include/ and lib/ directories respectively in the extracted hierarchy, e.g.,
+to the top-level directory, include/ and lib/ directories, respectively in the extracted hierarchy, e.g.,
 
-So one means to install this is
+So one approach to install this on Linux/OSX is
 ```
   wget http://llvm.org/releases/3.8.0/clang+llvm-3.8.0-i686-fedora23.tar.xz
   mkdir ClangLLVM
   cd ClangLLVM
   tar ../clang+llvm-3.8.0-i686-fedora23.tar.xz
  
- export CLANG_INC=${HOME}/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23/include
- export CLANG_LIB=${HOME}/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23/lib
+ export CLANG_DIR=${HOME}/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23
 
   R CMD INSTALL RCIndex_0.3-0.tar.gz
 ```
 
 
-An installation of clang+llvm on a machine from the prebuilt binaries may not work if the supporting libraries are not present.
+An installation of clang+llvm on a machine from the prebuilt binaries may not work if all the supporting libraries are not present.
 For example, the following is output from R CMD INSTALL 
 ```
  unable to load shared object '/home/duncan/Rpackages/RCIndex/libs/RCIndex.so':
   /lib64/libc.so.6: version `GLIBC_2.15' not found (required by /home/duncan/ClangLLVM/clang+llvm-3.8.0-x86_64-fedora23/lib/libclang.so.3.8)
 ```
 The issue is the version of libc and this requires updating or overriding other software on the machine.
+The LLVM/Clang tools that you just installed won't work generally, not only with R.
+
 
 ## Ubuntu
 
@@ -75,6 +76,10 @@ sudo apt install libclang-dev
 ```
 It is probably sensible to install clang and llvm.
 
+Then you can install the package. You do not need to specify the location of the clang
+files as the configuration should be able to use llvm-config to locate the relevant compilation
+and linker flags. You may need to specify the necessary path in LD_LIBRARY_PATH to ensure the libclang.so library
+is found by the loader at run-time.
 
 # Windows
 
