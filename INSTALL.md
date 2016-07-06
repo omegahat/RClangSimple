@@ -81,22 +81,56 @@ It is probably sensible to install clang and llvm.
 You can download a self-installing executable for LLVM and Clang at 
  http://llvm.org/releases/download.html
 Choose the 64 or 32  bit version corresponding to the characteristics of the R you currently have installed.
-Download the file and launch it. It will install the necessary files in 
-```
-C:/Program Files/LLVM
-```
-This directory will contain the include/, bin/ and lib/ directories, amongst others.
+Download the file and launch it. It will install ask where to place the installed files.
+At present, the configuration scripts expect the 32 bit versions to be in 
+|  32  |  64 |
+|------|-----|
+| C:/Program Files/LLVM | C:/Program Files (x86)/LLVM  |
+The relevant directory will contain the include/, bin/ and lib/ directories, amongst others.
 
-We have a bin/libclang.dll and lib/libclang.lib. However, we need to create a libclang.a
+If you add the relevant bin/ directory to your PATH environment variable, the configure.win
+script will attempt to use that. However, be aware that the path should be for the main/primary architecture
+of the R installation.
+
+When working with a 32/64 bit installation of R, you should install the package using
+the --merge-multiarch argument, i.e.,
+```
+R CMD INSTALL --merge-multiarch RCIndex_0.3-0.tar.gz
+```
+Assuming you have installed the LLVM/Clang distributions into the directories above,
+the configuration script will then be able to find the appropriate DLLs for both architectures.
+
+
+
+## Linking Details
+We cannot link directly to libclang.dll using the mingw compiler. Instead, we have to create a libclang.a library.
+The configure.win script takes care of this. It generates libclang.a (for the appropriate architecture - 32 or 64 bit).
+
+We have a bin/libclang.dll and lib/libclang.lib in the LLVM/Clang distribution. However, we need to create a libclang.a
 in order to create the RCIndex shared library (RCIndex.dll).
 To create this, we use the commands
 ```
 pexports.exe libclang.dll > libclang.def
 dlltool -U -d libclang.def -l libclang.a
 ```
-This requires installing pexports which can be [downloaded
-from here](https://sourceforge.net/projects/mingw/files/MinGW/Extension/pexports/).
+This requires installing pexports which can be [downloaded from here](https://sourceforge.net/projects/mingw/files/MinGW/Extension/pexports/).
 Place the pexports.exe executable in your path, e.g. in `C:/Rtools/bin`.
 
-If libclang.a is not in LLVM/bin/, the configure.win script will create it.
+If libclang.a is not in LLVM/bin/, the configure.win script will create it locally within the package's source code.
+
+
+If libclang.dll is found on the PATH, by default, the installation procedure will assume it will be
+found at run-time in the same way, i.e., on the PATH. However, if one sets the environment variable
+```
+RCIndex_KEEP_LOCAL_CLANG_DLL=true
+```
+before installing the package, this will ensure that the libclang.dll is copied to the relevant
+libs/ directory within the R package and available at run-time.
+This is definitely the correct approach when there are two architectures - 32 and 64 bit. 
+
+In general, don't set the PATH to locate libclang.dll (although this means one cannot locate clang.exe, etc.)
+and rely on the fixed locations of the LLVM/Clang installations specified above. This is probably the simplest
+for a bi-architecture setup.
+
+
 
