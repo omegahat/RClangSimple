@@ -34,6 +34,7 @@ enum Plus {
 enum Color getNextColor();
 
 typedef enum Color Color;
+typedef enum Color eColor;
 
 Color getColor(int val);
 
