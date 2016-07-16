@@ -56,7 +56,7 @@ function(top, types = integer())
 
 
 getFunctions.R = getRoutines.R =
-  # THese are the pure R visitor forms. The real functions use a C visitor routine when there is no filtering by files.
+  # These are the pure R visitor forms. The real functions use a C visitor routine when there is no filtering by files.
 function(src, filenames = character(), col = genFunctionCollector(filenames), ...)
 {
   if(is(src, "CXTranslationUnit")) {
@@ -92,4 +92,20 @@ function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedN
     ans = ans[ sapply(ans, function(x) getFileName(x) %in% filenames) ]
   
   lapply(ans, makeRoutineObject)
+}
+
+
+getTypedefs =
+function(src, filenames = TRUE, col = genTypedefCollector(),  ...)
+{
+    if(is.character(src))
+       src = createTU(src, ...)
+    
+    visitTU(src, col$update, clone = TRUE)
+    defs = col$defs()
+    names(defs) = sapply(defs, getName)
+#    if(is.logical(filenames) && filenames)
+#        names(defs) = sapply(defs, getFileName)
+
+    defs
 }
