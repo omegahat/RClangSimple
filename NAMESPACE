@@ -1,5 +1,6 @@
 import(RAutoGenRunTime)
 import(methods)
+import(bitops)
 
 useDynLib(RCIndex)
 
@@ -408,7 +409,8 @@ export(isVoidType, isPointerType, isStringType, isIntegerType)
 
 
 
-export(getVariables, genVariablesCollector)
+export(getVariables, genVariablesCollector, genTypedefCollector)
+export(getTypedefs)
 
 
 #export(disposeIndex)

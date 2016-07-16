@@ -66,13 +66,13 @@ if test -z "$CLANG_LIB" || test -z "$CLANG_INC" ; then
   if test -z "$CLANG_INC" ; then
     echo "****   for now, you must specify the directory containing the clang includes, e.g. .../clang/include"
     echo "      e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/tools/clang/include/"
-    echo "  Set the environment variable CLANG_INC or use --with-clang-include as a command line argument to configure, typically via R CMD INSTALL --configur-args='--with-clang-include=/my/dir/'"
+    echo "  Set the environment variable CLANG_INC or use --with-clang-include as a command line argument to configure, typically via R CMD INSTALL --configure-args='--with-clang-include=/my/dir/'"
   fi
 
   if test -z "$CLANG_LIB" ; then
     echo "****    for now, you must specify the directory containing the clang libraries, e.g .../clang/lib"
     echo "       e.g. /Users/duncan/Projects/Rspeedup/llvm-devel/Debug+Asserts/lib"
-    echo "  Set the environment variable CLANG_LIB or use --with-clang-lib as a command line argument to configure, typically via R CMD INSTALL --configur-args='--with-clang-lib=/my/dir/'"
+    echo "  Set the environment variable CLANG_LIB or use --with-clang-lib as a command line argument to configure, typically via R CMD INSTALL --configure-args='--with-clang-lib=/my/dir/'"
   fi
 
   exit 1
