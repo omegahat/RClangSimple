@@ -102,6 +102,11 @@ names(col$funcs())
 ff = system.file("exampleCode", "funPointer.c", package = "RCIndex")
 routine = getNativeSymbolInfo("R_TestVisitor")$address
 visitTU(ff, routine)
+
+
+# Parse a C++ file.
+f = system.file('exampleCode', 'simpleClass.cpp', package = 'RCIndex')
+createTU(f, args = "-xc++")
 }
 \keyword{programming}
 \keyword{interface} 
