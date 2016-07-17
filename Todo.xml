@@ -9,7 +9,25 @@
 <title>General</title>
 <items>
 
+<item status="done">
+getDataStructures - why are we seeing definitions twice.
+<br/>
+don't descend through the children of these definitions.
+</item>
 <item>
+<r:func>getDataStructures</r:func> returns enums, etc. 
+and all as  StructDefinition.
+<br/>
+Removed the enums so just structs and unions and  typedefs
+</item>
+
+<item>
+S4 class for structure description. And change code in inst/generateCode.
+Make  things consistent.
+</item>
+
+
+<item status="done">
 Merge getInclusions and getIncludes and their documentation.
 </item>
 
@@ -26,17 +44,6 @@ as a value in options for <r:func>createTU</r:func>.
 See http://clang-developers.42468.n3.nabble.com/libclang-3-5-C-interface-cannot-get-to-macro-definitions-expansions-with-cursors-td4048861.html
 </item>
 
-<item>
-<r:func>getDataStructures</r:func> returns enums, etc. 
-and all as  StructDefinition.
-<br/>
-Removed the enums and typedefs so just structs and unions
-</item>
-
-<item>
-S4 class for structure description. And change code in inst/generateCode.
-Make  things consistent.
-</item>
 
 <item>
 export and test findGlobals

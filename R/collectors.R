@@ -410,24 +410,38 @@ function(leaveAsCursor = FALSE)
    update = function(cur, parent) {
 
      k = cur$kind
-     if(k %in% c(CXCursor_UnionDecl, CXCursor_StructDecl)) {   # , CXCursor_EnumDecl, CXCursor_TypedefDecl
+     if(k %in% c(CXCursor_UnionDecl, CXCursor_StructDecl, CXCursor_TypedefDecl)) {   # , CXCursor_EnumDecl, CXCursor_TypedefDecl
          i = length(dataStructs) + 1L
          cur = clone(cur)
          dataStructs[[i]] <<- cur
          names(dataStructs)[i] <<- getName(cur)
+         return(CXChildVisit_Continue)
      }
 
-     TRUE
+     CXChildVisit_Recurse
    }
 
    results = function(asCursor = leaveAsCursor) {
                if(asCursor)
                  dataStructs
                else
-                 lapply(dataStructs, getStructDef) #XXX need to be more general and convert, e.g., enums to enumeration descriptions
+                 lapply(dataStructs, makeDataStructureDescription) #XXX need to be more general and convert, e.g., enums to enumeration descriptions
              }
    
    new("Collector", update = update, results = results)
+}
+
+makeDataStructureDescription =
+function(cur)
+{
+    if(cur$kind == CXCursor_UnionDecl)
+      getStructDef(cur, class = "UnionDefinition")
+    else if(cur$kind == CXCursor_StructDecl)        
+      getStructDef(cur, class = "StructDefinition")
+    else if(cur$kind == CXCursor_TypedefDecl)
+      TypeDefinition(name = getName(cur), type = getType(cur))
+        
+    
 }
 
 asCollectorFunction =
