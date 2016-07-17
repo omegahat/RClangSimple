@@ -410,7 +410,7 @@ export(isVoidType, isPointerType, isStringType, isIntegerType)
 
 
 export(getVariables, genVariablesCollector, genTypedefCollector)
-export(getTypedefs)
+export(getTypedefs, getIncludes)
 
 
 #export(disposeIndex)

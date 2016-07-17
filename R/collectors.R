@@ -93,22 +93,25 @@ function()
 }
 
 genEnumCollector =
-function() {
+function()
+{
   enums = list()
   curDef = integer()
   type = NULL
   curName = NA
-
+  cursor = NULL
+  
   flush = 
     function() {
        if(length(curDef)) {
           if(is.na(curName) || curName == "")
             curName = length(enums) + 1
-          enums[[curName]] <<- new("EnumerationDefinition", values = curDef, type = type, name = curName)
+          enums[[curName]] <<- new("EnumerationDefinition", values = curDef, type = type, name = curName, def = cursor)
        }
        curDef <<- integer()
        curName <<- NA
        type <<- NULL
+       cursor <<- NULL
     }
 
   doStop = FALSE
@@ -121,8 +124,11 @@ function() {
         flush()
         curName <<- getName(cur) # get the name for the enum.
         type <<- getType(cur)
+        cursor <<- cur
+        
         if(is.na(curName) || curName == "")
             curName <<- getName(type)
+        
      } else if(kind == CXCursor_EnumConstantDecl) {
           # allow for repeats, e.g.  A, B = A,
           # also pick up from the last value.
@@ -130,7 +136,7 @@ function() {
 
        val = if(length(curDef)) curDef[length(curDef)] + 1L else 0L
        toks = getCursorTokens(cur)
-#if(curName == "LLVMAttribute") browser()
+
        if(length(toks) && toks[length(toks)] %in%  c(",", "}"))
            toks = toks[ - length(toks)]
        
@@ -404,7 +410,7 @@ function(leaveAsCursor = FALSE)
    update = function(cur, parent) {
 
      k = cur$kind
-     if(k %in% c(CXCursor_UnionDecl, CXCursor_StructDecl, CXCursor_EnumDecl, CXCursor_TypedefDecl)) {
+     if(k %in% c(CXCursor_UnionDecl, CXCursor_StructDecl)) {   # , CXCursor_EnumDecl, CXCursor_TypedefDecl
          i = length(dataStructs) + 1L
          cur = clone(cur)
          dataStructs[[i]] <<- cur
@@ -647,7 +653,6 @@ function(cur)
 genTypedefCollector =
 function()
 {
-
     defs = list()
     
     update =
@@ -664,6 +669,24 @@ function()
     }
 
     list(update = update, defs = function() defs)
+}
+
+
+genIncludesCollector =
+function(asCursor = FALSE)
+{
+    includes = character()
+    update =
+        function(cur, parent) {
+            if(cur$kind == CXCursor_InclusionDirective) {
+                includes <<- c(includes, if(asCursor) cur else getFileName(getIncludedFile(cur)))
+                return(CXChildVisit_Continue)
+            }
+
+            CXChildVisit_Recurse
+        }
+    
+    list(update = update, includes = function() includes)
 }
 
 

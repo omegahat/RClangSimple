@@ -87,8 +87,7 @@ function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedN
      
   if(is.logical(filenames) && filenames)
     filenames = getFileName(src)
-  
-  if(length(filenames) && is.character(filenames) )
+  else if(length(filenames) && is.character(filenames) )
     ans = ans[ sapply(ans, function(x) getFileName(x) %in% filenames) ]
   
   lapply(ans, makeRoutineObject)
@@ -109,3 +108,27 @@ function(src, filenames = TRUE, col = genTypedefCollector(),  ...)
 
     defs
 }
+
+
+getIncludes =
+function(src, filenames = TRUE, col = genIncludesCollector(),  recursive = FALSE, options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
+{
+    if(is.character(src)) {
+       if(!missing(options))
+         options = options | CXTranslationUnit_DetailedPreprocessingRecord
+       src = createTU(src, ..., options = options)
+   }
+
+    
+    visitTU(src, col$update, clone = TRUE)
+    col$includes()
+}
+
+
+
+getMacros =
+function(src, col = genMacroCollector())
+{
+
+}
+
