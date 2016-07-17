@@ -42,7 +42,7 @@ if test -z "$CLANG_LIB" || test -z "$CLANG_INC" ; then
     fi
 
     TMP=`${LLVM_CONFIG}  --libdir`
-    if test -e $TMP/libclang.so || test -e $TMP/libclang.a ; then 
+    if test -e $TMP/libclang.so || test -e $TMP/libclang.a || test -e $TMP/libclang.dylib ; then 
        CLANG_LIB=$TMP
        echo "Found libclang at $CLANG_LIB"
     else
