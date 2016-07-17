@@ -30,7 +30,8 @@ Duncan Temple Lang
   \code{\link{getGlobalVariables}},
   \code{\link{getDataStructures}},    
   \code{\link{getEnums}},
-  \code{\link{getInclusions}}          
+  \code{\link{getTypedefs}},
+  \code{\link{getInclusions}}
 }
 %\examples{}
 \keyword{programming}
