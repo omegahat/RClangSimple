@@ -34,7 +34,7 @@ isFileMultipleIncludeGuarded(tu, file)
 }
 
 \arguments{
-  \item{src,FileName}{the fully-qualified name of the source code file}
+  \item{src}{the fully-qualified name of the source code file}
   \item{visitor,fun}{a function that is called when iterating over the parse
   tree. This must return one of the CXChildVisit enumeration values.}
   \item{idx}{a \code{CXIndex} object used to create the translation
