@@ -43,6 +43,16 @@ Duncan Temple Lang
   \code{\link{getEnums}},
   \code{\link{getInclusions}}        
 }
-%\examples{}
+\examples{
+f = system.file("exampleCode", "funPointer.c", package = "RCIndex")
+ds = getDataStructures(f)
+names(ds)
+sapply(ds, class)
+ds$Bob
+
+ff = ds$`_Foo`@fields
+names(ff)
+sapply(ff, getName)
+}
 \keyword{programming}
 \keyword{interface} 
