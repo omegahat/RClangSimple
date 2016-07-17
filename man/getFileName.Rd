@@ -16,6 +16,9 @@
 \alias{getName,CXSourceLocation-method}
 \alias{getName,CXSourceRange-method}
 \alias{getName,NativeElement-method}
+\alias{getName,EnumerationDefinition-method}
+\alias{getName,StructDescription-method}
+\alias{getName,FunctionDecl-method}
 
 \alias{getResultType}
 \alias{getResultType,CXCursor-method}
