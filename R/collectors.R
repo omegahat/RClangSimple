@@ -672,14 +672,62 @@ function()
 }
 
 
-genIncludesCollector =
-function(asCursor = FALSE)
+
+
+genMacroCollector =
+function(asCursor = TRUE)
 {
-    includes = character()
+    defs = list()
+    update =
+        function(cur, parent) {
+            if(cur$kind == CXCursor_MacroDefinition) {
+                defs <<- c(defs, if(asCursor) cur else makeMacroDef(cur))
+                return(CXChildVisit_Continue)
+            }
+
+            CXChildVisit_Recurse
+        }
+    
+    list(update = update, macros = function() defs)
+}
+
+#XXX Not implemented yet
+makeMacroDef =
+function(cur)
+{
+  stop("not implemented yet")
+  
+  new("MacroDefinition",
+       name = getName(cur)
+     )
+      
+}
+
+
+
+
+
+
+if(FALSE) {
+    # set getInclusions()
+genIncludesCollector =
+function(byFile = FALSE, asCursor = FALSE)
+{
+    includes = if(byFile)
+                  list()
+                else
+                  character()
+    
     update =
         function(cur, parent) {
             if(cur$kind == CXCursor_InclusionDirective) {
-                includes <<- c(includes, if(asCursor) cur else getFileName(getIncludedFile(cur)))
+                if(!byFile)
+                    includes <<- c(includes, if(asCursor) cur else getFileName(getIncludedFile(cur)))
+                else {
+                    included = getFileName(getIncludedFile(cur))
+                    host = getFileName(cur)
+                       includes[[host]] <<- c(includes[[host]], included)
+                }
                 return(CXChildVisit_Continue)
             }
 
@@ -688,5 +736,4 @@ function(asCursor = FALSE)
     
     list(update = update, includes = function() includes)
 }
-
-
+}

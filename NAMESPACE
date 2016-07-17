@@ -410,7 +410,7 @@ export(isVoidType, isPointerType, isStringType, isIntegerType)
 
 
 export(getVariables, genVariablesCollector, genTypedefCollector)
-export(getTypedefs, getIncludes)
+export(getTypedefs, getMacros)
 
 
 #export(disposeIndex)
@@ -423,7 +423,7 @@ exportClasses(CXCallingConv, CXLanguageKind, CXLinkageKind, CX_CXXAccessSpecifie
 
 export(getChildren)
 
-export(getInclusions)
+export(getInclusions, getIncludes)
 
 export(getInstantiationLocation,  getCursorExtent, getLocation, getExpansionLocation, getPresumedLocation )
 

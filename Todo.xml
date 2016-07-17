@@ -10,6 +10,10 @@
 <items>
 
 <item>
+Merge getInclusions and getIncludes and their documentation.
+</item>
+
+<item status="done">
 <r:func>getIncludes</r:func> - implement recursive to preserve the structure.
 </item>
 

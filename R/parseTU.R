@@ -1,8 +1,10 @@
 simpleVisitor =
 function(cur, parent)
 {
+  loc = getLocation(cur)
   cat("cursor:", names(cur$kind), getName(cur), "\n",
       "parent:", names(parent$kind), getName(parent),
+      "(", loc$file, loc$location['line'], ")",
       "\n")
   CXChildVisit_Recurse
 }
@@ -110,25 +112,35 @@ function(src, filenames = TRUE, col = genTypedefCollector(),  ...)
 }
 
 
+
+if(FALSE) {
+# See getInclusions
 getIncludes =
-function(src, filenames = TRUE, col = genIncludesCollector(),  recursive = FALSE, options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
+function(src, byFile = FALSE, col = genIncludesCollector(byFile = byFile), options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
 {
     if(is.character(src)) {
        if(!missing(options))
          options = options | CXTranslationUnit_DetailedPreprocessingRecord
        src = createTU(src, ..., options = options)
    }
-
     
     visitTU(src, col$update, clone = TRUE)
     col$includes()
+}
 }
 
 
 
 getMacros =
-function(src, col = genMacroCollector())
+function(src, asCursor = TRUE, col = genMacroCollector(asCursor), options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
 {
-
+    if(is.character(src)) {
+       if(!missing(options))
+          options = options | CXTranslationUnit_DetailedPreprocessingRecord        
+       src = createTU(src, ..., options = options)
+    }
+    
+    visitTU(src, col$update, clone = TRUE)
+    col$macros()
 }
 

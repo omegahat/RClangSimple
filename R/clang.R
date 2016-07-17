@@ -252,7 +252,7 @@ function()
    list(update = update, files = function() files)
 }
 
-getInclusions =
+getInclusions = getIncludes =
 function(file, flat = FALSE,
            fun = if(flat)
                     genInclusionCollector()
