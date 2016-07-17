@@ -1,5 +1,7 @@
 \name{getInclusions}
 \alias{getInclusions}
+\alias{getIncludes}
+
 \title{Collect all of the include files for a source file}
 \description{
   This function computes which header files a
