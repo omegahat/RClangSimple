@@ -1,7 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="Admin/XSL/Todo.xsl" ?> 
+
+<topics xmlns:r="http://www.r-project.org">
+<title>RCIndex Package</title>
+
+
+<topic>
+<title>General</title>
 <items>
+
+<item>
+<r:func>getIncludes</r:func> - implement recursive to preserve the structure.
+</item>
+
+<item status="done">
+Get the preprocessor cursors - includes, macros, ...
+<br/>
+Use the option <r:var>RCIndex:::CXTranslationUnit_DetailedPreprocessingRecord</r:var>
+as a value in options for <r:func>createTU</r:func>.
+<br/>
+See http://clang-developers.42468.n3.nabble.com/libclang-3-5-C-interface-cannot-get-to-macro-definitions-expansions-with-cursors-td4048861.html
+</item>
+
 <item>
 <r:func>getDataStructures</r:func> returns enums, etc. 
 and all as  StructDefinition.
+<br/>
+Removed the enums and typedefs so just structs and unions
 </item>
 
 <item>
@@ -31,7 +56,7 @@ ensure that cloning happens if the caller specifies a collector.
 
 <item>
 Make the collectors return an S4Visitor object.
-Consider what happens when we have multiple TUs
+Consider what happens when we have multiple TUs.
 </item>
 
 <item>
@@ -358,3 +383,8 @@ CXIndex_setGlobalOptions - define bitwise enum and change
 the code to do the coercion.
 </item>
 </items>
+
+</topic>
+
+</topics>
+

@@ -2,9 +2,7 @@
 \alias{parseTU}
 \alias{createIndex}
 \alias{createTU}
-\alias{saveTranslationUnit}
 \alias{getFile}
-\alias{defaultSaveOptions}
 \alias{defaultReparseOptions}
 \alias{isFileMultipleIncludeGuarded}
 
@@ -30,10 +28,8 @@ createTU(src, includes = character(), idx = createIndex(verbose = verbose),
          args = character(), verbose = getOption("ShowParserDiagnostics", TRUE),
          options = 0)
 visitCursor(tu, fun, clone = TRUE, data = NULL, ...)
-saveTranslationUnit(TU, FileName, options = 0)
 getFile(tu, file_name)
 defaultReparseOptions(TU)
-defaultSaveOptions(TU)
 isFileMultipleIncludeGuarded(tu, file)
 }
 
@@ -65,9 +61,16 @@ isFileMultipleIncludeGuarded(tu, file)
     store a cursor it is passed for later use, or that it will
     clone that cursor itself, it is more efficient to use \code{clone = FALSE}.
   }
-  \item{options}{options for saving the translation unit. This is a
-  collection of values fromthe CXSaveTranslationUnit_Flags object, but
-  this is should always be 0 at present}
+  \item{options}{a collection of options that is a vector or bitwise
+  OR'ed together. The values come from the
+  \code{CXTranslationUnit_FlagsValues}
+   bitwise enumeration vector or the variables corresponding to the
+   individual elements of this enumeration.
+   These include DetailedPreprocessingRecord, Incomplete,
+   PrecompiledPreamble, CacheCompletionResults, ForSerialization,
+   CXXChainedPCH, SkipFunctionBodies,
+   IncludeBriefCommentsInCodeCompletion.
+  }
   \item{file_name}{the name of the file for which we want a CXFile object}
   \item{data}{used in \code{visitCursor} when the \code{fun} is actually
     (a pointer to) a C routine. The value of \code{data} in this case is
@@ -107,6 +110,12 @@ visitTU(ff, routine)
 # Parse a C++ file.
 f = system.file('exampleCode', 'simpleClass.cpp', package = 'RCIndex')
 createTU(f, args = "-xc++")
+
+
+# Get the pre-processor cursors
+f = system.file("exampleCode", "macros.c", package = "RCIndex")
+parseTU(f, options = RCIndex:::CXTranslationUnit_DetailedPreprocessingRecord)
+
 }
 \keyword{programming}
 \keyword{interface} 
