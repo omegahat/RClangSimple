@@ -127,7 +127,6 @@ function(src, byFile = FALSE, col = genIncludesCollector(byFile = byFile), optio
     visitTU(src, col$update, clone = TRUE)
     col$includes()
 }
-}
 
 
 
@@ -144,3 +143,4 @@ function(src, asCursor = TRUE, col = genMacroCollector(asCursor), options = CXTr
     col$macros()
 }
 
+}

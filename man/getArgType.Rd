@@ -34,12 +34,13 @@ getArgsType(ty)
 }
 \examples{
 ds = getDataStructures(system.file("exampleCode", "funPointer.c",  package = "RCIndex"))
-    # Foo is a struct with a collection of fields. f is one of the names
+    # _Foo is a struct with a collection of fields. f is one of the names
     # and this is a function pointer.
     # Bob (*f)(int x, double y, Handler h, void (*p)(int, double));
-foo = ds$Foo
+    # _Foo and Foo are different - the latter is the typedef
+foo = ds$`_Foo`  
     # So we get the CXType for the function type.
-fun = getPointeeType(foo$fields$f)
+fun = getPointeeType(foo@fields$f)
 
     # get rid of any aliases.
 ty = getCanonicalType(fun)

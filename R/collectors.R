@@ -487,7 +487,7 @@ function(names = character())
 {
    ans = list()
    update = function(cur, parent) {
-     if(cur$kind == CXCursor_MacroDefinition) {  # or MacroDefinition or Expansion ?
+     if(cur$kind == CXCursor_MacroDefinition) {  # or Expansion ?
        ans[[ getName(cur) ]] <<- clone(cur)
      }
 
@@ -688,6 +688,7 @@ function()
 
 
 
+if(FALSE) {
 genMacroCollector =
 function(asCursor = TRUE)
 {
@@ -715,6 +716,7 @@ function(cur)
        name = getName(cur)
      )
       
+}
 }
 
 
