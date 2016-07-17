@@ -1,4 +1,4 @@
-TypeDefinition = setClass("TypeDefinition",  representation(name = "character", type = "CXType"))
+TypeDefinition = setClass("TypeDefinition",  representation(name = "character", type = "CXType", def = "CXCursor"))
 
 setClass("CompositionDefinition", representation(name = "character", fields = "list", def = "CXCursor"))
 

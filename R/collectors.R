@@ -439,7 +439,7 @@ function(cur)
     else if(cur$kind == CXCursor_StructDecl)        
       getStructDef(cur, class = "StructDefinition")
     else if(cur$kind == CXCursor_TypedefDecl)
-      TypeDefinition(name = getName(cur), type = getType(cur))
+      TypeDefinition(name = getName(cur), type = getType(cur), def = cur)
         
     
 }
