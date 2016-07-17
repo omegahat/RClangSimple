@@ -2,4 +2,5 @@
 setClass("EnumerationDefinition",
           representation(values = "numeric",
                          type = "CXType",
-                         name = "character"))
+                         name = "character",
+                         def = "CXCursor"))

@@ -121,6 +121,25 @@ setMethod("getFileName", "CXCursor",
                getFileName(getCursorExtent(x))
             })
 
+
+setMethod("getFileName", "EnumerationDefinition",
+            function(x, ...) {
+               getFileName(x@def)
+            })
+
+setMethod("getFileName", "FunctionDecl",
+            function(x, ...) {
+               getFileName(x@def)
+            })
+
+setOldClass("StructDescription")
+setMethod("getFileName", "StructDescription",
+            function(x, ...) {
+               getFileName(x@def)
+            })
+
+
+
 setAs("CXCursor", "CXSourceRange",
        function(from)
              getCursorExtent(from))
