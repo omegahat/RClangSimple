@@ -6,6 +6,10 @@
 \alias{getFileName,CXFile-method}
 \alias{getFileName,CXSourceLocation-method}
 \alias{getFileName,CXSourceRange-method}
+\alias{getFileName,EnumerationDefinition-method}
+\alias{getFileName,StructDescription-method}
+\alias{getFileName,FunctionDecl-method}
+
 
 \alias{cursorKind}
 
@@ -16,9 +20,7 @@
 \alias{getName,CXSourceLocation-method}
 \alias{getName,CXSourceRange-method}
 \alias{getName,NativeElement-method}
-\alias{getName,EnumerationDefinition-method}
-\alias{getName,StructDescription-method}
-\alias{getName,FunctionDecl-method}
+
 
 \alias{getResultType}
 \alias{getResultType,CXCursor-method}
