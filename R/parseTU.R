@@ -81,19 +81,21 @@ function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedN
 #    return(getRoutines.R(src, filenames, col, ...))
 
   if(is.character(src))
-    src = createTU(src, ...)
+     src = createTU(src, ...)
+  
   ans = .Call("R_getRoutines", as(src, "CXCursor"), vector("list", expectedNum), character(expectedNum))
 
   if(length(ans) == 0)
     return(list())
      
-  if(is.logical(filenames) && filenames)
-    filenames = getFileName(src)
-  else if(length(filenames) && is.character(filenames) )
-    ans = ans[ sapply(ans, function(x) getFileName(x) %in% filenames) ]
+  if(length(filenames)) {
+    i = filterByFilenames(ans, filenames)
+    ans = ans[ i ]
+  }
   
   lapply(ans, makeRoutineObject)
 }
+
 
 
 getTypedefs =
