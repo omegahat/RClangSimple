@@ -13,7 +13,7 @@ genCppClassInfoCollector =
   #  This starts at the class cursor and descends from there (rather than from the root of the TU)
   #
   #
-function(cursor, name = getName(cursor), rclassName = NA)
+function(cursor, name = getName(cursor), rclassName = NA, conversionFunctions = TRUE)
 {
    fields = list()
    methods = list()
@@ -34,7 +34,7 @@ function(cursor, name = getName(cursor), rclassName = NA)
         id = getName(cur)
         fields[[id]] <<-  list(name = id, def = cur, type = getType(cur), access = accessLevel)
 
-     } else if(k == CXCursor_CXXMethod || k == CXCursor_Constructor) {
+     } else if(k == CXCursor_CXXMethod || k == CXCursor_Constructor || k == CXCursor_FunctionTemplate || (k == CXCursor_ConversionFunction && conversionFunctions)) {
            # method or constructor in the class definition.
         id = getName(cur)
         if(!is.null(curMethod))
@@ -103,14 +103,14 @@ function(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...)
 }
 
 getCppClasses =
-function(tu, nodesOnly = FALSE, numClasses = 100, fileFilter = character(), visitor = genCppClassCursorCollector(), ...)
+function(tu, nodesOnly = FALSE, numClasses = 100, fileFilter = character(), ...)  # visitor = genCppClassCursorCollector()
 {
    if(is.character(tu))
      tu = createTU(tu, ...)
   
   ans = .Call("R_getCppClasses", as(tu, "CXCursor"), vector("list", numClasses), character(numClasses))
   if(length(fileFilter))
-    ans = ans[ grepl(fileFilter, sapply(ans, getFileName)) ]
+    ans = ans[ filterByFilenames(ans, fileFilter) ]
 
   ans = ans[ sapply(ans, function(x) length(children(x))) > 0 ]
    
