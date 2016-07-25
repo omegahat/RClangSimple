@@ -103,7 +103,7 @@ function(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...)
 }
 
 getCppClasses =
-function(tu, nodesOnly = FALSE, numClasses = 100, fileFilter = character(), ...)  # visitor = genCppClassCursorCollector()
+function(tu, fileFilter = character(), nodesOnly = FALSE, numClasses = 100, visitor = genCppClassCursorCollector(), ...)  # 
 {
    if(is.character(tu))
      tu = createTU(tu, ...)

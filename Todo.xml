@@ -9,19 +9,31 @@
 <title>General</title>
 <items>
 
+<item>
+Make the filename handling consistent across the primary, end-user functions,
+e.g. getRoutines,  -  avoid creating the objects until the very last minute.
+<br/>
+ [done] getCppClasses,  getEnums, getDataStructures, getGlobalVariables, findGlobals, getTypedefs, findCalls,  getVariables, getMacros, , getDefines
+<br/>
+fix genFunctionCollector
+<br/>
+Add documentation to fileFilter.
+</item>
+
 <item status="done">
 getDataStructures - why are we seeing definitions twice.
 <br/>
 don't descend through the children of these definitions.
 </item>
-<item>
+
+<item status="done">
 <r:func>getDataStructures</r:func> returns enums, etc. 
 and all as  StructDefinition.
 <br/>
 Removed the enums so just structs and unions and  typedefs
 </item>
 
-<item>
+<item status="check">
 S4 class for structure description. And change code in inst/generateCode.
 Make  things consistent.
 </item>
@@ -287,19 +299,20 @@ If we can't create the TU, get an error message.
 The -Xclang doesn't work anymore.
 </item>
 
-<item>
+<item status="check">
 Enumeration values when not default.
 </item>
 
-<item>
+<item status="high">
 Getting C++ routines, classes, etc.
+What doesn't work?
 </item>
 
-<item>
+<item status="low">
 Precompiled headers
 </item>
 
-<item>
+<item status="low">
 CodeCompletion
 </item>
 

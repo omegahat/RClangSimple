@@ -24,17 +24,19 @@ function(cur, files)
 }
 
 genFunctionCollector =
-function(filenames = character())
+function(makeRoutine = FALSE) # filenames = character())
 {
   funcs = list()
 
   update = function(cur, parent) {
-     if(cur$kind != CXCursor_FunctionDecl
-          || !checkFiles(cur, filenames))
+     if(cur$kind != CXCursor_FunctionDecl) #       || !checkFiles(cur, filenames))
         return(CXChildVisit_Continue)
 
      id = getName(cur)
-     funcs[[id]] <<- makeRoutineObject(cur)
+     funcs[[id]] <<- if(makeRoutine)
+                        makeRoutineObject(cur) 
+                     else
+                        cur
      
      CXChildVisit_Continue
   }
@@ -77,12 +79,73 @@ function()
 findCalls =
   # vectorize
  # findCalls("../src/manual.c",  includes = c("/usr/local/cuda/include", sprintf("%s/../src/include", R.home()), sprintf("%s/include", R.home())))
-function(file, n = 10000, ...)
+function(file, fileFilter = character(), n = 10000, ...)
 {
   if(is.character(file))
      file = createTU(file, ...)
   
-  .Call("R_getCalls", as(file, "CXCursor"), character(n))
+  ans = .Call("R_getCalls", as(file, "CXCursor"), character(n))
+
+  if(length(fileFilter))
+     ans[ filterByFilenames(ans, fileFilter) ]
+  else
+     ans      
+}
+
+
+if(FALSE) {
+genTypeCollector =
+  # reconcile with data structure collector
+  # the recursive approach
+function(targetFile = character())
+{
+   defs = list()
+   curDef = list()
+   curName = NA
+   inDef = FALSE
+
+   addField = function(cur) {
+      if(inDef) {
+         id = getName(cur)
+         curDef[[id]] <<- clone(cur$type)
+      }
+   }
+   end <- function() {
+      defs[[curName]] <<- curDef
+       curName <<- NA
+       curDef <<- list()
+   }
+     
+   
+   update = function(cur, parent) {
+      r = 1L
+      k = getCursorKind(cur)
+
+      if(k == CXCursor_FieldDecl) {
+         addField(cur)
+      } else if(k == CXCursor_TypedefDecl) {
+         r = 2L
+         inDef <<- FALSE         
+      } else if(k == CXCursor_StructDecl) {
+          # XXX watch for nested definitions.
+
+         if(length(targetFile) == 0 ||( getFileName(cur) %in% targetFile)) {
+        
+             inDef <<- TRUE
+             r = 2L
+             id = getName(cur)
+             curName <<- id
+          }
+      } else
+         inDef <<- FALSE
+
+      if(!inDef && length(curDef))
+         end()
+
+      r
+    }
+   
+   list(update = update, defs = function() defs)
 }
 
 
@@ -104,6 +167,10 @@ function()
 
   list(update = update, defs = function() defs)
 }
+
+
+}
+
 
 
 genDataStructCollector =
@@ -177,13 +244,17 @@ function(..., .funs = list())
 
 getDefines =
   #' @example  defs = getDefines("inst/exampleCode/defines.c")
-function(tu, col = genDefinesCollector(), ...)
+function(tu, fileFilter = character(), col = genDefinesCollector(), ...)
 {
    if(is.character(tu))
      tu = createTU(tu, ...)
 
    visitTU(tu, col$update, clone = FALSE)
-   col$defines()
+   ans = col$defines()
+   if(length(fileFilter))
+      ans[ filterByFilenames(ans, fileFilter) ]
+   else
+      ans   
 }
 
 genDefinesCollector =
@@ -221,13 +292,18 @@ function()
 }
 
 getVariables =
-function(file, visitor = genVariablesCollector(), ...)
+function(file, fileFilter = character(), visitor = genVariablesCollector(), ...)
 {
   if(is.character(file))
       file = createTU(file, ...)
 
   visitTU(file, visitor$update)
-  visitor$variables()
+  ans = visitor$variables()
+  
+  if(length(fileFilter))
+     ans[ filterByFilenames(ans, fileFilter) ]
+  else
+     ans      
 }
 
 genRoutineVariableRefsCollector =
@@ -292,21 +368,29 @@ function(merge = TRUE, ignoreConst = TRUE)
 }
 
 findGlobals =
-function(tu, merge = TRUE, ignoreConst = TRUE, visitor = genRoutineVariableRefsCollector(merge, ignoreConst), ...)
+function(tu, fileFilter = character(), merge = TRUE, ignoreConst = TRUE, visitor = genRoutineVariableRefsCollector(merge, ignoreConst), ...)
 {
   if(is.character(tu))
     tu = createTU(tu, ...)
   
   visitTU(tu, visitor$update, clone = TRUE)
-  visitor$result()
+  ans = visitor$result()
+  if(length(fileFilter))
+     ans[ filterByFilenames(ans, fileFilter) ]
+  else
+     ans    
 }
 
 
 getGlobalVariables =
-function(tu, visitor = genGlobalVariablesCollector(), ...)
+function(tu, fileFilter = character(), visitor = genGlobalVariablesCollector(), ...)
 {
   visitTU(tu, visitor$update, ...)
-  visitor$variables()
+  ans = visitor$variables()
+  if(length(fileFilter))
+     ans[ filterByFilenames(ans, fileFilter) ]
+  else
+     ans
 }
 
 genGlobalVariablesCollector =

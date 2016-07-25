@@ -10,20 +10,33 @@
   translation unit.
 }
 \usage{
-getFunctions(src, filenames = TRUE, col = genFunctionCollector(filenames),
-             expectedNum = 500, ...)
+getFunctions(src, fileFilter = character(), expectedNum = 500, ...)
 }
 \arguments{
   \item{src}{the already created CXTranslationUnit object, or the name
     of the source file}
-  \item{filenames}{a logical value or a a character vector giving file names from which you
-    want the routines. If this is specified, routines defined in other
-    files are not returned. So this is a way to filter the results.
-    \code{FALSE} means include all routines.  \code{TRUE} means only
-    routines in the source file identified by \code{src}.
+  \item{fileFilter}{
+    a character vector. This is used to identify the files/directories
+    of interest and to identify the cursors we want in the results.
+    This can be a single string that is a regular expression.
+    Alternatively, it can be a vector of directory or file names.
+    For a vector of values, we check which correspond to actual file or
+    directory names.
+    For these, we filter the cursors based on whether they are in the
+    specified file names, within files in the specified directories.
+    For elements that are not files or directories, we use these as
+    regular expressions.
+    This mechanism allows us to include cursors by explicit file name,
+    explicit directory, or by regular expression.
   }
-  \item{col}{the collector function. This is only used if
-    \code{filenames} is specified}
+% \item{filenames}{a logical value or a a character vector giving file names from which you
+%   want the routines. If this is specified, routines defined in other
+%   files are not returned. So this is a way to filter the results.
+%   \code{FALSE} means include all routines.  \code{TRUE} means only
+%   routines in the source file identified by \code{src}.
+% }
+%  \item{col}{the collector function. This is only used if
+%    \code{filenames} is specified}
   \item{expectedNum}{the expected number of routines. This should be
     at least as larger than the }
   \item{\dots}{any additional arguments passed to \code{\link{createTU}}

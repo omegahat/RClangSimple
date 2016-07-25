@@ -73,7 +73,7 @@ function(dir, src = list.files(dir, pattern = "\\.(c|cpp|cxx|C)$", full.names = 
 
   funs = list()
   for(i in src) {
-    col = genFunctionCollector()    
+    col = genFunctionCollector(TRUE)    
      if(verbose)
         cat(i, "\n")
      parseTU(i, col$update, args = args, ..., clone = TRUE)

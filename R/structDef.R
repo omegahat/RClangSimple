@@ -20,12 +20,16 @@ function(type, kids = children(tp), class = "StructDefinition" )  # XXX compute 
 
 
 getDataStructures =
-function(src, collector = genDataStructCollector(), ...)
+function(src, fileFilter = character(), collector = genDataStructCollector(), ...)
 {
    if(is.character(src))
      src = createTU(src, ...)
    
    visitTU(as(src, "CXTranslationUnit"), collector@update)
-   getResults(collector)
+   ans = getResults(collector)
+   if(length(fileFilter))
+      ans [ filterByFilenames(ans, fileFilter)  ]
+   else
+      ans
 }
 

@@ -27,6 +27,7 @@ filterByFilenames =
 function(cursors, filenames = character(), isRegex = !any(file.exists(filenames)),
           cursorFilenames = sapply(cursors, getFileName))
 {
+   
     if(isRegex)
        return( grepl(paste(filenames, collapse = "|"),  cursorFilenames) )
 

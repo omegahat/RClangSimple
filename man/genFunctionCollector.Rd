@@ -5,7 +5,7 @@
 \alias{genDataStructCollector}
 \alias{genDefinesCollector}
 \alias{genEnumCollector}
-\alias{genTypeCollector}
+%\alias{genTypeCollector}
 \alias{genVariablesCollector}
 \alias{combineCollectors}
 
@@ -19,23 +19,25 @@
   and \code{\link{visitChildren}}.
 }
 \usage{
-genFunctionCollector(filenames = character())
+genFunctionCollector(makeRoutine = FALSE)
 genCallCollector()
 genDataStructCollector(leaveAsCursor = FALSE)
 genDefinesCollector(names = character())
 genEnumCollector()
-genTypeCollector()
 genVariablesCollector()
 combineCollectors(..., .funs = list()) 
 }
+%genTypeCollector()
 \arguments{
+  \item{makeRoutine}{logical scalar value. If \code{FALSE}, the cursor
+  is stored; If \code{TRUE}, we store the result of \code{makeRoutineObject}.}
   \item{leaveAsCursor}{a logical value that controls whether we return
   the cursors representing the data types or convert them to R objects.}
      \item{names}{ignored for now}
-   \item{filenames}{the names of files in which the routines of interest
-     are located. If this is empty, we accept routines from all
-  files. This can be \code{TRUE} to indicate only routines in the source
-  file being processed should be returned.}
+%   \item{filenames}{the names of files in which the routines of interest
+%     are located. If this is empty, we accept routines from all
+%  files. This can be \code{TRUE} to indicate only routines in the source
+%  file being processed should be returned.}
    \item{\dots}{the individual collectors that are to be combined.}
    \item{.funs}{a list of the collectors to be combined.}
 }

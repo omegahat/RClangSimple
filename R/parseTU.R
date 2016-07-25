@@ -57,10 +57,11 @@ function(top, types = integer())
 }
 
 
-getFunctions.R = getRoutines.R =
+if(FALSE) {
+ getFunctions.R = getRoutines.R =
   # These are the pure R visitor forms. The real functions use a C visitor routine when there is no filtering by files.
-function(src, filenames = character(), col = genFunctionCollector(filenames), ...)
-{
+ function(src, filenames = character(), col = genFunctionCollector(filenames), ...)
+ {
   if(is(src, "CXTranslationUnit")) {
     visitTU(src, col$update, clone = TRUE)
     col$funcs()
@@ -71,11 +72,12 @@ function(src, filenames = character(), col = genFunctionCollector(filenames), ..
     w = sapply(col$funcs(), function(x) getFileName(x$def))
     col$funcs()[w == src]
   }
+ }
 }
 
 
 getFunctions = getRoutines = 
-function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedNum = 500, ...)
+function(src, fileFilter = character(), expectedNum = 500, ...)
 {
 #  if(length(filenames))
 #    return(getRoutines.R(src, filenames, col, ...))
@@ -88,10 +90,8 @@ function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedN
   if(length(ans) == 0)
     return(list())
      
-  if(length(filenames)) {
-    i = filterByFilenames(ans, filenames)
-    ans = ans[ i ]
-  }
+  if(length(fileFilter)) 
+     ans = ans[ filterByFilenames(ans, fileFilter) ]
   
   lapply(ans, makeRoutineObject)
 }
@@ -99,16 +99,18 @@ function(src, filenames = TRUE, col = genFunctionCollector(filenames), expectedN
 
 
 getTypedefs =
-function(src, filenames = TRUE, col = genTypedefCollector(),  ...)
+function(src, fileFilter = character(), col = genTypedefCollector(),  ...)
 {
     if(is.character(src))
        src = createTU(src, ...)
     
     visitTU(src, col$update, clone = TRUE)
     defs = col$defs()
-    names(defs) = sapply(defs, getName)
-#    if(is.logical(filenames) && filenames)
-#        names(defs) = sapply(defs, getFileName)
+
+    if(length(fileFilter))
+       defs = defs[ filterByFilenames(defs, fileFilter) ]
+
+    names(defs) = sapply(defs, getName)           
 
     defs
 }
@@ -133,7 +135,7 @@ function(src, byFile = FALSE, col = genIncludesCollector(byFile = byFile), optio
 
 
 getMacros =
-function(src, asCursor = TRUE, col = genMacroCollector(asCursor), options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
+function(src, fileFilter = charactrer(), asCursor = TRUE, col = genMacroCollector(asCursor), options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
 {
     if(is.character(src)) {
        if(!missing(options))
@@ -142,7 +144,11 @@ function(src, asCursor = TRUE, col = genMacroCollector(asCursor), options = CXTr
     }
     
     visitTU(src, col$update, clone = TRUE)
-    col$macros()
+    ans = col$macros()
+    if(length(fileFilter))
+       ans = ans[ filterByFilenames(defs, fileFilter) ]
+
+    ans
 }
 
 }

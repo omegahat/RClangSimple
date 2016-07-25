@@ -8,11 +8,26 @@ unit}
   source file or a routine and finds the calls.
 }
 \usage{
-findCalls(file, n = 10000, ...)
+findCalls(file, fileFilter = character(), n = 10000, ...)
 }
 \arguments{
    \item{file}{the name of a source code file, a previously parsed
-     translation unit or a \code{CXCursor} object, e.g. representing a routine}
+     translation unit or a \code{CXCursor} object, e.g. representing a
+     routine}
+  \item{fileFilter}{
+    a character vector. This is used to identify the files/directories
+    of interest and to identify the cursors we want in the results.
+    This can be a single string that is a regular expression.
+    Alternatively, it can be a vector of directory or file names.
+    For a vector of values, we check which correspond to actual file or
+    directory names.
+    For these, we filter the cursors based on whether they are in the
+    specified file names, within files in the specified directories.
+    For elements that are not files or directories, we use these as
+    regular expressions.
+    This mechanism allows us to include cursors by explicit file name,
+    explicit directory, or by regular expression.
+   }
    \item{n}{a guess as to how many calls we are likely to
      encounter. This is used to preallocate memory to store the
      calls. The only down side to this being too small is extra memory
