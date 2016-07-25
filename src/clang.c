@@ -1812,15 +1812,30 @@ typedef struct {
     int protects;
 } RCallCounter;
 
+void
+growRVector(RCallCounter *d)
+{
+    int n = d->counter*2;
+    PROTECT(SET_LENGTH(d->ans, n));
+    d->protects++;
+}
 enum CXChildVisitResult 
 R_callVisitor(CXCursor cur, CXCursor parent, void *data)
 {
     RCallCounter *d = (RCallCounter *) data;
     if(cur.kind == CXCursor_CallExpr) {
+#if 0
 	CXString str = clang_getCursorSpelling(cur);
 	const char * const tmp = clang_getCString(str);
+	if(d->counter >= Rf_length(d->ans))
+	    growRVector(d);
 	SET_STRING_ELT(d->ans, d->counter++, mkChar(tmp));
 	clang_disposeString(str);
+#else
+	if(d->counter >= Rf_length(d->ans))
+	    growRVector(d);
+	SET_VECTOR_ELT(d->ans, d->counter++, R_makeCXCursor(cur));
+#endif
     }
     return(CXChildVisit_Recurse);
 }
@@ -1833,10 +1848,13 @@ R_getCalls(SEXP r_tu, SEXP r_ans)
     RCallCounter data;
     data.counter = 0;
     data.ans = r_ans;
+    data.names = NULL;
+    data.protects = 0;
 
     clang_visitChildren(tu, R_callVisitor, &data);
-    SET_LENGTH(r_ans, data.counter);
-    return(r_ans);
+    SET_LENGTH(data.ans, data.counter);
+    UNPROTECT(data.protects);
+    return(data.ans);
 }
 
 
