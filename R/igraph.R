@@ -38,7 +38,7 @@ function(labelGen = makeCursorLabel)
   }
 
   getEdges = function() {
-    browser()
+#    browser()
                matrix(edges, , 2, byrow = TRUE)
              }
   list(update = update, edges = getEdges)
