@@ -84,7 +84,7 @@ function(file, fileFilter = character(), n = 10000, ...)
   if(is.character(file))
      file = createTU(file, ...)
   
-  ans = .Call("R_getCalls", as(file, "CXCursor"), character(n))
+  ans = .Call("R_getCalls", as(file, "CXCursor"), vector("list", n))  # character(n))
 
   if(length(fileFilter))
      ans[ filterByFilenames(ans, fileFilter) ]
