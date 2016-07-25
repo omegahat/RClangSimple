@@ -36,8 +36,7 @@ findCalls(file, fileFilter = character(), n = 10000, ...)
      \code{\link{createTU}} if \code{file} is the name of a source file.}
 }
 \value{
-  A character vector with the names of the routines called within the
-  specified scope.
+  A list in which each element is the CXCursor for the corresponding call.
 }
 \references{
  libclang \url{http://clang.llvm.org/doxygen/group__CINDEX.html}
@@ -51,7 +50,7 @@ Duncan Temple Lang
   \code{\link{visitCursor}}  
 }
 \examples{
-findCalls(system.file("exampleCode", "fib.c", package = "RCIndex"))
+fcalls = findCalls(system.file("exampleCode", "fib.c", package = "RCIndex"))
 }
 \keyword{programming}
 \keyword{interface} 
