@@ -1894,7 +1894,6 @@ R_collectCursorNodes(SEXP r_tu, SEXP r_ans, SEXP r_names, CXCursorVisitor visito
     UNPROTECT(data.protects);
     
     return(data.ans);
-
 }
 
 
