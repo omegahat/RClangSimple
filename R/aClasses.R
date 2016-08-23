@@ -34,6 +34,15 @@ setClass("NativeVariable",
 
 setClass("FunctionDecl", representation(params = "list", returnType = "CXType"), contains = "NativeElement")
 
+# XXX Get the class hierarchy right here.
+setClass("AbstractC++ClassStaticMethod", representation(className = "character"), contains = "FunctionDecl")
+setClass("C++ClassStaticMethod", contains = "AbstractC++ClassStaticMethod")
+ # These require a this
+setClass("C++ClassMethod", representation(classDef = 'CXCursor', classType = 'CXType'), contains = "AbstractC++ClassStaticMethod")
+setClass("C++ClassConstructor", contains = "C++ClassMethod")
+setClass("C++ClassDestructor", contains = "C++ClassMethod")
+
+
 setClass("C++Class", representation(superClasses = "list", fields = "list", methods = "list"), contains = "NativeElement")
 setClass("TemplateC++Class", representation(templateParams = "list"), contains = "C++Class")
 
