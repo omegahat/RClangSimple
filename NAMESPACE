@@ -9,13 +9,16 @@ export(getCursorLinkage, getCursorLanguage, getCursorKind)
 export(getCppClasses, readCppClass)
 
 #exportPattern(".*")
+
+
+export(CX_CXXAccessSpecifier, CXLanguageKind, CXLinkageKind, CXTokenKind, CXTypeKind)
+
 export(
 children,
 clangVersion,
 clone,
 createIndex,
 createTU,
-CX_CXXAccessSpecifier,
 CX_CXXInvalidAccessSpecifier,
 CX_CXXPrivate,
 CX_CXXProtected,
@@ -106,19 +109,16 @@ CXLanguage_C,
 CXLanguage_CPlusPlus,
 CXLanguage_Invalid,
 CXLanguage_ObjC,
-CXLanguageKind,
 CXLinkage_External,
 CXLinkage_Internal,
 CXLinkage_Invalid,
 CXLinkage_NoLinkage,
 CXLinkage_UniqueExternal,
-CXLinkageKind,
 CXToken_Comment,
 CXToken_Identifier,
 CXToken_Keyword,
 CXToken_Literal,
 CXToken_Punctuation,
-CXTokenKind,
 CXType_BlockPointer,
 CXType_Bool,
 CXType_Char_S,
@@ -164,7 +164,6 @@ CXType_UShort,
 CXType_Void,
 CXType_WChar,
 CXType_ConstantArray,       
-CXTypeKind,
 genFunctionCollector,
 genVariableCollector,
 getCallableRoutines,

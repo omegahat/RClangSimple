@@ -1,13 +1,9 @@
-if(all(clangVersion(libclangVersion_Install) == c(
-3
-, 
-7
-))) {
+if(all(clangVersionNum(libclangVersion_Install) == c( 3 ,  7 ))) {
 
 
 setClass("CXErrorCode", contains = "EnumValue")
 
-CXErrorCodeValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXError_Success', 'CXError_Failure', 'CXError_Crashed', 'CXError_InvalidArguments', 'CXError_ASTReadError'))
+CXErrorCode = CXErrorCodeValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXError_Success', 'CXError_Failure', 'CXError_Crashed', 'CXError_InvalidArguments', 'CXError_ASTReadError'))
 
 `CXError_Success` = GenericEnumValue('CXError_Success', 0L, 'CXErrorCode')
 `CXError_Failure` = GenericEnumValue('CXError_Failure', 1L, 'CXErrorCode')
@@ -23,7 +19,7 @@ CXErrorCodeValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXError_Success
 #####################################
 setClass("CXAvailabilityKind", contains = "EnumValue")
 
-CXAvailabilityKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXAvailability_Available', 'CXAvailability_Deprecated', 'CXAvailability_NotAvailable', 'CXAvailability_NotAccessible'))
+CXAvailabilityKind = CXAvailabilityKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXAvailability_Available', 'CXAvailability_Deprecated', 'CXAvailability_NotAvailable', 'CXAvailability_NotAccessible'))
 
 `CXAvailability_Available` = GenericEnumValue('CXAvailability_Available', 0L, 'CXAvailabilityKind')
 `CXAvailability_Deprecated` = GenericEnumValue('CXAvailability_Deprecated', 1L, 'CXAvailabilityKind')
@@ -38,7 +34,7 @@ CXAvailabilityKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXAvailabili
 #####################################
 setClass("CXGlobalOptFlags", contains = "EnumValue")
 
-CXGlobalOptFlagsValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXGlobalOpt_None', 'CXGlobalOpt_ThreadBackgroundPriorityForIndexing', 'CXGlobalOpt_ThreadBackgroundPriorityForEditing', 'CXGlobalOpt_ThreadBackgroundPriorityForAll'))
+CXGlobalOptFlags = CXGlobalOptFlagsValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXGlobalOpt_None', 'CXGlobalOpt_ThreadBackgroundPriorityForIndexing', 'CXGlobalOpt_ThreadBackgroundPriorityForEditing', 'CXGlobalOpt_ThreadBackgroundPriorityForAll'))
 
 `CXGlobalOpt_None` = GenericEnumValue('CXGlobalOpt_None', 0L, 'CXGlobalOptFlags')
 `CXGlobalOpt_ThreadBackgroundPriorityForIndexing` = GenericEnumValue('CXGlobalOpt_ThreadBackgroundPriorityForIndexing', 1L, 'CXGlobalOptFlags')
@@ -53,7 +49,7 @@ CXGlobalOptFlagsValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXGlobalOpt_No
 #####################################
 setClass("CXDiagnosticSeverity", contains = "EnumValue")
 
-CXDiagnosticSeverityValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXDiagnostic_Ignored', 'CXDiagnostic_Note', 'CXDiagnostic_Warning', 'CXDiagnostic_Error', 'CXDiagnostic_Fatal'))
+CXDiagnosticSeverity = CXDiagnosticSeverityValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXDiagnostic_Ignored', 'CXDiagnostic_Note', 'CXDiagnostic_Warning', 'CXDiagnostic_Error', 'CXDiagnostic_Fatal'))
 
 `CXDiagnostic_Ignored` = GenericEnumValue('CXDiagnostic_Ignored', 0L, 'CXDiagnosticSeverity')
 `CXDiagnostic_Note` = GenericEnumValue('CXDiagnostic_Note', 1L, 'CXDiagnosticSeverity')
@@ -69,7 +65,7 @@ CXDiagnosticSeverityValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXDiag
 #####################################
 setClass("CXLoadDiag_Error", contains = "EnumValue")
 
-CXLoadDiag_ErrorValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXLoadDiag_None', 'CXLoadDiag_Unknown', 'CXLoadDiag_CannotLoad', 'CXLoadDiag_InvalidFile'))
+CXLoadDiag_Error = CXLoadDiag_ErrorValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXLoadDiag_None', 'CXLoadDiag_Unknown', 'CXLoadDiag_CannotLoad', 'CXLoadDiag_InvalidFile'))
 
 `CXLoadDiag_None` = GenericEnumValue('CXLoadDiag_None', 0L, 'CXLoadDiag_Error')
 `CXLoadDiag_Unknown` = GenericEnumValue('CXLoadDiag_Unknown', 1L, 'CXLoadDiag_Error')
@@ -84,7 +80,7 @@ CXLoadDiag_ErrorValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXLoadDiag_Non
 #####################################
 setClass("CXDiagnosticDisplayOptions", contains = "EnumValue")
 
-CXDiagnosticDisplayOptionsValues = structure(c(1L, 2L, 4L, 8L, 16L, 32L), .Names = c('CXDiagnostic_DisplaySourceLocation', 'CXDiagnostic_DisplayColumn', 'CXDiagnostic_DisplaySourceRanges', 'CXDiagnostic_DisplayOption', 'CXDiagnostic_DisplayCategoryId', 'CXDiagnostic_DisplayCategoryName'))
+CXDiagnosticDisplayOptions = CXDiagnosticDisplayOptionsValues = structure(c(1L, 2L, 4L, 8L, 16L, 32L), .Names = c('CXDiagnostic_DisplaySourceLocation', 'CXDiagnostic_DisplayColumn', 'CXDiagnostic_DisplaySourceRanges', 'CXDiagnostic_DisplayOption', 'CXDiagnostic_DisplayCategoryId', 'CXDiagnostic_DisplayCategoryName'))
 
 `CXDiagnostic_DisplaySourceLocation` = GenericEnumValue('CXDiagnostic_DisplaySourceLocation', 1L, 'CXDiagnosticDisplayOptions')
 `CXDiagnostic_DisplayColumn` = GenericEnumValue('CXDiagnostic_DisplayColumn', 2L, 'CXDiagnosticDisplayOptions')
@@ -101,7 +97,7 @@ CXDiagnosticDisplayOptionsValues = structure(c(1L, 2L, 4L, 8L, 16L, 32L), .Names
 #####################################
 setClass("CXTranslationUnit_Flags", contains = "EnumValue")
 
-CXTranslationUnit_FlagsValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L), .Names = c('CXTranslationUnit_None', 'CXTranslationUnit_DetailedPreprocessingRecord', 'CXTranslationUnit_Incomplete', 'CXTranslationUnit_PrecompiledPreamble', 'CXTranslationUnit_CacheCompletionResults', 'CXTranslationUnit_ForSerialization', 'CXTranslationUnit_CXXChainedPCH', 'CXTranslationUnit_SkipFunctionBodies', 'CXTranslationUnit_IncludeBriefCommentsInCodeCompletion'))
+CXTranslationUnit_Flags = CXTranslationUnit_FlagsValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L), .Names = c('CXTranslationUnit_None', 'CXTranslationUnit_DetailedPreprocessingRecord', 'CXTranslationUnit_Incomplete', 'CXTranslationUnit_PrecompiledPreamble', 'CXTranslationUnit_CacheCompletionResults', 'CXTranslationUnit_ForSerialization', 'CXTranslationUnit_CXXChainedPCH', 'CXTranslationUnit_SkipFunctionBodies', 'CXTranslationUnit_IncludeBriefCommentsInCodeCompletion'))
 
 `CXTranslationUnit_None` = GenericEnumValue('CXTranslationUnit_None', 0L, 'CXTranslationUnit_Flags')
 `CXTranslationUnit_DetailedPreprocessingRecord` = GenericEnumValue('CXTranslationUnit_DetailedPreprocessingRecord', 1L, 'CXTranslationUnit_Flags')
@@ -121,7 +117,7 @@ CXTranslationUnit_FlagsValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 1
 #####################################
 setClass("CXSaveTranslationUnit_Flags", contains = "EnumValue")
 
-CXSaveTranslationUnit_FlagsValues = structure(c(0L), .Names = c('CXSaveTranslationUnit_None'))
+CXSaveTranslationUnit_Flags = CXSaveTranslationUnit_FlagsValues = structure(c(0L), .Names = c('CXSaveTranslationUnit_None'))
 
 `CXSaveTranslationUnit_None` = GenericEnumValue('CXSaveTranslationUnit_None', 0L, 'CXSaveTranslationUnit_Flags')
 
@@ -133,7 +129,7 @@ CXSaveTranslationUnit_FlagsValues = structure(c(0L), .Names = c('CXSaveTranslati
 #####################################
 setClass("CXSaveError", contains = "EnumValue")
 
-CXSaveErrorValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXSaveError_None', 'CXSaveError_Unknown', 'CXSaveError_TranslationErrors', 'CXSaveError_InvalidTU'))
+CXSaveError = CXSaveErrorValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXSaveError_None', 'CXSaveError_Unknown', 'CXSaveError_TranslationErrors', 'CXSaveError_InvalidTU'))
 
 `CXSaveError_None` = GenericEnumValue('CXSaveError_None', 0L, 'CXSaveError')
 `CXSaveError_Unknown` = GenericEnumValue('CXSaveError_Unknown', 1L, 'CXSaveError')
@@ -148,7 +144,7 @@ CXSaveErrorValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXSaveError_None', 
 #####################################
 setClass("CXReparse_Flags", contains = "EnumValue")
 
-CXReparse_FlagsValues = structure(c(0L), .Names = c('CXReparse_None'))
+CXReparse_Flags = CXReparse_FlagsValues = structure(c(0L), .Names = c('CXReparse_None'))
 
 `CXReparse_None` = GenericEnumValue('CXReparse_None', 0L, 'CXReparse_Flags')
 
@@ -160,7 +156,7 @@ CXReparse_FlagsValues = structure(c(0L), .Names = c('CXReparse_None'))
 #####################################
 setClass("CXTUResourceUsageKind", contains = "EnumValue")
 
-CXTUResourceUsageKindValues = structure(c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 1L, 14L, 1L, 14L), .Names = c('CXTUResourceUsage_AST', 'CXTUResourceUsage_Identifiers', 'CXTUResourceUsage_Selectors', 'CXTUResourceUsage_GlobalCompletionResults', 'CXTUResourceUsage_SourceManagerContentCache', 'CXTUResourceUsage_AST_SideTables', 'CXTUResourceUsage_SourceManager_Membuffer_Malloc', 'CXTUResourceUsage_SourceManager_Membuffer_MMap', 'CXTUResourceUsage_ExternalASTSource_Membuffer_Malloc', 'CXTUResourceUsage_ExternalASTSource_Membuffer_MMap', 'CXTUResourceUsage_Preprocessor', 'CXTUResourceUsage_PreprocessingRecord', 'CXTUResourceUsage_SourceManager_DataStructures', 'CXTUResourceUsage_Preprocessor_HeaderSearch', 'CXTUResourceUsage_MEMORY_IN_BYTES_BEGIN', 'CXTUResourceUsage_MEMORY_IN_BYTES_END', 'CXTUResourceUsage_First', 'CXTUResourceUsage_Last'))
+CXTUResourceUsageKind = CXTUResourceUsageKindValues = structure(c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 1L, 14L, 1L, 14L), .Names = c('CXTUResourceUsage_AST', 'CXTUResourceUsage_Identifiers', 'CXTUResourceUsage_Selectors', 'CXTUResourceUsage_GlobalCompletionResults', 'CXTUResourceUsage_SourceManagerContentCache', 'CXTUResourceUsage_AST_SideTables', 'CXTUResourceUsage_SourceManager_Membuffer_Malloc', 'CXTUResourceUsage_SourceManager_Membuffer_MMap', 'CXTUResourceUsage_ExternalASTSource_Membuffer_Malloc', 'CXTUResourceUsage_ExternalASTSource_Membuffer_MMap', 'CXTUResourceUsage_Preprocessor', 'CXTUResourceUsage_PreprocessingRecord', 'CXTUResourceUsage_SourceManager_DataStructures', 'CXTUResourceUsage_Preprocessor_HeaderSearch', 'CXTUResourceUsage_MEMORY_IN_BYTES_BEGIN', 'CXTUResourceUsage_MEMORY_IN_BYTES_END', 'CXTUResourceUsage_First', 'CXTUResourceUsage_Last'))
 
 `CXTUResourceUsage_AST` = GenericEnumValue('CXTUResourceUsage_AST', 1L, 'CXTUResourceUsageKind')
 `CXTUResourceUsage_Identifiers` = GenericEnumValue('CXTUResourceUsage_Identifiers', 2L, 'CXTUResourceUsageKind')
@@ -189,7 +185,7 @@ CXTUResourceUsageKindValues = structure(c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10
 #####################################
 setClass("CXCursorKind", contains = "EnumValue")
 
-CXCursorKindValues = structure(c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L, 30L, 31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L, 39L, 1L, 39L, 40L, 40L, 41L, 42L, 43L, 44L, 45L, 46L, 47L, 48L, 49L, 50L, 50L, 70L, 70L, 71L, 72L, 73L, 73L, 100L, 100L, 101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 109L, 110L, 111L, 112L, 113L, 114L, 115L, 116L, 117L, 118L, 119L, 120L, 121L, 122L, 123L, 124L, 125L, 126L, 127L, 128L, 129L, 130L, 131L, 132L, 133L, 134L, 135L, 136L, 137L, 138L, 139L, 140L, 141L, 142L, 143L, 144L, 145L, 146L, 146L, 200L, 200L, 201L, 202L, 203L, 204L, 205L, 206L, 207L, 208L, 209L, 210L, 211L, 212L, 213L, 214L, 215L, 215L, 216L, 217L, 218L, 219L, 220L, 221L, 222L, 223L, 224L, 225L, 226L, 227L, 228L, 229L, 230L, 231L, 232L, 233L, 234L, 235L, 236L, 237L, 238L, 239L, 240L, 241L, 242L, 243L, 244L, 245L, 246L, 247L, 248L, 249L, 250L, 251L, 252L, 253L, 254L, 255L, 256L, 256L, 300L, 400L, 400L, 401L, 402L, 403L, 404L, 405L, 406L, 407L, 408L, 409L, 410L, 411L, 412L, 413L, 414L, 415L, 416L, 416L, 500L, 501L, 502L, 502L, 503L, 500L, 503L, 600L, 600L, 600L, 700L), .Names = c('CXCursor_UnexposedDecl', 'CXCursor_StructDecl', 'CXCursor_UnionDecl', 'CXCursor_ClassDecl', 'CXCursor_EnumDecl', 'CXCursor_FieldDecl', 'CXCursor_EnumConstantDecl', 'CXCursor_FunctionDecl', 'CXCursor_VarDecl', 'CXCursor_ParmDecl', 'CXCursor_ObjCInterfaceDecl', 'CXCursor_ObjCCategoryDecl', 'CXCursor_ObjCProtocolDecl', 'CXCursor_ObjCPropertyDecl', 'CXCursor_ObjCIvarDecl', 'CXCursor_ObjCInstanceMethodDecl', 'CXCursor_ObjCClassMethodDecl', 'CXCursor_ObjCImplementationDecl', 'CXCursor_ObjCCategoryImplDecl', 'CXCursor_TypedefDecl', 'CXCursor_CXXMethod', 'CXCursor_Namespace', 'CXCursor_LinkageSpec', 'CXCursor_Constructor', 'CXCursor_Destructor', 'CXCursor_ConversionFunction', 'CXCursor_TemplateTypeParameter', 'CXCursor_NonTypeTemplateParameter', 'CXCursor_TemplateTemplateParameter', 'CXCursor_FunctionTemplate', 'CXCursor_ClassTemplate', 'CXCursor_ClassTemplatePartialSpecialization', 'CXCursor_NamespaceAlias', 'CXCursor_UsingDirective', 'CXCursor_UsingDeclaration', 'CXCursor_TypeAliasDecl', 'CXCursor_ObjCSynthesizeDecl', 'CXCursor_ObjCDynamicDecl', 'CXCursor_CXXAccessSpecifier', 'CXCursor_FirstDecl', 'CXCursor_LastDecl', 'CXCursor_FirstRef', 'CXCursor_ObjCSuperClassRef', 'CXCursor_ObjCProtocolRef', 'CXCursor_ObjCClassRef', 'CXCursor_TypeRef', 'CXCursor_CXXBaseSpecifier', 'CXCursor_TemplateRef', 'CXCursor_NamespaceRef', 'CXCursor_MemberRef', 'CXCursor_LabelRef', 'CXCursor_OverloadedDeclRef', 'CXCursor_VariableRef', 'CXCursor_LastRef', 'CXCursor_FirstInvalid', 'CXCursor_InvalidFile', 'CXCursor_NoDeclFound', 'CXCursor_NotImplemented', 'CXCursor_InvalidCode', 'CXCursor_LastInvalid', 'CXCursor_FirstExpr', 'CXCursor_UnexposedExpr', 'CXCursor_DeclRefExpr', 'CXCursor_MemberRefExpr', 'CXCursor_CallExpr', 'CXCursor_ObjCMessageExpr', 'CXCursor_BlockExpr', 'CXCursor_IntegerLiteral', 'CXCursor_FloatingLiteral', 'CXCursor_ImaginaryLiteral', 'CXCursor_StringLiteral', 'CXCursor_CharacterLiteral', 'CXCursor_ParenExpr', 'CXCursor_UnaryOperator', 'CXCursor_ArraySubscriptExpr', 'CXCursor_BinaryOperator', 'CXCursor_CompoundAssignOperator', 'CXCursor_ConditionalOperator', 'CXCursor_CStyleCastExpr', 'CXCursor_CompoundLiteralExpr', 'CXCursor_InitListExpr', 'CXCursor_AddrLabelExpr', 'CXCursor_StmtExpr', 'CXCursor_GenericSelectionExpr', 'CXCursor_GNUNullExpr', 'CXCursor_CXXStaticCastExpr', 'CXCursor_CXXDynamicCastExpr', 'CXCursor_CXXReinterpretCastExpr', 'CXCursor_CXXConstCastExpr', 'CXCursor_CXXFunctionalCastExpr', 'CXCursor_CXXTypeidExpr', 'CXCursor_CXXBoolLiteralExpr', 'CXCursor_CXXNullPtrLiteralExpr', 'CXCursor_CXXThisExpr', 'CXCursor_CXXThrowExpr', 'CXCursor_CXXNewExpr', 'CXCursor_CXXDeleteExpr', 'CXCursor_UnaryExpr', 'CXCursor_ObjCStringLiteral', 'CXCursor_ObjCEncodeExpr', 'CXCursor_ObjCSelectorExpr', 'CXCursor_ObjCProtocolExpr', 'CXCursor_ObjCBridgedCastExpr', 'CXCursor_PackExpansionExpr', 'CXCursor_SizeOfPackExpr', 'CXCursor_LambdaExpr', 'CXCursor_ObjCBoolLiteralExpr', 'CXCursor_ObjCSelfExpr', 'CXCursor_LastExpr', 'CXCursor_FirstStmt', 'CXCursor_UnexposedStmt', 'CXCursor_LabelStmt', 'CXCursor_CompoundStmt', 'CXCursor_CaseStmt', 'CXCursor_DefaultStmt', 'CXCursor_IfStmt', 'CXCursor_SwitchStmt', 'CXCursor_WhileStmt', 'CXCursor_DoStmt', 'CXCursor_ForStmt', 'CXCursor_GotoStmt', 'CXCursor_IndirectGotoStmt', 'CXCursor_ContinueStmt', 'CXCursor_BreakStmt', 'CXCursor_ReturnStmt', 'CXCursor_GCCAsmStmt', 'CXCursor_AsmStmt', 'CXCursor_ObjCAtTryStmt', 'CXCursor_ObjCAtCatchStmt', 'CXCursor_ObjCAtFinallyStmt', 'CXCursor_ObjCAtThrowStmt', 'CXCursor_ObjCAtSynchronizedStmt', 'CXCursor_ObjCAutoreleasePoolStmt', 'CXCursor_ObjCForCollectionStmt', 'CXCursor_CXXCatchStmt', 'CXCursor_CXXTryStmt', 'CXCursor_CXXForRangeStmt', 'CXCursor_SEHTryStmt', 'CXCursor_SEHExceptStmt', 'CXCursor_SEHFinallyStmt', 'CXCursor_MSAsmStmt', 'CXCursor_NullStmt', 'CXCursor_DeclStmt', 'CXCursor_OMPParallelDirective', 'CXCursor_OMPSimdDirective', 'CXCursor_OMPForDirective', 'CXCursor_OMPSectionsDirective', 'CXCursor_OMPSectionDirective', 'CXCursor_OMPSingleDirective', 'CXCursor_OMPParallelForDirective', 'CXCursor_OMPParallelSectionsDirective', 'CXCursor_OMPTaskDirective', 'CXCursor_OMPMasterDirective', 'CXCursor_OMPCriticalDirective', 'CXCursor_OMPTaskyieldDirective', 'CXCursor_OMPBarrierDirective', 'CXCursor_OMPTaskwaitDirective', 'CXCursor_OMPFlushDirective', 'CXCursor_SEHLeaveStmt', 'CXCursor_OMPOrderedDirective', 'CXCursor_OMPAtomicDirective', 'CXCursor_OMPForSimdDirective', 'CXCursor_OMPParallelForSimdDirective', 'CXCursor_OMPTargetDirective', 'CXCursor_OMPTeamsDirective', 'CXCursor_OMPTaskgroupDirective', 'CXCursor_OMPCancellationPointDirective', 'CXCursor_OMPCancelDirective', 'CXCursor_LastStmt', 'CXCursor_TranslationUnit', 'CXCursor_FirstAttr', 'CXCursor_UnexposedAttr', 'CXCursor_IBActionAttr', 'CXCursor_IBOutletAttr', 'CXCursor_IBOutletCollectionAttr', 'CXCursor_CXXFinalAttr', 'CXCursor_CXXOverrideAttr', 'CXCursor_AnnotateAttr', 'CXCursor_AsmLabelAttr', 'CXCursor_PackedAttr', 'CXCursor_PureAttr', 'CXCursor_ConstAttr', 'CXCursor_NoDuplicateAttr', 'CXCursor_CUDAConstantAttr', 'CXCursor_CUDADeviceAttr', 'CXCursor_CUDAGlobalAttr', 'CXCursor_CUDAHostAttr', 'CXCursor_CUDASharedAttr', 'CXCursor_LastAttr', 'CXCursor_PreprocessingDirective', 'CXCursor_MacroDefinition', 'CXCursor_MacroExpansion', 'CXCursor_MacroInstantiation', 'CXCursor_InclusionDirective', 'CXCursor_FirstPreprocessing', 'CXCursor_LastPreprocessing', 'CXCursor_ModuleImportDecl', 'CXCursor_FirstExtraDecl', 'CXCursor_LastExtraDecl', 'CXCursor_OverloadCandidate'))
+CXCursorKind = CXCursorKindValues = structure(c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L, 30L, 31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L, 39L, 1L, 39L, 40L, 40L, 41L, 42L, 43L, 44L, 45L, 46L, 47L, 48L, 49L, 50L, 50L, 70L, 70L, 71L, 72L, 73L, 73L, 100L, 100L, 101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 109L, 110L, 111L, 112L, 113L, 114L, 115L, 116L, 117L, 118L, 119L, 120L, 121L, 122L, 123L, 124L, 125L, 126L, 127L, 128L, 129L, 130L, 131L, 132L, 133L, 134L, 135L, 136L, 137L, 138L, 139L, 140L, 141L, 142L, 143L, 144L, 145L, 146L, 146L, 200L, 200L, 201L, 202L, 203L, 204L, 205L, 206L, 207L, 208L, 209L, 210L, 211L, 212L, 213L, 214L, 215L, 215L, 216L, 217L, 218L, 219L, 220L, 221L, 222L, 223L, 224L, 225L, 226L, 227L, 228L, 229L, 230L, 231L, 232L, 233L, 234L, 235L, 236L, 237L, 238L, 239L, 240L, 241L, 242L, 243L, 244L, 245L, 246L, 247L, 248L, 249L, 250L, 251L, 252L, 253L, 254L, 255L, 256L, 256L, 300L, 400L, 400L, 401L, 402L, 403L, 404L, 405L, 406L, 407L, 408L, 409L, 410L, 411L, 412L, 413L, 414L, 415L, 416L, 416L, 500L, 501L, 502L, 502L, 503L, 500L, 503L, 600L, 600L, 600L, 700L), .Names = c('CXCursor_UnexposedDecl', 'CXCursor_StructDecl', 'CXCursor_UnionDecl', 'CXCursor_ClassDecl', 'CXCursor_EnumDecl', 'CXCursor_FieldDecl', 'CXCursor_EnumConstantDecl', 'CXCursor_FunctionDecl', 'CXCursor_VarDecl', 'CXCursor_ParmDecl', 'CXCursor_ObjCInterfaceDecl', 'CXCursor_ObjCCategoryDecl', 'CXCursor_ObjCProtocolDecl', 'CXCursor_ObjCPropertyDecl', 'CXCursor_ObjCIvarDecl', 'CXCursor_ObjCInstanceMethodDecl', 'CXCursor_ObjCClassMethodDecl', 'CXCursor_ObjCImplementationDecl', 'CXCursor_ObjCCategoryImplDecl', 'CXCursor_TypedefDecl', 'CXCursor_CXXMethod', 'CXCursor_Namespace', 'CXCursor_LinkageSpec', 'CXCursor_Constructor', 'CXCursor_Destructor', 'CXCursor_ConversionFunction', 'CXCursor_TemplateTypeParameter', 'CXCursor_NonTypeTemplateParameter', 'CXCursor_TemplateTemplateParameter', 'CXCursor_FunctionTemplate', 'CXCursor_ClassTemplate', 'CXCursor_ClassTemplatePartialSpecialization', 'CXCursor_NamespaceAlias', 'CXCursor_UsingDirective', 'CXCursor_UsingDeclaration', 'CXCursor_TypeAliasDecl', 'CXCursor_ObjCSynthesizeDecl', 'CXCursor_ObjCDynamicDecl', 'CXCursor_CXXAccessSpecifier', 'CXCursor_FirstDecl', 'CXCursor_LastDecl', 'CXCursor_FirstRef', 'CXCursor_ObjCSuperClassRef', 'CXCursor_ObjCProtocolRef', 'CXCursor_ObjCClassRef', 'CXCursor_TypeRef', 'CXCursor_CXXBaseSpecifier', 'CXCursor_TemplateRef', 'CXCursor_NamespaceRef', 'CXCursor_MemberRef', 'CXCursor_LabelRef', 'CXCursor_OverloadedDeclRef', 'CXCursor_VariableRef', 'CXCursor_LastRef', 'CXCursor_FirstInvalid', 'CXCursor_InvalidFile', 'CXCursor_NoDeclFound', 'CXCursor_NotImplemented', 'CXCursor_InvalidCode', 'CXCursor_LastInvalid', 'CXCursor_FirstExpr', 'CXCursor_UnexposedExpr', 'CXCursor_DeclRefExpr', 'CXCursor_MemberRefExpr', 'CXCursor_CallExpr', 'CXCursor_ObjCMessageExpr', 'CXCursor_BlockExpr', 'CXCursor_IntegerLiteral', 'CXCursor_FloatingLiteral', 'CXCursor_ImaginaryLiteral', 'CXCursor_StringLiteral', 'CXCursor_CharacterLiteral', 'CXCursor_ParenExpr', 'CXCursor_UnaryOperator', 'CXCursor_ArraySubscriptExpr', 'CXCursor_BinaryOperator', 'CXCursor_CompoundAssignOperator', 'CXCursor_ConditionalOperator', 'CXCursor_CStyleCastExpr', 'CXCursor_CompoundLiteralExpr', 'CXCursor_InitListExpr', 'CXCursor_AddrLabelExpr', 'CXCursor_StmtExpr', 'CXCursor_GenericSelectionExpr', 'CXCursor_GNUNullExpr', 'CXCursor_CXXStaticCastExpr', 'CXCursor_CXXDynamicCastExpr', 'CXCursor_CXXReinterpretCastExpr', 'CXCursor_CXXConstCastExpr', 'CXCursor_CXXFunctionalCastExpr', 'CXCursor_CXXTypeidExpr', 'CXCursor_CXXBoolLiteralExpr', 'CXCursor_CXXNullPtrLiteralExpr', 'CXCursor_CXXThisExpr', 'CXCursor_CXXThrowExpr', 'CXCursor_CXXNewExpr', 'CXCursor_CXXDeleteExpr', 'CXCursor_UnaryExpr', 'CXCursor_ObjCStringLiteral', 'CXCursor_ObjCEncodeExpr', 'CXCursor_ObjCSelectorExpr', 'CXCursor_ObjCProtocolExpr', 'CXCursor_ObjCBridgedCastExpr', 'CXCursor_PackExpansionExpr', 'CXCursor_SizeOfPackExpr', 'CXCursor_LambdaExpr', 'CXCursor_ObjCBoolLiteralExpr', 'CXCursor_ObjCSelfExpr', 'CXCursor_LastExpr', 'CXCursor_FirstStmt', 'CXCursor_UnexposedStmt', 'CXCursor_LabelStmt', 'CXCursor_CompoundStmt', 'CXCursor_CaseStmt', 'CXCursor_DefaultStmt', 'CXCursor_IfStmt', 'CXCursor_SwitchStmt', 'CXCursor_WhileStmt', 'CXCursor_DoStmt', 'CXCursor_ForStmt', 'CXCursor_GotoStmt', 'CXCursor_IndirectGotoStmt', 'CXCursor_ContinueStmt', 'CXCursor_BreakStmt', 'CXCursor_ReturnStmt', 'CXCursor_GCCAsmStmt', 'CXCursor_AsmStmt', 'CXCursor_ObjCAtTryStmt', 'CXCursor_ObjCAtCatchStmt', 'CXCursor_ObjCAtFinallyStmt', 'CXCursor_ObjCAtThrowStmt', 'CXCursor_ObjCAtSynchronizedStmt', 'CXCursor_ObjCAutoreleasePoolStmt', 'CXCursor_ObjCForCollectionStmt', 'CXCursor_CXXCatchStmt', 'CXCursor_CXXTryStmt', 'CXCursor_CXXForRangeStmt', 'CXCursor_SEHTryStmt', 'CXCursor_SEHExceptStmt', 'CXCursor_SEHFinallyStmt', 'CXCursor_MSAsmStmt', 'CXCursor_NullStmt', 'CXCursor_DeclStmt', 'CXCursor_OMPParallelDirective', 'CXCursor_OMPSimdDirective', 'CXCursor_OMPForDirective', 'CXCursor_OMPSectionsDirective', 'CXCursor_OMPSectionDirective', 'CXCursor_OMPSingleDirective', 'CXCursor_OMPParallelForDirective', 'CXCursor_OMPParallelSectionsDirective', 'CXCursor_OMPTaskDirective', 'CXCursor_OMPMasterDirective', 'CXCursor_OMPCriticalDirective', 'CXCursor_OMPTaskyieldDirective', 'CXCursor_OMPBarrierDirective', 'CXCursor_OMPTaskwaitDirective', 'CXCursor_OMPFlushDirective', 'CXCursor_SEHLeaveStmt', 'CXCursor_OMPOrderedDirective', 'CXCursor_OMPAtomicDirective', 'CXCursor_OMPForSimdDirective', 'CXCursor_OMPParallelForSimdDirective', 'CXCursor_OMPTargetDirective', 'CXCursor_OMPTeamsDirective', 'CXCursor_OMPTaskgroupDirective', 'CXCursor_OMPCancellationPointDirective', 'CXCursor_OMPCancelDirective', 'CXCursor_LastStmt', 'CXCursor_TranslationUnit', 'CXCursor_FirstAttr', 'CXCursor_UnexposedAttr', 'CXCursor_IBActionAttr', 'CXCursor_IBOutletAttr', 'CXCursor_IBOutletCollectionAttr', 'CXCursor_CXXFinalAttr', 'CXCursor_CXXOverrideAttr', 'CXCursor_AnnotateAttr', 'CXCursor_AsmLabelAttr', 'CXCursor_PackedAttr', 'CXCursor_PureAttr', 'CXCursor_ConstAttr', 'CXCursor_NoDuplicateAttr', 'CXCursor_CUDAConstantAttr', 'CXCursor_CUDADeviceAttr', 'CXCursor_CUDAGlobalAttr', 'CXCursor_CUDAHostAttr', 'CXCursor_CUDASharedAttr', 'CXCursor_LastAttr', 'CXCursor_PreprocessingDirective', 'CXCursor_MacroDefinition', 'CXCursor_MacroExpansion', 'CXCursor_MacroInstantiation', 'CXCursor_InclusionDirective', 'CXCursor_FirstPreprocessing', 'CXCursor_LastPreprocessing', 'CXCursor_ModuleImportDecl', 'CXCursor_FirstExtraDecl', 'CXCursor_LastExtraDecl', 'CXCursor_OverloadCandidate'))
 
 `CXCursor_UnexposedDecl` = GenericEnumValue('CXCursor_UnexposedDecl', 1L, 'CXCursorKind')
 `CXCursor_StructDecl` = GenericEnumValue('CXCursor_StructDecl', 2L, 'CXCursorKind')
@@ -400,7 +396,7 @@ CXCursorKindValues = structure(c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 1
 #####################################
 setClass("CXLinkageKind", contains = "EnumValue")
 
-CXLinkageKindValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXLinkage_Invalid', 'CXLinkage_NoLinkage', 'CXLinkage_Internal', 'CXLinkage_UniqueExternal', 'CXLinkage_External'))
+CXLinkageKind = CXLinkageKindValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXLinkage_Invalid', 'CXLinkage_NoLinkage', 'CXLinkage_Internal', 'CXLinkage_UniqueExternal', 'CXLinkage_External'))
 
 `CXLinkage_Invalid` = GenericEnumValue('CXLinkage_Invalid', 0L, 'CXLinkageKind')
 `CXLinkage_NoLinkage` = GenericEnumValue('CXLinkage_NoLinkage', 1L, 'CXLinkageKind')
@@ -416,7 +412,7 @@ CXLinkageKindValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXLinkage_Inv
 #####################################
 setClass("CXLanguageKind", contains = "EnumValue")
 
-CXLanguageKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXLanguage_Invalid', 'CXLanguage_C', 'CXLanguage_ObjC', 'CXLanguage_CPlusPlus'))
+CXLanguageKind = CXLanguageKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXLanguage_Invalid', 'CXLanguage_C', 'CXLanguage_ObjC', 'CXLanguage_CPlusPlus'))
 
 `CXLanguage_Invalid` = GenericEnumValue('CXLanguage_Invalid', 0L, 'CXLanguageKind')
 `CXLanguage_C` = GenericEnumValue('CXLanguage_C', 1L, 'CXLanguageKind')
@@ -431,7 +427,7 @@ CXLanguageKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXLanguage_Inval
 #####################################
 setClass("CXTypeKind", contains = "EnumValue")
 
-CXTypeKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L, 2L, 29L, 100L, 101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 109L, 110L, 111L, 112L, 113L, 114L, 115L, 116L, 117L), .Names = c('CXType_Invalid', 'CXType_Unexposed', 'CXType_Void', 'CXType_Bool', 'CXType_Char_U', 'CXType_UChar', 'CXType_Char16', 'CXType_Char32', 'CXType_UShort', 'CXType_UInt', 'CXType_ULong', 'CXType_ULongLong', 'CXType_UInt128', 'CXType_Char_S', 'CXType_SChar', 'CXType_WChar', 'CXType_Short', 'CXType_Int', 'CXType_Long', 'CXType_LongLong', 'CXType_Int128', 'CXType_Float', 'CXType_Double', 'CXType_LongDouble', 'CXType_NullPtr', 'CXType_Overload', 'CXType_Dependent', 'CXType_ObjCId', 'CXType_ObjCClass', 'CXType_ObjCSel', 'CXType_FirstBuiltin', 'CXType_LastBuiltin', 'CXType_Complex', 'CXType_Pointer', 'CXType_BlockPointer', 'CXType_LValueReference', 'CXType_RValueReference', 'CXType_Record', 'CXType_Enum', 'CXType_Typedef', 'CXType_ObjCInterface', 'CXType_ObjCObjectPointer', 'CXType_FunctionNoProto', 'CXType_FunctionProto', 'CXType_ConstantArray', 'CXType_Vector', 'CXType_IncompleteArray', 'CXType_VariableArray', 'CXType_DependentSizedArray', 'CXType_MemberPointer'))
+CXTypeKind = CXTypeKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L, 2L, 29L, 100L, 101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 109L, 110L, 111L, 112L, 113L, 114L, 115L, 116L, 117L), .Names = c('CXType_Invalid', 'CXType_Unexposed', 'CXType_Void', 'CXType_Bool', 'CXType_Char_U', 'CXType_UChar', 'CXType_Char16', 'CXType_Char32', 'CXType_UShort', 'CXType_UInt', 'CXType_ULong', 'CXType_ULongLong', 'CXType_UInt128', 'CXType_Char_S', 'CXType_SChar', 'CXType_WChar', 'CXType_Short', 'CXType_Int', 'CXType_Long', 'CXType_LongLong', 'CXType_Int128', 'CXType_Float', 'CXType_Double', 'CXType_LongDouble', 'CXType_NullPtr', 'CXType_Overload', 'CXType_Dependent', 'CXType_ObjCId', 'CXType_ObjCClass', 'CXType_ObjCSel', 'CXType_FirstBuiltin', 'CXType_LastBuiltin', 'CXType_Complex', 'CXType_Pointer', 'CXType_BlockPointer', 'CXType_LValueReference', 'CXType_RValueReference', 'CXType_Record', 'CXType_Enum', 'CXType_Typedef', 'CXType_ObjCInterface', 'CXType_ObjCObjectPointer', 'CXType_FunctionNoProto', 'CXType_FunctionProto', 'CXType_ConstantArray', 'CXType_Vector', 'CXType_IncompleteArray', 'CXType_VariableArray', 'CXType_DependentSizedArray', 'CXType_MemberPointer'))
 
 `CXType_Invalid` = GenericEnumValue('CXType_Invalid', 0L, 'CXTypeKind')
 `CXType_Unexposed` = GenericEnumValue('CXType_Unexposed', 1L, 'CXTypeKind')
@@ -492,7 +488,7 @@ CXTypeKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L,
 #####################################
 setClass("CXCallingConv", contains = "EnumValue")
 
-CXCallingConvValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 9L, 10L, 11L, 12L, 100L, 200L), .Names = c('CXCallingConv_Default', 'CXCallingConv_C', 'CXCallingConv_X86StdCall', 'CXCallingConv_X86FastCall', 'CXCallingConv_X86ThisCall', 'CXCallingConv_X86Pascal', 'CXCallingConv_AAPCS', 'CXCallingConv_AAPCS_VFP', 'CXCallingConv_IntelOclBicc', 'CXCallingConv_X86_64Win64', 'CXCallingConv_X86_64SysV', 'CXCallingConv_X86VectorCall', 'CXCallingConv_Invalid', 'CXCallingConv_Unexposed'))
+CXCallingConv = CXCallingConvValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 9L, 10L, 11L, 12L, 100L, 200L), .Names = c('CXCallingConv_Default', 'CXCallingConv_C', 'CXCallingConv_X86StdCall', 'CXCallingConv_X86FastCall', 'CXCallingConv_X86ThisCall', 'CXCallingConv_X86Pascal', 'CXCallingConv_AAPCS', 'CXCallingConv_AAPCS_VFP', 'CXCallingConv_IntelOclBicc', 'CXCallingConv_X86_64Win64', 'CXCallingConv_X86_64SysV', 'CXCallingConv_X86VectorCall', 'CXCallingConv_Invalid', 'CXCallingConv_Unexposed'))
 
 `CXCallingConv_Default` = GenericEnumValue('CXCallingConv_Default', 0L, 'CXCallingConv')
 `CXCallingConv_C` = GenericEnumValue('CXCallingConv_C', 1L, 'CXCallingConv')
@@ -517,7 +513,7 @@ CXCallingConvValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 9L, 10L, 11L, 
 #####################################
 setClass("CXTemplateArgumentKind", contains = "EnumValue")
 
-CXTemplateArgumentKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L), .Names = c('CXTemplateArgumentKind_Null', 'CXTemplateArgumentKind_Type', 'CXTemplateArgumentKind_Declaration', 'CXTemplateArgumentKind_NullPtr', 'CXTemplateArgumentKind_Integral', 'CXTemplateArgumentKind_Template', 'CXTemplateArgumentKind_TemplateExpansion', 'CXTemplateArgumentKind_Expression', 'CXTemplateArgumentKind_Pack', 'CXTemplateArgumentKind_Invalid'))
+CXTemplateArgumentKind = CXTemplateArgumentKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L), .Names = c('CXTemplateArgumentKind_Null', 'CXTemplateArgumentKind_Type', 'CXTemplateArgumentKind_Declaration', 'CXTemplateArgumentKind_NullPtr', 'CXTemplateArgumentKind_Integral', 'CXTemplateArgumentKind_Template', 'CXTemplateArgumentKind_TemplateExpansion', 'CXTemplateArgumentKind_Expression', 'CXTemplateArgumentKind_Pack', 'CXTemplateArgumentKind_Invalid'))
 
 `CXTemplateArgumentKind_Null` = GenericEnumValue('CXTemplateArgumentKind_Null', 0L, 'CXTemplateArgumentKind')
 `CXTemplateArgumentKind_Type` = GenericEnumValue('CXTemplateArgumentKind_Type', 1L, 'CXTemplateArgumentKind')
@@ -538,7 +534,7 @@ CXTemplateArgumentKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9
 #####################################
 setClass("CXTypeLayoutError", contains = "EnumValue")
 
-CXTypeLayoutErrorValues = structure(c(-1L, -2L, -3L, -4L, -5L), .Names = c('CXTypeLayoutError_Invalid', 'CXTypeLayoutError_Incomplete', 'CXTypeLayoutError_Dependent', 'CXTypeLayoutError_NotConstantSize', 'CXTypeLayoutError_InvalidFieldName'))
+CXTypeLayoutError = CXTypeLayoutErrorValues = structure(c(-1L, -2L, -3L, -4L, -5L), .Names = c('CXTypeLayoutError_Invalid', 'CXTypeLayoutError_Incomplete', 'CXTypeLayoutError_Dependent', 'CXTypeLayoutError_NotConstantSize', 'CXTypeLayoutError_InvalidFieldName'))
 
 `CXTypeLayoutError_Invalid` = GenericEnumValue('CXTypeLayoutError_Invalid', -1L, 'CXTypeLayoutError')
 `CXTypeLayoutError_Incomplete` = GenericEnumValue('CXTypeLayoutError_Incomplete', -2L, 'CXTypeLayoutError')
@@ -554,7 +550,7 @@ CXTypeLayoutErrorValues = structure(c(-1L, -2L, -3L, -4L, -5L), .Names = c('CXTy
 #####################################
 setClass("CXRefQualifierKind", contains = "EnumValue")
 
-CXRefQualifierKindValues = structure(c(0L, 1L, 2L), .Names = c('CXRefQualifier_None', 'CXRefQualifier_LValue', 'CXRefQualifier_RValue'))
+CXRefQualifierKind = CXRefQualifierKindValues = structure(c(0L, 1L, 2L), .Names = c('CXRefQualifier_None', 'CXRefQualifier_LValue', 'CXRefQualifier_RValue'))
 
 `CXRefQualifier_None` = GenericEnumValue('CXRefQualifier_None', 0L, 'CXRefQualifierKind')
 `CXRefQualifier_LValue` = GenericEnumValue('CXRefQualifier_LValue', 1L, 'CXRefQualifierKind')
@@ -568,7 +564,7 @@ CXRefQualifierKindValues = structure(c(0L, 1L, 2L), .Names = c('CXRefQualifier_N
 #####################################
 setClass("CX_CXXAccessSpecifier", contains = "EnumValue")
 
-CX_CXXAccessSpecifierValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CX_CXXInvalidAccessSpecifier', 'CX_CXXPublic', 'CX_CXXProtected', 'CX_CXXPrivate'))
+CX_CXXAccessSpecifier = CX_CXXAccessSpecifierValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CX_CXXInvalidAccessSpecifier', 'CX_CXXPublic', 'CX_CXXProtected', 'CX_CXXPrivate'))
 
 `CX_CXXInvalidAccessSpecifier` = GenericEnumValue('CX_CXXInvalidAccessSpecifier', 0L, 'CX_CXXAccessSpecifier')
 `CX_CXXPublic` = GenericEnumValue('CX_CXXPublic', 1L, 'CX_CXXAccessSpecifier')
@@ -583,7 +579,7 @@ CX_CXXAccessSpecifierValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CX_CXXInv
 #####################################
 setClass("CX_StorageClass", contains = "EnumValue")
 
-CX_StorageClassValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L), .Names = c('CX_SC_Invalid', 'CX_SC_None', 'CX_SC_Extern', 'CX_SC_Static', 'CX_SC_PrivateExtern', 'CX_SC_OpenCLWorkGroupLocal', 'CX_SC_Auto', 'CX_SC_Register'))
+CX_StorageClass = CX_StorageClassValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L), .Names = c('CX_SC_Invalid', 'CX_SC_None', 'CX_SC_Extern', 'CX_SC_Static', 'CX_SC_PrivateExtern', 'CX_SC_OpenCLWorkGroupLocal', 'CX_SC_Auto', 'CX_SC_Register'))
 
 `CX_SC_Invalid` = GenericEnumValue('CX_SC_Invalid', 0L, 'CX_StorageClass')
 `CX_SC_None` = GenericEnumValue('CX_SC_None', 1L, 'CX_StorageClass')
@@ -602,7 +598,7 @@ CX_StorageClassValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L), .Names = c(
 #####################################
 setClass("CXChildVisitResult", contains = "EnumValue")
 
-CXChildVisitResultValues = structure(c(0L, 1L, 2L), .Names = c('CXChildVisit_Break', 'CXChildVisit_Continue', 'CXChildVisit_Recurse'))
+CXChildVisitResult = CXChildVisitResultValues = structure(c(0L, 1L, 2L), .Names = c('CXChildVisit_Break', 'CXChildVisit_Continue', 'CXChildVisit_Recurse'))
 
 `CXChildVisit_Break` = GenericEnumValue('CXChildVisit_Break', 0L, 'CXChildVisitResult')
 `CXChildVisit_Continue` = GenericEnumValue('CXChildVisit_Continue', 1L, 'CXChildVisitResult')
@@ -616,7 +612,7 @@ CXChildVisitResultValues = structure(c(0L, 1L, 2L), .Names = c('CXChildVisit_Bre
 #####################################
 setClass("CXObjCPropertyAttrKind", contains = "EnumValue")
 
-CXObjCPropertyAttrKindValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L, 256L, 512L, 1024L, 2048L), .Names = c('CXObjCPropertyAttr_noattr', 'CXObjCPropertyAttr_readonly', 'CXObjCPropertyAttr_getter', 'CXObjCPropertyAttr_assign', 'CXObjCPropertyAttr_readwrite', 'CXObjCPropertyAttr_retain', 'CXObjCPropertyAttr_copy', 'CXObjCPropertyAttr_nonatomic', 'CXObjCPropertyAttr_setter', 'CXObjCPropertyAttr_atomic', 'CXObjCPropertyAttr_weak', 'CXObjCPropertyAttr_strong', 'CXObjCPropertyAttr_unsafe_unretained'))
+CXObjCPropertyAttrKind = CXObjCPropertyAttrKindValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L, 256L, 512L, 1024L, 2048L), .Names = c('CXObjCPropertyAttr_noattr', 'CXObjCPropertyAttr_readonly', 'CXObjCPropertyAttr_getter', 'CXObjCPropertyAttr_assign', 'CXObjCPropertyAttr_readwrite', 'CXObjCPropertyAttr_retain', 'CXObjCPropertyAttr_copy', 'CXObjCPropertyAttr_nonatomic', 'CXObjCPropertyAttr_setter', 'CXObjCPropertyAttr_atomic', 'CXObjCPropertyAttr_weak', 'CXObjCPropertyAttr_strong', 'CXObjCPropertyAttr_unsafe_unretained'))
 
 `CXObjCPropertyAttr_noattr` = GenericEnumValue('CXObjCPropertyAttr_noattr', 0L, 'CXObjCPropertyAttrKind')
 `CXObjCPropertyAttr_readonly` = GenericEnumValue('CXObjCPropertyAttr_readonly', 1L, 'CXObjCPropertyAttrKind')
@@ -640,7 +636,7 @@ CXObjCPropertyAttrKindValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 12
 #####################################
 setClass("CXObjCDeclQualifierKind", contains = "EnumValue")
 
-CXObjCDeclQualifierKindValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L), .Names = c('CXObjCDeclQualifier_None', 'CXObjCDeclQualifier_In', 'CXObjCDeclQualifier_Inout', 'CXObjCDeclQualifier_Out', 'CXObjCDeclQualifier_Bycopy', 'CXObjCDeclQualifier_Byref', 'CXObjCDeclQualifier_Oneway'))
+CXObjCDeclQualifierKind = CXObjCDeclQualifierKindValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L), .Names = c('CXObjCDeclQualifier_None', 'CXObjCDeclQualifier_In', 'CXObjCDeclQualifier_Inout', 'CXObjCDeclQualifier_Out', 'CXObjCDeclQualifier_Bycopy', 'CXObjCDeclQualifier_Byref', 'CXObjCDeclQualifier_Oneway'))
 
 `CXObjCDeclQualifier_None` = GenericEnumValue('CXObjCDeclQualifier_None', 0L, 'CXObjCDeclQualifierKind')
 `CXObjCDeclQualifier_In` = GenericEnumValue('CXObjCDeclQualifier_In', 1L, 'CXObjCDeclQualifierKind')
@@ -658,7 +654,7 @@ CXObjCDeclQualifierKindValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L), .Name
 #####################################
 setClass("CXNameRefFlags", contains = "EnumValue")
 
-CXNameRefFlagsValues = structure(c(1L, 2L, 4L), .Names = c('CXNameRange_WantQualifier', 'CXNameRange_WantTemplateArgs', 'CXNameRange_WantSinglePiece'))
+CXNameRefFlags = CXNameRefFlagsValues = structure(c(1L, 2L, 4L), .Names = c('CXNameRange_WantQualifier', 'CXNameRange_WantTemplateArgs', 'CXNameRange_WantSinglePiece'))
 
 `CXNameRange_WantQualifier` = GenericEnumValue('CXNameRange_WantQualifier', 1L, 'CXNameRefFlags')
 `CXNameRange_WantTemplateArgs` = GenericEnumValue('CXNameRange_WantTemplateArgs', 2L, 'CXNameRefFlags')
@@ -672,7 +668,7 @@ CXNameRefFlagsValues = structure(c(1L, 2L, 4L), .Names = c('CXNameRange_WantQual
 #####################################
 setClass("CXTokenKind", contains = "EnumValue")
 
-CXTokenKindValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXToken_Punctuation', 'CXToken_Keyword', 'CXToken_Identifier', 'CXToken_Literal', 'CXToken_Comment'))
+CXTokenKind = CXTokenKindValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXToken_Punctuation', 'CXToken_Keyword', 'CXToken_Identifier', 'CXToken_Literal', 'CXToken_Comment'))
 
 `CXToken_Punctuation` = GenericEnumValue('CXToken_Punctuation', 0L, 'CXTokenKind')
 `CXToken_Keyword` = GenericEnumValue('CXToken_Keyword', 1L, 'CXTokenKind')
@@ -688,7 +684,7 @@ CXTokenKindValues = structure(c(0L, 1L, 2L, 3L, 4L), .Names = c('CXToken_Punctua
 #####################################
 setClass("CXCompletionChunkKind", contains = "EnumValue")
 
-CXCompletionChunkKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L), .Names = c('CXCompletionChunk_Optional', 'CXCompletionChunk_TypedText', 'CXCompletionChunk_Text', 'CXCompletionChunk_Placeholder', 'CXCompletionChunk_Informative', 'CXCompletionChunk_CurrentParameter', 'CXCompletionChunk_LeftParen', 'CXCompletionChunk_RightParen', 'CXCompletionChunk_LeftBracket', 'CXCompletionChunk_RightBracket', 'CXCompletionChunk_LeftBrace', 'CXCompletionChunk_RightBrace', 'CXCompletionChunk_LeftAngle', 'CXCompletionChunk_RightAngle', 'CXCompletionChunk_Comma', 'CXCompletionChunk_ResultType', 'CXCompletionChunk_Colon', 'CXCompletionChunk_SemiColon', 'CXCompletionChunk_Equal', 'CXCompletionChunk_HorizontalSpace', 'CXCompletionChunk_VerticalSpace'))
+CXCompletionChunkKind = CXCompletionChunkKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L), .Names = c('CXCompletionChunk_Optional', 'CXCompletionChunk_TypedText', 'CXCompletionChunk_Text', 'CXCompletionChunk_Placeholder', 'CXCompletionChunk_Informative', 'CXCompletionChunk_CurrentParameter', 'CXCompletionChunk_LeftParen', 'CXCompletionChunk_RightParen', 'CXCompletionChunk_LeftBracket', 'CXCompletionChunk_RightBracket', 'CXCompletionChunk_LeftBrace', 'CXCompletionChunk_RightBrace', 'CXCompletionChunk_LeftAngle', 'CXCompletionChunk_RightAngle', 'CXCompletionChunk_Comma', 'CXCompletionChunk_ResultType', 'CXCompletionChunk_Colon', 'CXCompletionChunk_SemiColon', 'CXCompletionChunk_Equal', 'CXCompletionChunk_HorizontalSpace', 'CXCompletionChunk_VerticalSpace'))
 
 `CXCompletionChunk_Optional` = GenericEnumValue('CXCompletionChunk_Optional', 0L, 'CXCompletionChunkKind')
 `CXCompletionChunk_TypedText` = GenericEnumValue('CXCompletionChunk_TypedText', 1L, 'CXCompletionChunkKind')
@@ -720,7 +716,7 @@ CXCompletionChunkKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L
 #####################################
 setClass("CXCodeComplete_Flags", contains = "EnumValue")
 
-CXCodeComplete_FlagsValues = structure(c(1L, 2L, 4L), .Names = c('CXCodeComplete_IncludeMacros', 'CXCodeComplete_IncludeCodePatterns', 'CXCodeComplete_IncludeBriefComments'))
+CXCodeComplete_Flags = CXCodeComplete_FlagsValues = structure(c(1L, 2L, 4L), .Names = c('CXCodeComplete_IncludeMacros', 'CXCodeComplete_IncludeCodePatterns', 'CXCodeComplete_IncludeBriefComments'))
 
 `CXCodeComplete_IncludeMacros` = GenericEnumValue('CXCodeComplete_IncludeMacros', 1L, 'CXCodeComplete_Flags')
 `CXCodeComplete_IncludeCodePatterns` = GenericEnumValue('CXCodeComplete_IncludeCodePatterns', 2L, 'CXCodeComplete_Flags')
@@ -734,7 +730,7 @@ CXCodeComplete_FlagsValues = structure(c(1L, 2L, 4L), .Names = c('CXCodeComplete
 #####################################
 setClass("CXCompletionContext", contains = "EnumValue")
 
-CXCompletionContextValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L, 256L, 512L, 1024L, 2048L, 4096L, 8192L, 16384L, 32768L, 65536L, 131072L, 262144L, 524288L, 1048576L, 2097152L, NAL), .Names = c('CXCompletionContext_Unexposed', 'CXCompletionContext_AnyType', 'CXCompletionContext_AnyValue', 'CXCompletionContext_ObjCObjectValue', 'CXCompletionContext_ObjCSelectorValue', 'CXCompletionContext_CXXClassTypeValue', 'CXCompletionContext_DotMemberAccess', 'CXCompletionContext_ArrowMemberAccess', 'CXCompletionContext_ObjCPropertyAccess', 'CXCompletionContext_EnumTag', 'CXCompletionContext_UnionTag', 'CXCompletionContext_StructTag', 'CXCompletionContext_ClassTag', 'CXCompletionContext_Namespace', 'CXCompletionContext_NestedNameSpecifier', 'CXCompletionContext_ObjCInterface', 'CXCompletionContext_ObjCProtocol', 'CXCompletionContext_ObjCCategory', 'CXCompletionContext_ObjCInstanceMessage', 'CXCompletionContext_ObjCClassMessage', 'CXCompletionContext_ObjCSelectorName', 'CXCompletionContext_MacroName', 'CXCompletionContext_NaturalLanguage', 'CXCompletionContext_Unknown'))
+CXCompletionContext = CXCompletionContextValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L, 256L, 512L, 1024L, 2048L, 4096L, 8192L, 16384L, 32768L, 65536L, 131072L, 262144L, 524288L, 1048576L, 2097152L, NA), .Names = c('CXCompletionContext_Unexposed', 'CXCompletionContext_AnyType', 'CXCompletionContext_AnyValue', 'CXCompletionContext_ObjCObjectValue', 'CXCompletionContext_ObjCSelectorValue', 'CXCompletionContext_CXXClassTypeValue', 'CXCompletionContext_DotMemberAccess', 'CXCompletionContext_ArrowMemberAccess', 'CXCompletionContext_ObjCPropertyAccess', 'CXCompletionContext_EnumTag', 'CXCompletionContext_UnionTag', 'CXCompletionContext_StructTag', 'CXCompletionContext_ClassTag', 'CXCompletionContext_Namespace', 'CXCompletionContext_NestedNameSpecifier', 'CXCompletionContext_ObjCInterface', 'CXCompletionContext_ObjCProtocol', 'CXCompletionContext_ObjCCategory', 'CXCompletionContext_ObjCInstanceMessage', 'CXCompletionContext_ObjCClassMessage', 'CXCompletionContext_ObjCSelectorName', 'CXCompletionContext_MacroName', 'CXCompletionContext_NaturalLanguage', 'CXCompletionContext_Unknown'))
 
 `CXCompletionContext_Unexposed` = GenericEnumValue('CXCompletionContext_Unexposed', 0L, 'CXCompletionContext')
 `CXCompletionContext_AnyType` = GenericEnumValue('CXCompletionContext_AnyType', 1L, 'CXCompletionContext')
@@ -759,7 +755,7 @@ CXCompletionContextValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L,
 `CXCompletionContext_ObjCSelectorName` = GenericEnumValue('CXCompletionContext_ObjCSelectorName', 524288L, 'CXCompletionContext')
 `CXCompletionContext_MacroName` = GenericEnumValue('CXCompletionContext_MacroName', 1048576L, 'CXCompletionContext')
 `CXCompletionContext_NaturalLanguage` = GenericEnumValue('CXCompletionContext_NaturalLanguage', 2097152L, 'CXCompletionContext')
-`CXCompletionContext_Unknown` = GenericEnumValue('CXCompletionContext_Unknown', NAL, 'CXCompletionContext')
+`CXCompletionContext_Unknown` = GenericEnumValue('CXCompletionContext_Unknown', NA, 'CXCompletionContext')
 
  setAs("character", "CXCompletionContext", function(from) asEnumValue(from, CXCompletionContextValues, "CXCompletionContext", prefix = NA) )
  setAs("integer", "CXCompletionContext", function(from) asEnumValue(from, CXCompletionContextValues, "CXCompletionContext", prefix = NA) )
@@ -769,7 +765,7 @@ CXCompletionContextValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L,
 #####################################
 setClass("CXVisitorResult", contains = "EnumValue")
 
-CXVisitorResultValues = structure(c(0L, 1L), .Names = c('CXVisit_Break', 'CXVisit_Continue'))
+CXVisitorResult = CXVisitorResultValues = structure(c(0L, 1L), .Names = c('CXVisit_Break', 'CXVisit_Continue'))
 
 `CXVisit_Break` = GenericEnumValue('CXVisit_Break', 0L, 'CXVisitorResult')
 `CXVisit_Continue` = GenericEnumValue('CXVisit_Continue', 1L, 'CXVisitorResult')
@@ -782,7 +778,7 @@ CXVisitorResultValues = structure(c(0L, 1L), .Names = c('CXVisit_Break', 'CXVisi
 #####################################
 setClass("CXResult", contains = "EnumValue")
 
-CXResultValues = structure(c(0L, 1L, 2L), .Names = c('CXResult_Success', 'CXResult_Invalid', 'CXResult_VisitBreak'))
+CXResult = CXResultValues = structure(c(0L, 1L, 2L), .Names = c('CXResult_Success', 'CXResult_Invalid', 'CXResult_VisitBreak'))
 
 `CXResult_Success` = GenericEnumValue('CXResult_Success', 0L, 'CXResult')
 `CXResult_Invalid` = GenericEnumValue('CXResult_Invalid', 1L, 'CXResult')
@@ -796,7 +792,7 @@ CXResultValues = structure(c(0L, 1L, 2L), .Names = c('CXResult_Success', 'CXResu
 #####################################
 setClass("CXIdxEntityKind", contains = "EnumValue")
 
-CXIdxEntityKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L), .Names = c('CXIdxEntity_Unexposed', 'CXIdxEntity_Typedef', 'CXIdxEntity_Function', 'CXIdxEntity_Variable', 'CXIdxEntity_Field', 'CXIdxEntity_EnumConstant', 'CXIdxEntity_ObjCClass', 'CXIdxEntity_ObjCProtocol', 'CXIdxEntity_ObjCCategory', 'CXIdxEntity_ObjCInstanceMethod', 'CXIdxEntity_ObjCClassMethod', 'CXIdxEntity_ObjCProperty', 'CXIdxEntity_ObjCIvar', 'CXIdxEntity_Enum', 'CXIdxEntity_Struct', 'CXIdxEntity_Union', 'CXIdxEntity_CXXClass', 'CXIdxEntity_CXXNamespace', 'CXIdxEntity_CXXNamespaceAlias', 'CXIdxEntity_CXXStaticVariable', 'CXIdxEntity_CXXStaticMethod', 'CXIdxEntity_CXXInstanceMethod', 'CXIdxEntity_CXXConstructor', 'CXIdxEntity_CXXDestructor', 'CXIdxEntity_CXXConversionFunction', 'CXIdxEntity_CXXTypeAlias', 'CXIdxEntity_CXXInterface'))
+CXIdxEntityKind = CXIdxEntityKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L), .Names = c('CXIdxEntity_Unexposed', 'CXIdxEntity_Typedef', 'CXIdxEntity_Function', 'CXIdxEntity_Variable', 'CXIdxEntity_Field', 'CXIdxEntity_EnumConstant', 'CXIdxEntity_ObjCClass', 'CXIdxEntity_ObjCProtocol', 'CXIdxEntity_ObjCCategory', 'CXIdxEntity_ObjCInstanceMethod', 'CXIdxEntity_ObjCClassMethod', 'CXIdxEntity_ObjCProperty', 'CXIdxEntity_ObjCIvar', 'CXIdxEntity_Enum', 'CXIdxEntity_Struct', 'CXIdxEntity_Union', 'CXIdxEntity_CXXClass', 'CXIdxEntity_CXXNamespace', 'CXIdxEntity_CXXNamespaceAlias', 'CXIdxEntity_CXXStaticVariable', 'CXIdxEntity_CXXStaticMethod', 'CXIdxEntity_CXXInstanceMethod', 'CXIdxEntity_CXXConstructor', 'CXIdxEntity_CXXDestructor', 'CXIdxEntity_CXXConversionFunction', 'CXIdxEntity_CXXTypeAlias', 'CXIdxEntity_CXXInterface'))
 
 `CXIdxEntity_Unexposed` = GenericEnumValue('CXIdxEntity_Unexposed', 0L, 'CXIdxEntityKind')
 `CXIdxEntity_Typedef` = GenericEnumValue('CXIdxEntity_Typedef', 1L, 'CXIdxEntityKind')
@@ -834,7 +830,7 @@ CXIdxEntityKindValues = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L,
 #####################################
 setClass("CXIdxEntityLanguage", contains = "EnumValue")
 
-CXIdxEntityLanguageValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxEntityLang_None', 'CXIdxEntityLang_C', 'CXIdxEntityLang_ObjC', 'CXIdxEntityLang_CXX'))
+CXIdxEntityLanguage = CXIdxEntityLanguageValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxEntityLang_None', 'CXIdxEntityLang_C', 'CXIdxEntityLang_ObjC', 'CXIdxEntityLang_CXX'))
 
 `CXIdxEntityLang_None` = GenericEnumValue('CXIdxEntityLang_None', 0L, 'CXIdxEntityLanguage')
 `CXIdxEntityLang_C` = GenericEnumValue('CXIdxEntityLang_C', 1L, 'CXIdxEntityLanguage')
@@ -849,7 +845,7 @@ CXIdxEntityLanguageValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxEntity
 #####################################
 setClass("CXIdxEntityCXXTemplateKind", contains = "EnumValue")
 
-CXIdxEntityCXXTemplateKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxEntity_NonTemplate', 'CXIdxEntity_Template', 'CXIdxEntity_TemplatePartialSpecialization', 'CXIdxEntity_TemplateSpecialization'))
+CXIdxEntityCXXTemplateKind = CXIdxEntityCXXTemplateKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxEntity_NonTemplate', 'CXIdxEntity_Template', 'CXIdxEntity_TemplatePartialSpecialization', 'CXIdxEntity_TemplateSpecialization'))
 
 `CXIdxEntity_NonTemplate` = GenericEnumValue('CXIdxEntity_NonTemplate', 0L, 'CXIdxEntityCXXTemplateKind')
 `CXIdxEntity_Template` = GenericEnumValue('CXIdxEntity_Template', 1L, 'CXIdxEntityCXXTemplateKind')
@@ -864,7 +860,7 @@ CXIdxEntityCXXTemplateKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXId
 #####################################
 setClass("CXIdxAttrKind", contains = "EnumValue")
 
-CXIdxAttrKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxAttr_Unexposed', 'CXIdxAttr_IBAction', 'CXIdxAttr_IBOutlet', 'CXIdxAttr_IBOutletCollection'))
+CXIdxAttrKind = CXIdxAttrKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxAttr_Unexposed', 'CXIdxAttr_IBAction', 'CXIdxAttr_IBOutlet', 'CXIdxAttr_IBOutletCollection'))
 
 `CXIdxAttr_Unexposed` = GenericEnumValue('CXIdxAttr_Unexposed', 0L, 'CXIdxAttrKind')
 `CXIdxAttr_IBAction` = GenericEnumValue('CXIdxAttr_IBAction', 1L, 'CXIdxAttrKind')
@@ -879,7 +875,7 @@ CXIdxAttrKindValues = structure(c(0L, 1L, 2L, 3L), .Names = c('CXIdxAttr_Unexpos
 #####################################
 setClass("CXIdxDeclInfoFlags", contains = "EnumValue")
 
-CXIdxDeclInfoFlagsValues = structure(c(1L), .Names = c('CXIdxDeclFlag_Skipped'))
+CXIdxDeclInfoFlags = CXIdxDeclInfoFlagsValues = structure(c(1L), .Names = c('CXIdxDeclFlag_Skipped'))
 
 `CXIdxDeclFlag_Skipped` = GenericEnumValue('CXIdxDeclFlag_Skipped', 1L, 'CXIdxDeclInfoFlags')
 
@@ -891,7 +887,7 @@ CXIdxDeclInfoFlagsValues = structure(c(1L), .Names = c('CXIdxDeclFlag_Skipped'))
 #####################################
 setClass("CXIdxObjCContainerKind", contains = "EnumValue")
 
-CXIdxObjCContainerKindValues = structure(c(0L, 1L, 2L), .Names = c('CXIdxObjCContainer_ForwardRef', 'CXIdxObjCContainer_Interface', 'CXIdxObjCContainer_Implementation'))
+CXIdxObjCContainerKind = CXIdxObjCContainerKindValues = structure(c(0L, 1L, 2L), .Names = c('CXIdxObjCContainer_ForwardRef', 'CXIdxObjCContainer_Interface', 'CXIdxObjCContainer_Implementation'))
 
 `CXIdxObjCContainer_ForwardRef` = GenericEnumValue('CXIdxObjCContainer_ForwardRef', 0L, 'CXIdxObjCContainerKind')
 `CXIdxObjCContainer_Interface` = GenericEnumValue('CXIdxObjCContainer_Interface', 1L, 'CXIdxObjCContainerKind')
@@ -905,7 +901,7 @@ CXIdxObjCContainerKindValues = structure(c(0L, 1L, 2L), .Names = c('CXIdxObjCCon
 #####################################
 setClass("CXIdxEntityRefKind", contains = "EnumValue")
 
-CXIdxEntityRefKindValues = structure(c(1L, 2L), .Names = c('CXIdxEntityRef_Direct', 'CXIdxEntityRef_Implicit'))
+CXIdxEntityRefKind = CXIdxEntityRefKindValues = structure(c(1L, 2L), .Names = c('CXIdxEntityRef_Direct', 'CXIdxEntityRef_Implicit'))
 
 `CXIdxEntityRef_Direct` = GenericEnumValue('CXIdxEntityRef_Direct', 1L, 'CXIdxEntityRefKind')
 `CXIdxEntityRef_Implicit` = GenericEnumValue('CXIdxEntityRef_Implicit', 2L, 'CXIdxEntityRefKind')
@@ -918,7 +914,7 @@ CXIdxEntityRefKindValues = structure(c(1L, 2L), .Names = c('CXIdxEntityRef_Direc
 #####################################
 setClass("CXIndexOptFlags", contains = "EnumValue")
 
-CXIndexOptFlagsValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L), .Names = c('CXIndexOpt_None', 'CXIndexOpt_SuppressRedundantRefs', 'CXIndexOpt_IndexFunctionLocalSymbols', 'CXIndexOpt_IndexImplicitTemplateInstantiations', 'CXIndexOpt_SuppressWarnings', 'CXIndexOpt_SkipParsedBodiesInSession'))
+CXIndexOptFlags = CXIndexOptFlagsValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L), .Names = c('CXIndexOpt_None', 'CXIndexOpt_SuppressRedundantRefs', 'CXIndexOpt_IndexFunctionLocalSymbols', 'CXIndexOpt_IndexImplicitTemplateInstantiations', 'CXIndexOpt_SuppressWarnings', 'CXIndexOpt_SkipParsedBodiesInSession'))
 
 `CXIndexOpt_None` = GenericEnumValue('CXIndexOpt_None', 0L, 'CXIndexOptFlags')
 `CXIndexOpt_SuppressRedundantRefs` = GenericEnumValue('CXIndexOpt_SuppressRedundantRefs', 1L, 'CXIndexOptFlags')

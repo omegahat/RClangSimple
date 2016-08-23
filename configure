@@ -586,6 +586,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 LIBCLANG_VERSION
 CLANG_RPATH
+DEFINES
 CLANG_LIB
 CLANG_INC
 OBJEXT
@@ -2681,7 +2682,34 @@ echo "$CLANG_INC       $CLANG_LIB"
 ${CC} -o version -I$CLANG_INC  version.c -L$CLANG_LIB -lclang $CLANG_RPATH
 LIBCLANG_VERSION=`./version`
 
+
+DEFINES=""
+
+CFLAGS="-I$CLANG_INC"
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <clang-c/Index.h>
+#include <clang-c/Documentation.h>
+
+int
+main ()
+{
+
+CXComment com;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+   DEFINES="-DHAVE_DOCUMENTATION_H"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
 echo "libclang version $LIBCLANG_VERSION"
+
 
 
 

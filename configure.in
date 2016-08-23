@@ -105,10 +105,23 @@ echo "$CLANG_INC       $CLANG_LIB"
 ${CC} -o version -I$CLANG_INC  version.c -L$CLANG_LIB -lclang $CLANG_RPATH
 LIBCLANG_VERSION=`./version`
 
+
+DEFINES=""
+
+CFLAGS="-I$CLANG_INC"
+AC_TRY_COMPILE([#include <clang-c/Index.h>
+#include <clang-c/Documentation.h>
+], [
+CXComment com;
+],
+[ DEFINES="-DHAVE_DOCUMENTATION_H"])
+
+
 echo "libclang version $LIBCLANG_VERSION"
 
 AC_SUBST(CLANG_INC)
 AC_SUBST(CLANG_LIB)
+AC_SUBST(DEFINES)
 AC_SUBST(CLANG_RPATH)
 AC_SUBST(LIBCLANG_VERSION)
 
