@@ -39,6 +39,13 @@ CXDiagnostic = structure(c(1L, 2L, 4L), .Names = c("CXDiagnostic_DisplaySourceLo
 
 
 
+setClass("CXGlobalOptFlags", contains = "BitwiseValue")
+ setAs("character", "CXGlobalOptFlags", function(from) asBitwiseValue(from, CXGlobalOptFlagsValues, "CXGlobalOptFlags", prefix = c('CXGlobalOpt_', 'CXGlobalOpt_ThreadBackgroundPriorityFor')) )
+ setAs("integer", "CXGlobalOptFlags", function(from) asBitwiseValue(from, CXGlobalOptFlagsValues, "CXGlobalOptFlags", prefix = c('CXGlobalOpt_', 'CXGlobalOpt_ThreadBackgroundPriorityFor')) )
+ setAs("numeric", "CXGlobalOptFlags", function(from) asBitwiseValue(from, CXGlobalOptFlagsValues, "CXGlobalOptFlags", prefix = c('CXGlobalOpt_', 'CXGlobalOpt_ThreadBackgroundPriorityFor')) )
+
+
+
 CXGlobalOptFlagsValues = structure(c(0L, 1L, 2L, 1L), .Names = c('CXGlobalOpt_None', 'CXGlobalOpt_ThreadBackgroundPriorityForIndexing', 'CXGlobalOpt_ThreadBackgroundPriorityForEditing', 'CXGlobalOpt_ThreadBackgroundPriorityForAll'))
 
 CXGlobalOpt_None = BitwiseValue(0L, '0', class = 'CXGlobalOptFlags')
@@ -85,6 +92,9 @@ CXTokenKind =structure(0:4, .Names = c("CXToken_Punctuation", "CXToken_Keyword",
 
 
 
+setClass("CXTranslationUnit_Flags", contains = "BitwiseValue")
+setAs("character", "CXTranslationUnit_Flags", function(from) asBitwiseValue(from, CXTranslationUnit_FlagsValues, "CXTranslationUnit_Flags", prefix = 'CXTranslationUnit_') )
+setAs("integer", "CXTranslationUnit_Flags", function(from) asBitwiseValue(from, CXTranslationUnit_FlagsValues, "CXTranslationUnit_Flags", prefix = 'CXTranslationUnit_') )
 
 CXTranslationUnit_FlagsValues = structure(c(0L, 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L), .Names = c('CXTranslationUnit_None', 'CXTranslationUnit_DetailedPreprocessingRecord', 'CXTranslationUnit_Incomplete', 'CXTranslationUnit_PrecompiledPreamble', 'CXTranslationUnit_CacheCompletionResults', 'CXTranslationUnit_ForSerialization', 'CXTranslationUnit_CXXChainedPCH', 'CXTranslationUnit_SkipFunctionBodies', 'CXTranslationUnit_IncludeBriefCommentsInCodeCompletion'))
 
