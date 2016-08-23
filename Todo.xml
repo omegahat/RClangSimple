@@ -10,6 +10,31 @@
 <items>
 
 <item>
+Funny output from C++ methods?
+<programlisting><![CDATA[
+doc@methods$getPageRotate
+[1] "int (int) getPageRotate (int page)"
+]]></programlisting>
+See Rpoppler/fun.R and getPageRotate().
+3> 
+</item>
+
+<item>
+Allow the caller to specify the code directly, not in a file, and then
+read from that. There is no mechanism for this in the clang API so we'll write 
+to a temporary file and then go.
+Allow mult-line code as a vector.
+But make certain to keep open the possibility of compiling multiple files into an Index
+so don't treat all multi-line input as code.  need an I() or asText = TRUE.
+</item>
+
+<item>
+Add the namespace to the enums we identify etc.
+Recognize a using namespace and append this to each declaration.
+Do this in the collectors.
+</item>
+
+<item>
 Make the filename handling consistent across the primary, end-user functions,
 e.g. getRoutines,  -  avoid creating the objects until the very last minute.
 <br/>
