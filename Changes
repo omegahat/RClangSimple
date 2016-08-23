@@ -1,3 +1,5 @@
+  *  Check for user interrupts in many of the C routines that implement the visitors so that we can interrupt long-running computations.
+
 0.3-0
 
   *  Child accessors of a cursor by name

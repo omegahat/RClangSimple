@@ -475,3 +475,14 @@ export(makeCallGraph)
 
 
 export(getQualifiers)
+
+
+
+export("CXTranslationUnit_None", "CXTranslationUnit_DetailedPreprocessingRecord", 
+"CXTranslationUnit_Incomplete", "CXTranslationUnit_PrecompiledPreamble", 
+"CXTranslationUnit_CacheCompletionResults", "CXTranslationUnit_ForSerialization", 
+"CXTranslationUnit_CXXChainedPCH", "CXTranslationUnit_SkipFunctionBodies", 
+"CXTranslationUnit_IncludeBriefCommentsInCodeCompletion")
+
+
+export(getParent)

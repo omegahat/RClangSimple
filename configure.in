@@ -97,8 +97,19 @@ echo "Testing OSX version"
   dnl  AX_COMPARE_VERSION($OSX_VERSION, [ge], [10.11.0], [CLANG_RPATH="-W,-rpath$CLANG_LIB"], [CLANG_RPATH=""])
 fi
 
+
+AC_PROG_CC
+
+
+echo "$CLANG_INC       $CLANG_LIB"
+${CC} -o version -I$CLANG_INC  version.c -L$CLANG_LIB -lclang $CLANG_RPATH
+LIBCLANG_VERSION=`./version`
+
+echo "libclang version $LIBCLANG_VERSION"
+
 AC_SUBST(CLANG_INC)
 AC_SUBST(CLANG_LIB)
 AC_SUBST(CLANG_RPATH)
+AC_SUBST(LIBCLANG_VERSION)
 
-AC_OUTPUT(src/Makevars R/config.R)
+AC_OUTPUT(src/Makevars R/config.R R/A.R)
