@@ -34,7 +34,7 @@ function(makeRoutine = FALSE) # filenames = character())
 
      id = getName(cur)
      funcs[[id]] <<- if(makeRoutine)
-                        makeRoutineObject(cur) 
+                        makeRoutineObject(cur, id) 
                      else
                         cur
      
@@ -45,9 +45,8 @@ function(makeRoutine = FALSE) # filenames = character())
 }
 
 makeRoutineObject =
-function(cur)
+function(cur, id = getName(cur))
 {
-     id = getName(cur)
      ret = getResultType(cur$type)
 
      params = children(cur, CXCursor_ParmDecl)
@@ -244,10 +243,12 @@ function(..., .funs = list())
 
 getDefines =
   #' @example  defs = getDefines("inst/exampleCode/defines.c")
-function(tu, fileFilter = character(), col = genDefinesCollector(), ...)
+function(tu, fileFilter = character(), col = genDefinesCollector(), options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
 {
-   if(is.character(tu))
-     tu = createTU(tu, ...)
+   if(is.character(tu)) {
+     options = CXTranslationUnit_DetailedPreprocessingRecord | options
+     tu = createTU(tu, ..., options = options)
+   }
 
    visitTU(tu, col$update, clone = FALSE)
    ans = col$defines()
