@@ -1,0 +1,2 @@
+libclangVersion_Install = "@LIBCLANG_VERSION@"
+
