@@ -3,14 +3,14 @@ source("clang.R")
 
 library(RCodeGen)
 
-version = c(3, 7)
+version = c(3, 5)
 enums = e
 ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
 code = lapply(enums[ids], function(x) c(makeEnumClass(x), "", "", "#####################################"))
 
 Rfilename = sprintf("../../R/a_enumDefs_%d.%d.R", version[1], version[2])
 #con = file(Rfilename, "w")
-cat("if(all(clangVersion(libclangVersion_Install) == c(", version[1], ", ", version[2], "))) {\n\n",
+cat(paste("if(all(clangVersionNum(libclangVersion_Install) == c(", version[1], ", ", version[2], "))) {\n\n", collapse = " "),
     unlist(code),
     "\n\n\n}\n\n",
     file = Rfilename, sep = "\n")
