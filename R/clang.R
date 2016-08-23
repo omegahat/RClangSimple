@@ -189,11 +189,6 @@ setMethod("getFileName", "CXFile",
 
 
 
-clangVersion =
-function()
-  .Call("R_clang_getClangVersion")
-
-
 
 
 getChildren =
@@ -302,3 +297,15 @@ function(ty)
 {
   lapply(seq(1, length = getNumArgTypes(ty)), function(i) getArgType(ty, i))
 }
+
+
+
+getParent =
+function(cursor, semantic = TRUE)
+{
+    if(semantic)
+       getCursorSemanticParent(cursor)
+    else
+       getCursorLexicalParent(cursor)
+}
+
