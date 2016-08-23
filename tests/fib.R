@@ -1,6 +1,6 @@
 library(RCIndex)
 f = system.file("exampleCode", "fib.c", package = "RCIndex")
-funs = getFunctions(f)
+funs = RCIndex::getFunctions(f)
 fib = funs$fib
 as(fib@returnType, "character")
 
