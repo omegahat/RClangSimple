@@ -41,8 +41,11 @@ getRReference(SEXP val)
 {
     SEXP tmp = val; 
 
-    if(val == R_NilValue)
+    if(val == R_NilValue) {
+	PROBLEM "passed a pointer with a NULL value"
+	    ERROR;
 	return(NULL);
+    }
 
     if(TYPEOF(tmp) != EXTPTRSXP) 
          tmp = GET_SLOT(tmp, Rf_install("ref")); 
@@ -228,6 +231,8 @@ R_inclusion_visitor(CXFile included_file, CXSourceLocation *stack, unsigned stac
     RVisitorData *d;
     int i;
 
+    R_CheckUserInterrupt();
+
     d = (RVisitorData *) userData;
     ptr = CDR(d->expr);
 
@@ -255,6 +260,9 @@ R_clang_getInclusions(SEXP r_tu, SEXP r_visitor)
     CXTranslationUnit tu = (CXTranslationUnit) GET_REF(r_tu, CXTranslationUnit);
     CXInclusionVisitor fun = R_inclusion_visitor;
     RVisitorData data;
+
+    R_CheckUserInterrupt();
+
 //    data.clone = LOGICAL(r_clone)[0];
     data.clone = 0;
 
@@ -277,6 +285,7 @@ R_clang_getInclusions(SEXP r_tu, SEXP r_visitor)
 SEXP
 R_clang_getCXTUResourceUsage(SEXP r_tu)
 {
+    R_CheckUserInterrupt();
 
     CXTranslationUnit tu =  (CXTranslationUnit) getRReference(r_tu);
 
@@ -618,6 +627,9 @@ R_clang_getTypeSpelling(SEXP r_type)
 {
     CXType *type = GET_REF(r_type, CXType);
     CXString str;
+    if(!type)
+       return(NEW_CHARACTER(0));
+
     str = clang_getTypeSpelling(*type);
     return(CXStringToSEXP(str));
 }
@@ -1742,6 +1754,16 @@ SEXP R_clang_getArgType(SEXP r_T, SEXP r_i)
     return(R_makeCXType(t));
 }
 
+SEXP 
+R_Type_getClassType(SEXP r_type)
+{
+    CXType type = * GET_REF(r_type, CXType);
+    CXType ans = clang_Type_getClassType(type);
+    return(R_makeCXType(ans));
+}
+
+
+
 
 SEXP R_clang_getLocation(SEXP r_tu, SEXP r_file, SEXP r_line, SEXP r_column)
 {
@@ -1822,6 +1844,8 @@ growRVector(RCallCounter *d)
 enum CXChildVisitResult 
 R_callVisitor(CXCursor cur, CXCursor parent, void *data)
 {
+
+    R_CheckUserInterrupt();
     RCallCounter *d = (RCallCounter *) data;
     if(cur.kind == CXCursor_CallExpr) {
 #if 0
@@ -1861,6 +1885,7 @@ R_getCalls(SEXP r_tu, SEXP r_ans)
 enum CXChildVisitResult 
 R_routinesVisitor(CXCursor cur, CXCursor parent, void *data)
 {
+    R_CheckUserInterrupt();
     RCallCounter *d = (RCallCounter *) data;
     if(cur.kind == CXCursor_FunctionDecl) {
 	CXString str = clang_getCursorSpelling(cur);
@@ -1901,6 +1926,7 @@ R_collectCursorNodes(SEXP r_tu, SEXP r_ans, SEXP r_names, CXCursorVisitor visito
 enum CXChildVisitResult 
 R_cppClassVisitor(CXCursor cur, CXCursor parent, void *data)
 {
+    R_CheckUserInterrupt();
     RCallCounter *d = (RCallCounter *) data;
 
     if(cur.kind == CXCursor_Namespace)
@@ -1960,3 +1986,6 @@ R_TestVisitor(CXCursor cur, CXCursor parent, void *data)
     Rprintf("%d %s (%d %s)\n", cur.kind, clang_getCString(str), parent.kind, clang_getCString(pstr));
     return(CXChildVisit_Recurse);
 }
+
+
+
