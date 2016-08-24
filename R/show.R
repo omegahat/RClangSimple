@@ -11,14 +11,8 @@ function(x)
 #setMethod("show", "FunctionDecl",
 print.FunctionDecl <- function(x, ...)
 {
-               #
-             object = x
-             parms = sapply(object@params, makeDecl)
-             print(sprintf("%s %s (%s)",
-                       getName(object@returnType),
-                       getName(object@def),
-                       paste(parms, collapse = ", ")), ...)
-           }
+    print(as(x, "character"), ...)
+}
 
 
 setMethod("show", "FunctionDecl",
@@ -34,3 +28,30 @@ setMethod("show", "FunctionDecl",
 
 
 
+# See below.
+if(FALSE) {
+setAs("FunctionDecl", "character",
+      function(from) {
+          parms = sapply(from@params, makeDecl)
+          sprintf("%s %s (%s)",
+                  getName(from@returnType),
+                  getName(from@def),
+                  paste(parms, collapse = ", "))
+      })
+
+setAs("FunctionDecl", "character",
+      function(from) {
+          toks = getCursorTokens(from@def)
+          if(toks[[length(toks)]] == ";")
+              toks = toks[ - length(toks)]
+
+          paste(toks, collapse = " ")
+      })
+}
+
+setAs("FunctionDecl", "character",
+      function(from) {
+          p = sapply(from@params, function(x) paste(getCursorTokens(x), collapse = " "))
+          rt = paste(getName(from@returnType), collapse = " ")
+          sprintf("%s %s(%s", rt, from@name, paste(p, collapse = " "))  # Note the final ) comes from the last param.
+      })
