@@ -35,7 +35,8 @@ setClass("NativeVariable",
 setClass("FunctionDecl", representation(params = "list", returnType = "CXType"), contains = "NativeElement")
 
 # XXX Get the class hierarchy right here.
-setClass("AbstractC++ClassStaticMethod", representation(className = "character"), contains = "FunctionDecl")
+# For access we probably want an enumerated type rather than strings.
+setClass("AbstractC++ClassStaticMethod", representation(className = "character", access = "character"), contains = "FunctionDecl")
 setClass("C++ClassStaticMethod", contains = "AbstractC++ClassStaticMethod")
  # These require a this
 setClass("C++ClassMethod", representation(classDef = 'CXCursor', classType = 'CXType'), contains = "AbstractC++ClassStaticMethod")
