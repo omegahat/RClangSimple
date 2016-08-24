@@ -43,6 +43,19 @@ function( C )
 }
 
 
+CXXMethod_isPureVirtual <-
+function( C )
+{
+.Call('R_clang_CXXMethod_isPureVirtual', as(C, 'CXCursor'))
+}
+
+CXXMethod_isConst <-
+function( C )
+{
+.Call('R_clang_CXXMethod_isConst', as(C, 'CXCursor'))
+}
+
+
 getTokenKind <-
 function( arg1 )
 {
