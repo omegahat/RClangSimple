@@ -9,7 +9,12 @@
 <title>General</title>
 <items>
 
-<item>
+<item status="done">
+Use <r:expr>getResultType(getType(cur))</r:expr> rather than use <r:expr>getType(cur)</r:expr>.
+<br/>
+Why does getName() for the return type for a C++ method 
+include the () and has a type kind  of FunctionProto  111 ??
+<br/>
 Funny output from C++ methods?
 <programlisting><![CDATA[
 doc@methods$getPageRotate
