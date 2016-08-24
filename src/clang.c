@@ -1181,6 +1181,33 @@ SEXP R_clang_CXXMethod_isVirtual(SEXP r_C)
     return(r_ans);
 }
 
+SEXP R_clang_CXXMethod_isPureVirtual(SEXP r_C)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor C = * GET_REF(r_C, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_CXXMethod_isPureVirtual(C);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_clang_CXXMethod_isConst(SEXP r_C)
+{
+    SEXP r_ans = R_NilValue;
+    CXCursor C = * GET_REF(r_C, CXCursor);
+    
+    unsigned int ans;
+    ans = clang_CXXMethod_isConst(C);
+    
+    r_ans = ScalarReal(ans) ;
+    
+    return(r_ans);
+}
+
 
 SEXP R_clang_Cursor_isDynamicCall(SEXP r_C)
 {
