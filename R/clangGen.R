@@ -29,27 +29,27 @@ function( arg1 )
 .Call('R_clang_hashCursor', as(arg1, 'CXCursor'))
 }
 
-CXXMethod_isStatic <-
+isStatic <-
 function( C )
 {
 .Call('R_clang_CXXMethod_isStatic', as(C, 'CXCursor'))
 }
 
 
-CXXMethod_isVirtual <-
+isVirtual <-
 function( C )
 {
 .Call('R_clang_CXXMethod_isVirtual', as(C, 'CXCursor'))
 }
 
 
-CXXMethod_isPureVirtual <-
+isPureVirtual <-
 function( C )
 {
 .Call('R_clang_CXXMethod_isPureVirtual', as(C, 'CXCursor'))
 }
 
-CXXMethod_isConst <-
+isConst <-
 function( C )
 {
 .Call('R_clang_CXXMethod_isConst', as(C, 'CXCursor'))

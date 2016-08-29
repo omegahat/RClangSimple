@@ -220,7 +220,6 @@ exportPattern("^CXCursor_.*")
 
 export(getNumElements, getArraySize, getArrayElementType, getSizeOf, hashCursor)
 
-export(CXXMethod_isVirtual, CXXMethod_isStatic)
 
 #exportClass(CXTokenKind)
 #export(getTokenKind)
@@ -281,13 +280,6 @@ export(isPODType)
 
 
 export(isCursorDefinition)
-
-
-export(CXXMethod_isStatic)
-
-
-export(CXXMethod_isVirtual)
-
 
 export(Cursor_isDynamicCall)
 
@@ -487,7 +479,7 @@ export("CXTranslationUnit_None", "CXTranslationUnit_DetailedPreprocessingRecord"
 export(getParent)
 
 
-export(CXXMethod_isVirtual, CXXMethod_isPureVirtual, CXXMethod_isConst, CXXMethod_isStatic)
+export(isVirtual, isPureVirtual, isConst, isStatic)
 
 
 export(getPublic)
