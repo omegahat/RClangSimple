@@ -53,5 +53,6 @@ setAs("FunctionDecl", "character",
       function(from) {
           p = sapply(from@params, function(x) paste(getCursorTokens(x), collapse = " "))
           rt = paste(getName(from@returnType), collapse = " ")
-          sprintf("%s %s(%s", rt, from@name, paste(p, collapse = " "))  # Note the final ) comes from the last param.
+          p = paste(p, collapse = " ")
+          sprintf("%s %s(%s%s", rt, from@name, p, if(!grepl("\\) *$", p)) ")" else "")   # Note the final ) may come from the last param.
       })
