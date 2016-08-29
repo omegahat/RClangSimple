@@ -45,11 +45,16 @@ curMethodName = ""
            # method or constructor in the class definition.
              id = getName(cur)
 curMethodName <<- id
-             if(!is.null(curMethod))
-                 methods[[curMethod@name]] <<- curMethod
+             if(!is.null(curMethod)) {
+                 addMethod(curMethod)
+                 curMethod <<- NULL
+             }
+
         
 #        curMethod <<- list(def = cur, access = accessLevel, name = id, params = list())
-             classMap = c("C++ClassMethod" = CXCursor_CXXMethod, "C++ClassConstructor" = CXCursor_Constructor, "C++ClassTemplateMethod" = CXCursor_FunctionTemplate,
+             classMap = c("C++ClassMethod" = CXCursor_CXXMethod,
+                          "C++ClassConstructor" = CXCursor_Constructor,
+                          "C++ClassTemplateMethod" = CXCursor_FunctionTemplate,
                           "C++ConversionFunction" = CXCursor_ConversionFunction)
              i = match(k, classMap)
              if(is.na(i))
@@ -66,7 +71,8 @@ curMethodName <<- id
                  n = length(curMethod@params) + 1
                  curMethod@params[[ n ]] <<- cur
                  names(curMethod@params)[n] <<- id
-                 methods[[curMethod@name]] <<- curMethod
+
+#                 methods[[ curMethod@name]] <<- curMethod
              } else {
                  warning("ParmDecl without a current method. Part of a typedef for a function pointer type? " , names(parent$kind))
              }
@@ -96,8 +102,20 @@ curMethodName <<- id
          CXChildVisit_Recurse
      }
 
+   addMethod = function(method) {
+                 methods[[length(methods) + 1]] <<- method
+                 names(methods)[length(methods)] <<-  method@name
+               }
+       
+
    list(update = update,
         info = function() {
+
+                 if(!is.null(curMethod)) {
+                     addMethod(curMethod)
+                     curMethod <<- NULL
+                 }
+            
                  if(is.na(rclassName))
                     rclassName = if(length(templateParams)) "TemplateC++Class" else "C++Class"
                  
@@ -126,7 +144,7 @@ function(tu, nodesOnly = FALSE, visitor = genCppClassCursorCollector(), ...)
 }
 
 getCppClasses =
-function(tu, fileFilter = character(), nodesOnly = FALSE, numClasses = 100, visitor = genCppClassCursorCollector(), ...)  # 
+function(tu, fileFilter = character(), nodesOnly = FALSE, numClasses = 100, ...)  # 
 {
    if(is.character(tu))
       tu = createTU(tu, ...)
