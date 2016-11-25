@@ -3,7 +3,8 @@ source("clang.R")
 
 library(RCodeGen)
 
-version = c(3, 5)
+if(!exists("version", globalenv()))
+  version = c(3, 5)
 enums = e
 ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
 code = lapply(enums[ids], function(x) c(makeEnumClass(x), "", "", "#####################################"))
