@@ -42,6 +42,8 @@ setClass("C++ClassStaticMethod", contains = "AbstractC++ClassStaticMethod")
 setClass("C++ClassMethod", representation(classDef = 'CXCursor', classType = 'CXType'), contains = "AbstractC++ClassStaticMethod")
 setClass("C++ClassConstructor", contains = "C++ClassMethod")
 setClass("C++ClassDestructor", contains = "C++ClassMethod")
+setClass("C++ConversionFunction", contains = "C++ClassMethod")
+setClass("C++ClassTemplateMethod", contains = "C++ClassMethod")
 
 
 setClass("C++Class", representation(superClasses = "list", fields = "list", methods = "list"), contains = "NativeElement")
