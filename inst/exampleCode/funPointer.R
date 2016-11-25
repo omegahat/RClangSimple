@@ -25,7 +25,7 @@ getResultType(fun) # works.
 
 dd = getDataStructures(tu)
 foo = dd$Foo
-fun = getPointeeType(foo$fields$f)
+fun = getPointeeType(foo@fields$f)
 ty = getCanonicalType(fun)
 ty$kind  # FunctionProto
 
