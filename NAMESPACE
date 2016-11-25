@@ -209,6 +209,8 @@ export(visitCursor)
 exportMethods(show, "[", "[[")
 export(lapply)
 exportMethods(lapply)
+export(sapply)
+exportMethods(sapply)
 export(getType)
 
 S3method(print, FunctionDecl)
