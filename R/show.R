@@ -52,7 +52,13 @@ setAs("FunctionDecl", "character",
 setAs("FunctionDecl", "character",
       function(from) {
           p = sapply(from@params, function(x) paste(getCursorTokens(x), collapse = " "))
-          rt = paste(getName(from@returnType), collapse = " ")
+          if(length(p) > 1) {
+               # if a method/routine has a declaration with  type /* name */, type2 /*name2*/....
+               # the , between them don't appear. So add it.
+              i = seq(1, length = length(p) - 1)
+              p[i] = gsub("\\*/$", "*/,", p[i])
+          }
           p = paste(p, collapse = " ")
+          rt = paste(getName(from@returnType), collapse = " ")
           sprintf("%s %s(%s%s", rt, from@name, p, if(!grepl("\\) *$", p)) ")" else "")   # Note the final ) may come from the last param.
       })
