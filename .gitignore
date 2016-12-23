@@ -4,15 +4,18 @@ src/RError.h
 Admin*
 
 # Generated with install
-*.o
-*.so
 src/Makevars
 version
 R/A.R
 R/config.R
+
+# These really belong in ~/.gitignore_global
+# along with the vim *.swp file one which not all users
+# deploy.  These are pretty much universally ignored so 
+# can be specified in a single location rather than repeated in all repos.
 lib*
+*.o
+*.so
 config.log
 config.status
 
-# Vim files
-*.swp
