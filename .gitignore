@@ -3,3 +3,16 @@ src/RConverters.h
 src/RError.h
 Admin*
 
+# Generated with install
+*.o
+*.so
+src/Makevars
+version
+R/A.R
+R/config.R
+lib*
+config.log
+config.status
+
+# Vim files
+*.swp
