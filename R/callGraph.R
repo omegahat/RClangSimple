@@ -14,7 +14,8 @@ function(tu, withinFile = TRUE, .plot = TRUE, ...)
 
   r = getRoutines(tu)
 
-  kalls = lapply(r, findCalls)
+  kalls = lapply(r, function(x) sapply(findCalls(x), getName))
+  
   withinFileCalls = if(withinFile)
                       lapply(kalls, intersect, names(r))
                     else
