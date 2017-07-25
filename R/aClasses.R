@@ -236,7 +236,8 @@ setMethod("$", "CXCursor",
            })
 
 setClass("Enum", representation(names = "character"), contains = "integer")
-setClass("CXCursorKind", contains = "Enum")
+if(FALSE)
+  setClass("CXCursorKind", contains = "Enum")
 setClass("CX_CXXAccessSpecifier", contains = "Enum")
 setClass("CXLinkageKind", contains = "Enum")
 setClass("CXLanguageKind", contains = "Enum")
