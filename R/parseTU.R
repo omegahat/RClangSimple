@@ -77,15 +77,21 @@ if(FALSE) {
 
 
 getFunctions = getRoutines = 
-function(src, fileFilter = character(), expectedNum = 500, ...)
+function(src, fileFilter = character(), expectedNum = 500, recursive = FALSE, ...)
 {
 #  if(length(filenames))
 #    return(getRoutines.R(src, filenames, col, ...))
 
   if(is.character(src))
      src = createTU(src, ...)
-  
-  ans = .Call("R_getRoutines", as(src, "CXCursor"), vector("list", expectedNum), character(expectedNum))
+
+  if(recursive)
+      ans = .Call("R_getRoutines", as(src, "CXCursor"), vector("list", expectedNum), character(expectedNum))
+  else {
+     kids = getChildren(src)
+     w = sapply(kids, function(x) x$kind) == CXCursor_FunctionDecl
+     ans = kids[w]
+  }
 
   if(length(ans) == 0)
     return(list())
@@ -93,7 +99,9 @@ function(src, fileFilter = character(), expectedNum = 500, ...)
   if(length(fileFilter)) 
      ans = ans[ filterByFilenames(ans, fileFilter) ]
   
-  lapply(ans, makeRoutineObject)
+  tmp = lapply(ans, makeRoutineObject)
+  names(tmp) = sapply(tmp, getName)
+  tmp
 }
 
 
