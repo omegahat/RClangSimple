@@ -8,6 +8,15 @@
 <topic>
 <title>General</title>
 <items>
+<item>
+ But not from cur$kind.
+The name is missing from getCursorKind(). 
+See RHydrus/clang.R
+<r:code>
+getCursorKind(getChildren(r[[1]]@def)[[1]])
+</r:code>
+</item>
+
 
 <item status="done">
 Use <r:expr>getResultType(getType(cur))</r:expr> rather than use <r:expr>getType(cur)</r:expr>.
