@@ -23,6 +23,9 @@ visitChildren =
 function(cursor, fun, clone = FALSE, data = NULL) {
   if(!is.function(fun))
     stop("visitChildren needs an R function to apply to each cursor/element")
+
+  if(is(cursor, "AnonymousNativeElement"))
+     cursor = cursor@def
   
   .Call("R_clang_visitChildren", cursor, fun, as.logical(clone), data)
 }
