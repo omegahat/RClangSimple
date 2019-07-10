@@ -48,7 +48,7 @@ how the \R{} API works.
 Since we will traverse over the sub-cursors of the routine, we need a
 visitor function. We'll use a closure, but again, we could use a
 reference class.  We need variables in which we can record the number
-of calls to each of categories of routines that allocate, protect and
+of calls to each of the categories of routines that allocate, protect and
 unprotect objects.  We'll call these variables \Rvar{numAllocs},
 \Rvar{numProtectCalls} and \Rvar{numUnprotectCalls}, respectively.
 For the first two categories of routines, we just increment the
