@@ -110,6 +110,9 @@ setMethod("getName", "NativeElement",
            # getName(x@def
              x@name)
 
+setMethod("getName", "StructDefinition",
+           function(x, ...)
+               x@name[1])
 
 
 setGeneric("getFileName",
