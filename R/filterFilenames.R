@@ -63,6 +63,9 @@ function(cursors, filenames = character(), isRegex = !any(file.exists(filenames)
        ans[ w[ i ] ] = TRUE
     }
 
+    #XX???
+    ans[is.na(ans)] = FALSE   
+
     ans
 }
 
