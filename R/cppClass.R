@@ -56,7 +56,7 @@ curMethodName <<- id
                              "C++ClassConstructor" = CXCursor_Constructor,
                              "C++ClassTemplateMethod" = CXCursor_FunctionTemplate,
                              "C++ConversionFunction" = CXCursor_ConversionFunction)
-             i = match(k, classMap)
+             i = match(k, unlist(classMap))
              if(is.na(i))
                  stop("Problem here")
              RclassName = names(classMap)[i]
