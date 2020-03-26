@@ -124,7 +124,7 @@ function()
                } else {
                    val = computeEnumExpr(toks, curDef, enums)
 #                  if(any(grepl("owner_read", toks)))  recover()
-                  if(is.na(val)) {
+                   if(is.na(val)) {
                      warning(paste("don't understand this enum yet:", paste(toks, collapse  = " ")))
                      val = NA
                   }
