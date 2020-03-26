@@ -394,7 +394,7 @@ export(getDiagnosticSeverity)
 export(formatDiagnostic)
 
 
-export(getCursorTokens)
+export(getCursorTokens, getTokens)
 export(getDefines, genDefinesCollector)
 
 export(findCalls)
