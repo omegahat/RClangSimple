@@ -14,3 +14,9 @@ getEnums()
 getGlobalVariables()
 findGlobals()
 findIncludes()
+
+
+
+
+## URLS
+https://clang.llvm.org/docs/IntroductionToTheClangAST.html
