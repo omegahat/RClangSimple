@@ -2,6 +2,16 @@ getCursorTokens =
 function(cur)
  .Call("R_getCursorTokens", as(cur, "CXCursor"))
 
+getTokens =
+function(cur, drop = c("Punctuation", "Comment"))
+{
+    toks = getCursorTokens(cur)
+    if(length(drop)) 
+       toks = toks [ !(names(toks) %in% drop) ]
+
+    toks
+}
+
 createIndex =
   # verbose means show diagnostics.
 function(excludeFromPCH = FALSE, verbose = getOption("ShowParserDiagnostics", TRUE))
