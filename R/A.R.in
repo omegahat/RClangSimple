@@ -1,2 +1,3 @@
+#libClangVersion_Install =
 libclangVersion_Install = "@LIBCLANG_VERSION@"
 
