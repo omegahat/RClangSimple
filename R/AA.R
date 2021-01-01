@@ -15,7 +15,11 @@ clangVersionNum =
     #  clangVersionNum("clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)")
 function(version = clangVersion())
 {
-   ans = gsub("^clang version ([0-9.]+)[- ].*", "\\1", version)
+    rx = "^clang version ([0-9.]+)[- ]?.*"
+    if(!grepl(rx, version))
+        warning("could not extract the version number from '", version, "'")
+
+   ans = gsub(rx, "\\1", version)
    as.integer(strsplit(ans, "\\.")[[1]])[1:2]
 }
 
