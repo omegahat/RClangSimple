@@ -115,7 +115,7 @@ function()
                    val = getEnumValue(toks[2], curDef)
                    val = switch(toks[1],
                                  "-" = -val,
-                                 "~" = bitFlip(val),
+                                 "~" = bitTilde(val),
                                  "^" = bitXor(val),
                                  val)
 
@@ -238,3 +238,15 @@ function(x, y)
 }
 
 
+bitTilde =
+function(val)
+{
+    if(val == 0)
+        -1L
+    else {
+        warning("not processing value for ~ ", val)
+        NA
+    }
+}
+
+    
