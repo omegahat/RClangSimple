@@ -2,15 +2,16 @@ library(RCIndex)
 dir = "~/LLVM4.0/clang+llvm-4.0.0-x86_64-apple-darwin"
 dir = "~/LLVM/clang+llvm-8.0.0-x86_64-apple-darwin"
 dir = "~/LLVM/clang+llvm-10.0.0-x86_64-apple-darwin"
+dir = '~/local'
 stopifnot(file.exists(dir))
-version = c(10, 0)
+version = c(11, 0)
 
 sysdir = system("xcrun --show-sdk-path", intern = TRUE)
 cu = createTU(sprintf("%s/include/clang-c/Index.h", dir), include = c(sprintf("%s/include", dir), file.path(sysdir, "usr/include")))
 
 
 
-enums = getEnums(cu)
+enums = getEnums(cu, "clang-c")
 
 
 library(RCodeGen)
