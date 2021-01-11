@@ -192,6 +192,31 @@ function(a)
     as.integer(sum(16^rev(seq(0, length = length(els))) * hex[els]))
 }
 
+lookupEnumValue =
+    #
+    # Try to find the symbolic name in the current set of enum constants being processed
+    # But if not there, look through all the other enums as it might be used across sets of enums.
+    #
+function(tok, enumSet, allEnums)
+{
+    val = getEnumValue(tok, enumSet)
+    if(!is.na(val))
+        return(val)
+
+    w = sapply(allEnums, function(x) tok %in% names(x@values))
+    if(!any(w)) {
+        warning("cannot find enum value for ", tok)
+        return(NA)
+    }
+
+    vals = lapply(allEnums[w], function(x) x@values[tok])
+    if(length(unique(unlist(vals))) != 1) {
+        warning("found more than one enum value for ", tok)
+        return(NA)
+    }
+
+    vals[[1]]
+}
 
 enumExpr =
 function(toks, curDef, tuEnums)
@@ -202,7 +227,7 @@ function(toks, curDef, tuEnums)
   }
 
 
-  vals = sapply(toks[c(1, 3)], getEnumValue, curDef)
+  vals = sapply(toks[c(1, 3)], lookupEnumValue, curDef, tuEnums)
   
   if(toks[2] == "<<") {
     bitShift(vals[1], vals[2])
