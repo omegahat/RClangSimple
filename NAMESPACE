@@ -488,3 +488,7 @@ export(getPublic)
 
 
 export(getBinOpOperator)
+
+
+
+export(mkIRTemplate)
