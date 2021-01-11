@@ -26,7 +26,7 @@ function(cursor, className = getName(cursor), rclassName = NA, conversionFunctio
 
    topCursor = cursor  # in case we need it, e.g., to get the namespace.
 
-curMethodName = ""
+   curMethodName = ""
    
    update =
      function(cur, parent) {
