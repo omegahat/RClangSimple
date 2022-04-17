@@ -241,7 +241,7 @@ function(toks, curDef, tuEnums)
       def[toks[3]]
   } else {
 #    get(toks[2], mode = "function")(vals[1], vals[2])
-     fun = switch(toks[2], "|" = bitOr, "&" = bitAnd)
+     fun = switch(toks[2], "|" = bitOr, "&" = bitAnd, "+" = `+`, "-" = `-`)
      if(is.null(fun)) {
         warning("don't understand the operator ", toks[2], " yet")
         NA
