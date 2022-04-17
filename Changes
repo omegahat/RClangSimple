@@ -1,3 +1,7 @@
+0.3-1
+
+  *  Handle + in the value of an enum
+
   *  Check for user interrupts in many of the C routines that implement the visitors so that we can interrupt long-running computations.
 
 0.3-0
