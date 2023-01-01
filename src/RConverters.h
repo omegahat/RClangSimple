@@ -9,6 +9,8 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 
+#include "RClang.h"
+
 
 #ifdef __cplusplus
 extern "C" {

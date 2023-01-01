@@ -38,4 +38,14 @@ SEXP R_makeCXSourceLocation(CXSourceLocation type);
 SEXP R_makeCXFile(CXFile type);
 SEXP R_makeCXSourceRange(CXSourceRange type);
 SEXP R_makeCXComment(CXComment type);
+
+
+#ifndef PROBLEM
+#define R_PROBLEM_BUFSIZE	4096
+#define PROBLEM			{char R_problem_buf[R_PROBLEM_BUFSIZE];(snprintf)(R_problem_buf, R_PROBLEM_BUFSIZE,
+#define ERROR			),Rf_error(R_problem_buf);}
+#define WARNING(x)		),Rf_warning(R_problem_buf);}
+#define WARN			WARNING(NULL)
+#endif
+
 #endif
