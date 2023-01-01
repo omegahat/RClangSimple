@@ -34,14 +34,16 @@ function(cursor, className = getName(cursor), rclassName = NA, conversionFunctio
          k = cur$kind
 
          if(k == CXCursor_CXXAccessSpecifier) {
-           # private, protected, public
+             # private, protected, public
              accessLevel <<- getCursorTokens(cur)[1]
+             
          } else if(k == CXCursor_FieldDecl) {
-           # a field for the class
+             # a field for the class
              id = getName(cur)
              fields[[id]] <<-  list(name = id, def = cur, type = getType(cur), access = accessLevel)
 
-         } else if(k == CXCursor_CXXMethod || k == CXCursor_Constructor || k == CXCursor_FunctionTemplate || (k == CXCursor_ConversionFunction && conversionFunctions)) {
+         } else if(k == CXCursor_CXXMethod || k == CXCursor_Constructor || k == CXCursor_FunctionTemplate ||
+                     (k == CXCursor_ConversionFunction && conversionFunctions)) {
            # method or constructor in the class definition.
              id = getName(cur)
 curMethodName <<- id
@@ -78,9 +80,12 @@ curMethodName <<- id
              }
              return(CXChildVisit_Continue)
          } else if(k == CXCursor_CXXBaseSpecifier) {
+             
              name = gsub("class ", "", getName(cur))
              superClasses[[name]] <<- cur
+
          } else if(k == CXCursor_TemplateTypeParameter)
+
              templateParams[[ getName(cur) ]] <<- templateParams
 
          else if(k == CXCursor_TypedefDecl) {
