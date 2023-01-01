@@ -8,9 +8,6 @@ export(getCursorLinkage, getCursorLanguage, getCursorKind)
 
 export(getCppClasses, readCppClass)
 
-#exportPattern(".*")
-
-
 export(CX_CXXAccessSpecifier, CXLanguageKind, CXLinkageKind, CXTokenKind, CXTypeKind)
 
 export(
@@ -197,7 +194,6 @@ export(getEnums)
 export(getFunctions, getRoutines)
 export(genCallCollector)
 
-
 export(getDataStructures)
 
 #export(genTypeCollector)
@@ -215,17 +211,12 @@ export(getType)
 
 S3method(print, FunctionDecl)
 
-
-
 exportPattern("^CXCursor_.*")
-
 
 export(getNumElements, getArraySize, getArrayElementType, getSizeOf, hashCursor)
 
-
 #exportClass(CXTokenKind)
 #export(getTokenKind)
-
 
 export(getPointerDepth, getPointerInfo)
 
@@ -236,152 +227,81 @@ export(getCanonicalCursor, isCursorDefinition, isDynamicCall)
 export(getNumOverloadedDecls)
 #exportClass("EnumerationDefinition")
 
-
 export(Type_getAlignOf)
-
-
-
 export(Type_getOffsetOf)
-
-
 export(Type_getOffsetOf)
-
 
 export(Cursor_isNull)
-
-
 export(Cursor_getNumArguments)
-
-
 export(Cursor_getArgument)
-
-
 export(Cursor_isBitField)
-
-
 export(Cursor_getReceiverType, getReceiverType)
-
 export(Cursor_getRawCommentText, getRawCommentText)
 export(Cursor_getBriefCommentText, getBriefCommentText)
+export(Cursor_isDynamicCall)
+export(Cursor_isNull)
+export(Cursor_isBitField)
 
 export(Module_getParent)
-
 export(Module_getName)
 export(Module_getFullName)
-
-exportMethods("getName")
-
-
 export(Module_getNumTopLevelHeaders)
 export(Module_getTopLevelHeader)
 
 
-export(equalTypes)
+exportMethods("getName")
 
+export(equalTypes)
 export(isPODType)
 
 
 export(isCursorDefinition)
-
-export(Cursor_isDynamicCall)
-
-
-
-
 export(isVirtualBase)
-
-
 export(isVolatileQualifiedType)
-
-
 export(isRestrictQualifiedType)
-
-
 export(isInvalid)
-
-
-export(Cursor_isNull)
-
-
 export(isDeclaration)
-
-
 export(isReference)
-
-
 export(isExpression)
-
-
 export(isStatement)
-
-
 export(isAttribute)
-
-
 export(isTranslationUnit)
-
-
 export(isPreprocessing)
-
-
 export(isUnexposed)
-
-
 export(isConstQualifiedType)
-
-
 export(isFunctionTypeVariadic)
-
-
 export(isPODType)
 
 
-export(Cursor_isBitField)
-
-
 export(getFileTime)
-
-
 export(getFile)
-
-
 export(getCursorSemanticParent)
-
-
 export(getCursorLexicalParent)
 
 export(combineCollectors)
 
 
 export(CXCursorSet_insert)
-
-
 export(CXCursorSet_contains)
 
 
 export(Location_isInSystemHeader, isInSystemHeader)
-
 
 #export(getTranslationUnitSpelling)
 export(getTranslationUnitCursor)
 
 export(saveTranslationUnit)
 
-
 export(defaultReparseOptions)
-
 
 export(getCursorAvailability)
 
-
 export(getCursorUSR)
-
 
 export(isFileMultipleIncludeGuarded)
 
 export(findGlobalUse, getGlobalVariables)
 export(findGlobals)
-
 
 export(getDiagnosticSetFromTU)
 export(getDiagnosticInSet)
@@ -393,7 +313,6 @@ export(getDiagnosticLocation)
 export(getDiagnosticSeverity)
 export(formatDiagnostic)
 
-
 export(getCursorTokens, getTokens)
 export(getDefines, genDefinesCollector)
 
@@ -401,18 +320,13 @@ export(findCalls)
 
 export(isVoidType, isPointerType, isStringType, isIntegerType)
 
-
-
-
 export(getVariables, genVariablesCollector, genTypedefCollector)
 export(getTypedefs) # , getMacros)
-
 
 #export(disposeIndex)
 
 export(toggleCrashRecovery)
 export(getFunctionTypeCallingConv)
-
 
 exportClasses(CXCallingConv, CXLanguageKind, CXLinkageKind, CX_CXXAccessSpecifier, CXCursorKind)
 
@@ -445,31 +359,20 @@ export(getIncludedFile)
 
 export(getNullCursor, getNullLocation)
 
-
-
 export(getCursorDefinition, getCursorReferenced)
-
-
 
 exportClasses(S4CursorVisitor, RefCursorVisitor)
 
-
 export(getCursorTranslationUnit)
-
-
 
 export(getNumArgTypes, getArgType, getArgsType)
 
 export(isFnPointer, getFnPointerInfo)
 
-
 export(makeTikzGraph)
 export(makeCallGraph)
 
-
 export(getQualifiers)
-
-
 
 export("CXTranslationUnit_None", "CXTranslationUnit_DetailedPreprocessingRecord", 
 "CXTranslationUnit_Incomplete", "CXTranslationUnit_PrecompiledPreamble", 
@@ -477,18 +380,12 @@ export("CXTranslationUnit_None", "CXTranslationUnit_DetailedPreprocessingRecord"
 "CXTranslationUnit_CXXChainedPCH", "CXTranslationUnit_SkipFunctionBodies", 
 "CXTranslationUnit_IncludeBriefCommentsInCodeCompletion")
 
-
 export(getParent)
-
 
 export(isVirtual, isPureVirtual, isConst, isStatic)
 
-
 export(getPublic)
 
-
 export(getBinOpOperator)
-
-
 
 export(mkIRTemplate)
