@@ -211,8 +211,12 @@ function(cur)
   .Call("R_clang_CXCursor_getCursorLanguage", as(cur, "CXCursor"))
 
 getCursorKind =
- function(cur)
-  .Call("R_clang_CXCursor_getKind", as(cur, "CXCursor")  )
+function(cur)
+{
+    val = .Call("R_clang_CXCursor_getKind", as(cur, "CXCursor")  )
+    as(val, "CXCursorKind")
+}
+
 
 setMethod("$", "CXCursor",
            function(x, name) {
