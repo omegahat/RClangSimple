@@ -250,6 +250,7 @@ export(Module_getTopLevelHeader)
 
 
 exportMethods("getName")
+exportMethods("coerce")
 
 export(equalTypes)
 export(isPODType)

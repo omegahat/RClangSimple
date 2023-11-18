@@ -1,3 +1,24 @@
+genCollectNodes =
+    # Simple collector that just collects the nodes in a list
+    # cloning them of course.
+function() {
+    ans = list()
+    list(update = function(cur, ...) ans <<- c(ans, cur),
+         value = function() ans)
+}
+
+# Method to turn 
+setAs("CXCursor", 'list',
+      function(from) {
+          col = genCollectNodes()
+          visitTU(from,  col$update)
+          col$value()
+      })
+
+
+
+
+
 genVariableCollector =
 function()
 {
@@ -542,3 +563,4 @@ function(byFile = FALSE, asCursor = FALSE)
     list(update = update, includes = function() includes)
 }
 }
+
