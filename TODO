@@ -1,4 +1,15 @@
-RAutoGenRunTime
+
++ Fix the enum for the CXTranslationUnit_Flags - the options in createTU() as it goes into an infinite loop
+```
+as(c("CXTranslationUnit_IncludeAttributedTypes", "CXTranslationUnit_VisitImplicitAttributes"), "CXTranslationUnit_Flags")
+as(RCIndex:::CXTranslationUnit_Flags[c("CXTranslationUnit_IncludeAttributedTypes", "CXTranslationUnit_VisitImplicitAttributes")], "CXTranslationUnit_Flags")
+```
+And specifying an ORed value gives an error
+```
+tu2 = mkTU(options = 12288L)  # see Rllvm/TU/includeDirs.R
+```
+
++ RAutoGenRunTime
   Warning: class "CXGlobalOptFlags" is inheriting an inconsistent superclass structure from class "BitwiseValue", inconsistent with "SymbolicConstant"
   Warning: class "CXTranslationUnit_Flags" is inheriting an inconsistent superclass structure from class "BitwiseValue", inconsistent with "SymbolicConstant"
 
