@@ -201,7 +201,6 @@ function(cur)
      curKinds = sapply(kids, getCursorKind)
      kids = kids[ curKinds == c(CXCursorKind_CXXMethod, CXCursorKind_Constructor, CXCursorKind_Destructor)]
 
-
      fields = kids[ curKinds == CXXCursorKind_FieldDecl ]
 #     fields = lapply(fields, )
 
