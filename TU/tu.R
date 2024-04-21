@@ -7,6 +7,9 @@ dir = "~/LLVM"
 dir = "~/LLVM/local"
 stopifnot(file.exists(dir))
 version = c(15, 0)
+version = c(18, 1)
+
+dir = sprintf("~/LLVM/local_v%d", version[1])
 
 findex = file.path(dir, "include", "clang-c", "Index.h")
 
