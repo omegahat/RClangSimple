@@ -13,9 +13,10 @@ function(asNums = FALSE)
 
 clangVersionNum =
     #  clangVersionNum("clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)")
+    # 'Ubuntu clang version 14.0.0-1ubuntu1.1'
 function(version = clangVersion())
 {
-    rx = "^clang version ([0-9.]+)[- ]?.*"
+    rx = ".*clang version ([0-9.]+)[- ]?.*"
     if(!grepl(rx, version))
         warning("could not extract the version number from '", version, "'")
 
