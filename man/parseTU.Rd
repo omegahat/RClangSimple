@@ -14,7 +14,7 @@
 \alias{visitChildren}
 \alias{simpleVisitor}
 
-\title{Parse a C/C++ source file \& traverse the parse tree}
+\title{Parse a C/C++ source file and traverse the parse tree}
 \description{
   These collection of functions are related to both parsing
   C or C++ source code and then iterating over the
