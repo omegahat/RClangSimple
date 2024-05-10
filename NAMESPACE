@@ -1,6 +1,7 @@
 import(RAutoGenRunTime)
 import(methods)
 import(bitops)
+importFrom(utils, "methods")
 
 useDynLib(RCIndex)
 
