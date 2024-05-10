@@ -45,7 +45,7 @@ function(cur, files)
 }
 
 genFunctionCollector =
-function(makeRoutine = FALSE) # filenames = character())
+function(makeRoutine = FALSE, clone = TRUE) # filenames = character())
 {
   funcs = list()
 
@@ -56,8 +56,10 @@ function(makeRoutine = FALSE) # filenames = character())
      id = getName(cur)
      funcs[[id]] <<- if(makeRoutine)
                         makeRoutineObject(cur, id) 
+                     else if(clone)
+                         clone(cur)
                      else
-                        cur
+                         cur
      
      CXChildVisit_Continue
   }
@@ -297,14 +299,14 @@ function(names = character())
 
 
 genVariablesCollector =
-function()
+function(clone = TRUE)
 {
     variables = list()
     update = function(cur, parent) {
       k = cur$kind
       if(k == CXCursor_VarDecl) {
         n = length(variables) + 1
-        variables[[ n ]] <<- cur
+        variables[[ n ]] <<- if(clone) clone(cur) else cur
         names(variables)[n] <<- getName(cur)
       }
       CXChildVisit_Continue

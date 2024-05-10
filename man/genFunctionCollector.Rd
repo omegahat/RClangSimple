@@ -19,12 +19,12 @@
   and \code{\link{visitChildren}}.
 }
 \usage{
-genFunctionCollector(makeRoutine = FALSE)
+genFunctionCollector(makeRoutine = FALSE, clone = TRUE)
 genCallCollector()
 genDataStructCollector(leaveAsCursor = FALSE)
 genDefinesCollector(names = character())
 genEnumCollector()
-genVariablesCollector()
+genVariablesCollector(clone = TRUE)
 combineCollectors(..., .funs = list()) 
 }
 %genTypeCollector()
@@ -32,8 +32,12 @@ combineCollectors(..., .funs = list())
   \item{makeRoutine}{logical scalar value. If \code{FALSE}, the cursor
   is stored; If \code{TRUE}, we store the result of \code{makeRoutineObject}.}
   \item{leaveAsCursor}{a logical value that controls whether we return
-  the cursors representing the data types or convert them to R objects.}
-     \item{names}{ignored for now}
+    the cursors representing the data types or convert them to R objects.}
+  \item{clone}{a logical value. If \code{TRUE} and we are collecting the \code{CXCursor}
+    objects, we clone the cursor objects to avoid them being garbage collected
+    when the TU disappears.
+  }
+  \item{names}{ignored for now}
 %   \item{filenames}{the names of files in which the routines of interest
 %     are located. If this is empty, we accept routines from all
 %  files. This can be \code{TRUE} to indicate only routines in the source
