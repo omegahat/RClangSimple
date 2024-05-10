@@ -10,7 +10,8 @@
   translation unit.
 }
 \usage{
-getFunctions(src, fileFilter = character(), expectedNum = 500, ...)
+getFunctions(src, fileFilter = character(), expectedNum = 500,
+             recursive = FALSE, ...)
 }
 \arguments{
   \item{src}{the already created CXTranslationUnit object, or the name
@@ -39,6 +40,11 @@ getFunctions(src, fileFilter = character(), expectedNum = 500, ...)
 %    \code{filenames} is specified}
   \item{expectedNum}{the expected number of routines. This should be
     at least as larger than the }
+  \item{recursive}{a logical value. If \code{FALSE}, we look for
+    the \code{FunctionDecl} cursors as direct children of the translation unit \code{src}.
+    If \code{TRUE}, we search recursively through the translation unit for \code{FunctionDecl}
+    cursors anywhere in the AST. This is relevant for C++ namespaces and classes.
+  }
   \item{\dots}{any additional arguments passed to \code{\link{createTU}}
   if \code{src} is not already a \code{CXTranslationUnit}.}
 }

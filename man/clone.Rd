@@ -31,23 +31,23 @@
 }
 \usage{
 clone(x, ...)
-length(x)
-show(x)
-lapply(x, FUN, ...)
-sapply(x, FUN, ..., simplify = TRUE, USE.NAMES = TRUE))
 getParent(cursor, semantic = TRUE)
 }
+% length(x)
+% show(object)
+% lapply(X, FUN, ...)
+% sapply(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)
 \arguments{
-  \item{x}{ the object to be cloned}
+  \item{x}{ the \code{CXCursor} object}
   \item{\dots}{additional parameters for the methods}
   \item{cursor}{the \code{CXCursor} whose parent is being requested}
   \item{semantic}{a logical value indicating either the semantic parent
     or alternatively the lexical parent of this cursor.}
-  \item{FUN}{the function to be applied to each of the child cursors}
-  \item{simplify}{a logical with the same meaning as for
-    \code{base::sapply}, i.e., to simplify the results into a vector if
-    possible.}
-  \item{USE.NAMES}{a logical value with the same meaning as for \code{base::sapply}.}
+%  \item{FUN}{the function to be applied to each of the child cursors}
+%  \item{simplify}{a logical with the same meaning as for
+%    \code{base::sapply}, i.e., to simplify the results into a vector if
+%    possible.}
+%  \item{USE.NAMES}{a logical value with the same meaning as for \code{base::sapply}.}
 }
 \value{
  \code{clone} returns a new object made from copying the input.

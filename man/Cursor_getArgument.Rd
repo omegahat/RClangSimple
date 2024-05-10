@@ -37,8 +37,8 @@
 \alias{isDynamicCall}
 \alias{getFieldDeclBitWidth}
 \alias{getIncludedFile}
-\alias{CXXMethod_isStatic}
-\alias{CXXMethod_isVirtual}
+\alias{isStatic}
+\alias{isVirtual}
 \alias{getReceiverType}
 \alias{getCursorDefinition}
 \alias{getCursorTranslationUnit}
@@ -84,8 +84,8 @@ getTypedefDeclUnderlyingType(C)
 isDynamicCall(C)
 getFieldDeclBitWidth(C)
 getIncludedFile(cursor)
-CXXMethod_isStatic(C)
-CXXMethod_isVirtual(C)
+isStatic(C)
+isVirtual(C)
 getCursorTranslationUnit(cursor)
 }
 \arguments{

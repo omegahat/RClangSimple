@@ -6,8 +6,14 @@
   of libclang that is being used.
 }
 \usage{
-clangVersion()
+clangVersion(asNums = FALSE)
 }
+\arguments{
+  \item{asNums}{a logical value. If \code{TRUE}, the version is returned as an integer
+    vector with major and minor version numbers as the elements. Otherwise,
+  the version is returned as a character string.}
+}
+
 \value{
   A character string, typically something like
   \code{"clang version 2.8 (trunk 113069)"}.

@@ -8,7 +8,6 @@
 }
 \usage{
 getCppClasses(tu, fileFilter = character(), nodesOnly = FALSE, numClasses = 100,
-              visitor = genCppClassCursorCollector(),
                  ...)
 }
 \arguments{
@@ -31,9 +30,9 @@ getCppClasses(tu, fileFilter = character(), nodesOnly = FALSE, numClasses = 100,
   \item{nodesOnly}{a logical value that controls whether we just want
     the cursors for the C++  class definitions or whether we want full
     descriptions of the classes.}
-  \item{visitor}{a function or S4/reference class object used as the
-    visitor function passed to \code{\link{visitCursor}} to collect the
-    enumeration definitions.}
+% \item{visitor}{a function or S4/reference class object used as the
+%   visitor function passed to \code{\link{visitCursor}} to collect the
+%   enumeration definitions.}
   \item{numClasses}{a guess as to the number of classes that are in the
     translation unit. This is only used to pre-allocate space to store
     them and is available only for efficiency. }

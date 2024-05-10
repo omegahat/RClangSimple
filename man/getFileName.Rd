@@ -20,6 +20,7 @@
 \alias{getName,CXSourceLocation-method}
 \alias{getName,CXSourceRange-method}
 \alias{getName,NativeElement-method}
+\alias{getName,StructDefinition-method}
 
 
 \alias{getResultType}

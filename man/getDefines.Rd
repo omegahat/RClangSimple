@@ -6,7 +6,8 @@
  translation unit.
 }
 \usage{
-getDefines(tu, fileFilter = character(), col = genDefinesCollector(), ...)
+getDefines(tu, fileFilter = character(), col = genDefinesCollector(),
+           options = CXTranslationUnit_DetailedPreprocessingRecord, ...)
 }
 \arguments{
    \item{tu}{the name of a source file or an already parsed
@@ -27,6 +28,8 @@ getDefines(tu, fileFilter = character(), col = genDefinesCollector(), ...)
   }
    \item{col}{the collector/visitor  function or object of class
      \code{\link{S4CursorVisitor-class}} or \code{\link{RefCursorVisitor-class}}.}
+   \item{options}{a value or vector of values passed to \code{\link{createTU}}
+     via its \code{options} parameter.}
    \item{...}{additional arguments that are passed to
      \code{\link{createTU}} to parse a source file}   
 }
