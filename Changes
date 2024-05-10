@@ -1,3 +1,12 @@
+0.4-0
+
+  *  Added clone = TRUE parameter for getFunctionCollector() and getVariablesCollector() so
+     that CXCursor objects collected will not be garbage collected should the TU be garbage collected.
+
+  *  Updates to documentation from R CMD check.
+
+  * 
+
 0.3-1
 
   *  Handle + in the value of an enum

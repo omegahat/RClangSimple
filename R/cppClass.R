@@ -195,14 +195,18 @@ function()
 makeCppClass =
 function(cur)
 {
-
      kids = children(cur)
      
      curKinds = sapply(kids, getCursorKind)
-     kids = kids[ curKinds == c(CXCursorKind_CXXMethod, CXCursorKind_Constructor, CXCursorKind_Destructor)]
+     #XXX These CXCursor_ objects probably should be named CXCursorKind_..
+     # but not currently so in the programmatically-generated enums.
+     
+     kids = kids[ curKinds %in% c(CXCursor_CXXMethod, CXCursor_Constructor, CXCursor_Destructor)]
 
-     fields = kids[ curKinds == CXXCursorKind_FieldDecl ]
-#     fields = lapply(fields, )
+     fields = kids[ curKinds == CXCursor_FieldDecl ]
+     #     fields = lapply(fields, )
+
+     superClasses = list() # XXX
 
      def = new("C++Class", name = getName(cur), superClasses = superClasses, fields = fields, methods = methods, def = cur)
      def
