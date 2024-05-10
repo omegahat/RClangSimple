@@ -1,3 +1,10 @@
+#
+# Two C files treated as two translation units, but within the same clang Index.
+# bob.c contains a call to bar() which is defined in bar.c.
+# We get the cursor for that call to bar within bob.c and then
+# get the declaration of bar in bar.c via getCursorReferenced().
+#
+
 library(RCIndex)
 idx = createIndex()
 bob = createTU(system.file("exampleCode", "bob.c", package = "RCIndex"), idx = idx)
