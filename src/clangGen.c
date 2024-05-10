@@ -5,7 +5,7 @@ SEXP R_clang_getDiagnosticOption(SEXP r_Diag, SEXP r_Disable)
 {
     SEXP r_ans = R_NilValue;
     CXDiagnostic Diag = GET_REF(r_Diag, CXDiagnostic);
-    CXString * Disable = GET_REF(r_Disable, CXString);
+    CXString * Disable = (r_Disable == R_NilValue) ? NULL : GET_REF(r_Disable, CXString);
     
     CXString ans;
     ans = clang_getDiagnosticOption(Diag, Disable);
