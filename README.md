@@ -22,13 +22,21 @@ See INSTALL.md for information about how to install the package.
 
 # Some Functions
 
+While there are many functions (~191 exported) in the package, some of the high-level functions are
+
 + getRoutines()
 + getEnums()
 + getGlobalVariables()
-+ findGlobals()
++ getCppClasses()
++ getDataStructures()
++ getTypedefs()
++ getType()
 + findIncludes()
++ findGlobals()
 
 + createTU()
++ visitTU(), visitCursor()
++ findCalls()
 
 
 
