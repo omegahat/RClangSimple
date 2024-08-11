@@ -64,7 +64,24 @@ sapply(k2[w2], function(x) getName(findParentFunction(x)))
 # And indeed, there is one in ParseBrowser. ParseBrowser is static and not included in the list of
 # routines from the LLVM Module.
 #
-# Why is the RCIndex approach missing Rf_ReplIteration and R_ReplDLLdo1
+# Why is the RCIndex approach missing Rf_ReplIteration and R_ReplDLLdo1?
+#
+# R_ReplDLLdo1 - the variable in the call is rho, but this is initialized to R_GlobalEnv and not
+# reassigned.  We can check the assignments to rho. llvm recognizes that this variable is unchanged
+# and so inlines R_GlobalEnv.
+#
+#
+# Rf_ReplIteration - llvm inlines R_GlobalEnv, if we use -O2. With no optimization, it uses rho, the
+# local variable which is actually a parameter.
+#  Within this file, Rf_ReplIteration() is only called from R_ReplConsole() and R_ReplConsole() is
+# only called from 
+#  + run_Rmainloop() with R_GlobalEnv as the argument for the parameter rho
+#  + do_browser()
+# Considering Rf_ReplIteration is not static and neither is do_browser(), it is not obvious
+# how llvm determines rho will be R_GlobalEnv.
+#  
+#
+
 
 
 
