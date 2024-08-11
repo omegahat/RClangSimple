@@ -7,8 +7,15 @@ This allows us to parse C & C++ code and access its elements directly in R.
 We can use this for various purposes described in the Paper/ directory
 which also describes how to use the functions, including 
 
-+ static code analysis and the many aspects of that
-+ generating interfaces to native code
++ find routines and their signatures,
++ get data structures,
++ get C++ classes and methods,
++ list enum types and values,
++ static code analysis and the many aspects of that,
+   + call graphs,
+   + use of non-local variables,
+   + ...
++ generating interfaces to native code,
 + ...
 
 
