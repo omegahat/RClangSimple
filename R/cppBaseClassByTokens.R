@@ -402,6 +402,7 @@ function(cur, none = character(), ns = getCursorNamespaceName(cur),
 
 
 
+if(FALSE) {
 getCursorNamespace =
 function(cur)
 {
@@ -413,6 +414,12 @@ function(cur)
 
     NULL
 }
+} else {
+   getCursorNamespace =
+   function(cur)
+       getAncestorByKind(cur, CXCursor_Namespace)
+}
+
 
 getCursorNamespaceName =
 function(cur, ns = getCursorNamespace(cur))
@@ -422,3 +429,20 @@ function(cur, ns = getCursorNamespace(cur))
     else
         ""
 }
+
+
+getAncestorByKind =
+function(cur, kind)
+{
+    while(!is.null(cur) && getCursorKind(cur) != CXCursor_FirstInvalid) {
+        if(getCursorKind(cur) == kind)
+            return(cur)
+        cur = getParent(cur)
+    }
+
+    NULL
+}
+
+findParentFunction =
+    function(cur)
+        getAncestorByKind(cur, CXCursor_FunctionDecl)
