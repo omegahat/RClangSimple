@@ -1,17 +1,27 @@
 library(RCIndex)
 
+# Need the R source code and then any relevant preprocessor/compiler flags
+
 RSrcDir = path.expand("~/Rtrunk")
 flags = system2("R", c("CMD", "config", "CPPFLAGS"), stdout = TRUE)
 flags = strsplit(flags, " ")[[1]]
+# Manually add others for the R source code, not just packages.
 flags = c(flags, "-DHAVE_CONFIG_H", "-DTESTING_WRITE_BARRIER", "-g", "-O2", "-Wall")
-# , "-inline-threshold=0", "-inlinehint-threshold=10")
+
+# build2 is the directory in which I built R from source. This is where config.h lives,
+# generated when we ran configure for the build.
 inc = c(file.path(RSrcDir, "build2", "src/include"), file.path(RSrcDir, "src/include"))
+
+# Now parse main.c
 tu = createTU(file.path(RSrcDir, "src/main/main.c"), includes = inc, args = flags)
 
 # message about fatal error: math.h file not found. Can ignore.
 
 
-getName2 = 
+getName2 =
+    #
+    # Get the name from a cursor and if it is "", use the cursor tokens.
+    #
 function(x)
 {
    v = getName(x)
@@ -21,12 +31,9 @@ function(x)
 }
 
 
+# ony the calls in main.c
 k = findCalls(tu, "main.c")
 rtns = sapply(k, getName2)
-w = rtns == ""
-#if(any(w))
-#  rtns[w] = sapply(k[w], function(x) getCursorTokens(x)[1])
-
 w = rtns == "Rf_eval"
 
 k2 = k[w]
@@ -38,13 +45,28 @@ sapply(a2, getCursorKind)
 v = sapply(a2, getName)
 w2 = v == "R_GlobalEnv"
 
+###
+# The three that don't directly use R_GlobalEnv may use a variable which is an alias for R_GlobalEnv,
+# e.g.,   rho = R_GlobalEnv; Rf_eval(, rho)
+
+a2[!w2]
+# All are rho.
+fns = lapply(k2[!w2], findParentFunction)
+names(fns) = sapply(fns, getName)
+
+
+# Get the declarations and assignments for rho in these 3.
+aa = lapply(fns, findAssignTo, "rho")
+
+# Only the last of these - Rf_ReplIteration has any declarations/assignments to rho
+# and it is rho = R_GlobalEnv.
+
+
+
+
 table(w2)
 k3 = k2[w2]
 
-
-# alternative.  Get the routines and their calls rather than all calls in the TU.
-r = getRoutines(tu)
-kr = lapply(r, findCalls)
 
 
 # Does this match the results from Rllvm. See Rllvm/inst/doc/staticCodeAnalysis.md
@@ -81,6 +103,14 @@ sapply(k2[w2], function(x) getName(findParentFunction(x)))
 # how llvm determines rho will be R_GlobalEnv.
 #  
 #
+
+
+
+# slightly different approach.  Get the routines and their calls rather than all calls in the TU.
+r = getRoutines(tu)
+kr = lapply(r, findCalls)
+
+
 
 
 
