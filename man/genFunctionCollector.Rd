@@ -24,7 +24,7 @@ genCallCollector()
 genDataStructCollector(leaveAsCursor = FALSE)
 genDefinesCollector(names = character())
 genEnumCollector()
-genVariablesCollector(clone = TRUE)
+genVariablesCollector(clone = TRUE, recurse = FALSE)
 combineCollectors(..., .funs = list()) 
 }
 %genTypeCollector()
@@ -42,7 +42,9 @@ combineCollectors(..., .funs = list())
 %     are located. If this is empty, we accept routines from all
 %  files. This can be \code{TRUE} to indicate only routines in the source
 %  file being processed should be returned.}
-   \item{\dots}{the individual collectors that are to be combined.}
+\item{\dots}{the individual collectors that are to be combined.}
+\item{recurse}{logical value that indicates whether to recursively descend down the cursor tree or
+  to process only the top-level objects, e.g., the top-level declarations.}
    \item{.funs}{a list of the collectors to be combined.}
 }
 \value{
