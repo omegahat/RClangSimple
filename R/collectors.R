@@ -299,9 +299,14 @@ function(names = character())
 
 
 genVariablesCollector =
-function(clone = TRUE)
+function(clone = TRUE, recurse = FALSE)
 {
     variables = list()
+    ret = if(recurse)
+              CXChildVisit_Recurse
+          else
+              CXChildVisit_Continue
+    
     update = function(cur, parent) {
       k = cur$kind
       if(k == CXCursor_VarDecl) {
@@ -309,7 +314,8 @@ function(clone = TRUE)
         variables[[ n ]] <<- if(clone) clone(cur) else cur
         names(variables)[n] <<- getName(cur)
       }
-      CXChildVisit_Continue
+
+      ret
     }
 
     list(update = update, variables = function() variables)
