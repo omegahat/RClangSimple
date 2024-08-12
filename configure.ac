@@ -81,7 +81,7 @@ fi
 
 if ! test -r $CLANG_INC/clang-c/Index.h; then 
   echo "Cannot find $CLANG_INC/clang-c/Index.h"
-  echo "Is CLANG_INC correct"
+  echo "Is CLANG_INC correct?"
 fi
 
 # https://www.gnu.org/software/autoconf-archive/ax_compare_version.html
@@ -100,10 +100,18 @@ fi
 
 AC_PROG_CC
 
+LIBCLANG_VERSION="NA"
 
 echo "$CLANG_INC       $CLANG_LIB"
 ${CC} -o version -I$CLANG_INC  version.c -L$CLANG_LIB -lclang $CLANG_RPATH
-LIBCLANG_VERSION=`./version`
+
+if test "$?" != 0 ; then
+  echo "Failed to compile ./version executable."
+else
+  LIBCLANG_VERSION=`./version`
+fi
+
+
 
 
 DEFINES=""
@@ -125,4 +133,7 @@ AC_SUBST(DEFINES)
 AC_SUBST(CLANG_RPATH)
 AC_SUBST(LIBCLANG_VERSION)
 
-AC_OUTPUT(src/Makevars R/config.R R/A.R)
+dnl AC_OUTPUT(src/Makevars R/config.R R/A.R)
+
+AC_CONFIG_FILES(src/Makevars R/config.R R/A.R)
+AC_OUTPUT
