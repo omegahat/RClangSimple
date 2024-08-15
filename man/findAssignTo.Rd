@@ -33,6 +33,19 @@ Duncan Temple Lang
   \code{\link{getVariables}}
 }
 \examples{
+f = system.file("exampleCode/assignment.c", package = "RCIndex")
+tu = createTU(f)
+
+# All assignments
+asgn = findAssignTo(tu)
+table(names(asgn))
+
+
+# Get the declarations and assignments for variables and and b
+b = findAssignTo(tu, c("a", "b"))
+
+# Just b
+b = findAssignTo(tu, "b")
 }
 
 
