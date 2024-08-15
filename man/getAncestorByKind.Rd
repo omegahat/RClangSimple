@@ -1,6 +1,6 @@
 \name{findAncestorByKind}
 \alias{findAncestorByKind}
-\alias{findParentFunction}
+\alias{findEnclosingFunction}
 \alias{findCursorNamespace}
 \alias{findEnclosingNamespace}
 \alias{findEnclosingClass}
@@ -50,7 +50,7 @@ findAncestorByKind(m, CXCursor_ClassDecl)
 c = findAssignTo(tu, "ctr")[[2]]
 findEnclosingClass(c)
 
-findParentFunction(c)
+findEnclosingFunction(c)
 }
 \keyword{programming}
 \concept{metaprogramming}

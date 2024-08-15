@@ -447,6 +447,6 @@ function(cur, kind)
     NULL
 }
 
-findParentFunction =
+findParentFunction = findEnclosingFunction =
 function(cur, kind = c(CXCursor_FunctionDecl, CXCursor_CXXMethod))
         findAncestorByKind(cur, kind)

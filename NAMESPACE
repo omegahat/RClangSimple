@@ -394,7 +394,7 @@ export(mkIRTemplate)
 
 
 export(findAncestorByKind)
-export(findParentFunction)
+export(findEnclosingFunction)
 export(findEnclosingNamespace, findEnclosingClass)
 
 export(findAssignTo)
