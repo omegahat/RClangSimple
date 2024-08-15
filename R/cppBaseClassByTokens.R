@@ -403,7 +403,7 @@ function(cur, none = character(), ns = getCursorNamespaceName(cur),
 
 
 if(FALSE) {
-getCursorNamespace =
+getCursorNamespace = 
 function(cur)
 {
     while(!is.null(cur) && getCursorKind(cur) != CXCursor_FirstInvalid) {
@@ -415,14 +415,18 @@ function(cur)
     NULL
 }
 } else {
-   getCursorNamespace =
+   findCursorNamespace = findEnclosingNamespace =
    function(cur)
-       getAncestorByKind(cur, CXCursor_Namespace)
+       findAncestorByKind(cur, CXCursor_Namespace)
 }
 
 
+findEnclosingClass =
+function(cur)
+     findAncestorByKind(cur, CXCursor_ClassDecl)
+
 getCursorNamespaceName =
-function(cur, ns = getCursorNamespace(cur))
+function(cur, ns = findEnclosingNamespace(cur))
 {
     if(!is.null(ns))
         getName(ns)
@@ -431,11 +435,11 @@ function(cur, ns = getCursorNamespace(cur))
 }
 
 
-getAncestorByKind =
+findAncestorByKind =
 function(cur, kind)
 {
     while(!is.null(cur) && getCursorKind(cur) != CXCursor_FirstInvalid) {
-        if(getCursorKind(cur) == kind)
+        if(getCursorKind(cur) %in% kind)
             return(cur)
         cur = getParent(cur)
     }
@@ -444,5 +448,5 @@ function(cur, kind)
 }
 
 findParentFunction =
-    function(cur)
-        getAncestorByKind(cur, CXCursor_FunctionDecl)
+function(cur, kind = c(CXCursor_FunctionDecl, CXCursor_CXXMethod))
+        findAncestorByKind(cur, kind)

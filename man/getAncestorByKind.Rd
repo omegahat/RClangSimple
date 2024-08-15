@@ -1,7 +1,9 @@
-\name{getAncestorByKind}
-\alias{getAncestorByKind}
+\name{findAncestorByKind}
+\alias{findAncestorByKind}
 \alias{findParentFunction}
-\alias{getCursorNamespace}
+\alias{findCursorNamespace}
+\alias{findEnclosingNamespace}
+\alias{findEnclosingClass}
 \title{
 Find the enclosing routine, C++ namespace, or cursor of a given kind
 }
@@ -12,7 +14,7 @@ Find the enclosing routine, C++ namespace, or cursor of a given kind
   C++ class, if statement, etc.
 }
 \usage{
-getAncestorByKind(cur, kind)
+findAncestorByKind(cur, kind)
 }
 
 \arguments{
@@ -32,7 +34,23 @@ Duncan Temple Lang
 \code{\link{createTU}}
 }
 \examples{
+f = system.file("exampleCode/namespace.cpp", package = "RCIndex")
+tu = createTU(f)
 
+k = getCppClasses(tu)
+
+m = k$Foo@methods$doit
+
+ns = findEnclosingNamespace(m)
+
+findEnclosingClass(m)
+findAncestorByKind(m, CXCursor_ClassDecl)
+
+
+c = findAssignTo(tu, "ctr")[[2]]
+findEnclosingClass(c)
+
+findParentFunction(c)
 }
 \keyword{programming}
 \concept{metaprogramming}

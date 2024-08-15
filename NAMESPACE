@@ -393,8 +393,8 @@ export(getBinOpOperator)
 export(mkIRTemplate)
 
 
-export(getAncestorByKind)
+export(findAncestorByKind)
 export(findParentFunction)
-
+export(findEnclosingNamespace, findEnclosingClass)
 
 export(findAssignTo)
